@@ -3,14 +3,14 @@ import cucumber.runtime.StepDefinitionMatch;
 import gherkin.formatter.Formatter;
 import gherkin.formatter.Reporter;
 import gherkin.formatter.model.*;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -29,11 +29,12 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
     public static final String STEP_TAG_NAME = "step";
     public static final String STEPS_TAG_NAME = "steps";
     public static final String BACKGROUND_TAG_NAME = "background";
+    //public static final String WORKSPACE_DIR_NAME = "workspace";
     public static final String WORKSPACE_DIR_NAME = "test-classes";
 
     private Document _doc = null;
     private Element _rootElement = null;
-    private Writer _out;
+    private FileOutputStream _out;
     private ScenarioElement _currentScenario = null;
     private StepElement _currentStep = null;
     private FeatureElement _currentFeature = null;
@@ -44,7 +45,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             _doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             _rootElement = _doc.createElement(ROOT_TAG_NAME);
             _doc.appendChild(_rootElement);
-            _out = new FileWriter(RESULTS_FILE_NAME);
+            _out = new FileOutputStream(RESULTS_FILE_NAME);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -121,6 +122,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             URL url = GherkinNGAFormatter.class.getResource(GherkinNGAFormatter.class.getSimpleName() + ".class");
             File classFile = new File(url.toURI());
             File workspaceDir = getWorkspaceDirFromPath(classFile);
+
             //get the .feature file
             File featureFile = new FileFinder().findFile(workspaceDir, featureFileSubPath);
             byte[] encoded = Files.readAllBytes(featureFile.toPath());
@@ -240,12 +242,12 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
     @Override
     public void done() {
         try {
-            TransformerFactory transfac = TransformerFactory.newInstance();
-            Transformer trans = transfac.newTransformer();
-            trans.setOutputProperty(OutputKeys.INDENT, "yes");
-            StreamResult result = new StreamResult(_out);
-            DOMSource source = new DOMSource(_doc);
-            trans.transform(source, result);
+            DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
+            DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
+            LSSerializer serializer = impl.createLSSerializer();
+            LSOutput output = impl.createLSOutput();
+            output.setByteStream(_out);
+            serializer.write(_doc, output);
         } catch (Exception e) {
             e.printStackTrace();
         }
