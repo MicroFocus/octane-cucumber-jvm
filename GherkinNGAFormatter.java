@@ -1,4 +1,3 @@
-import cucumber.runtime.CucumberException;
 import cucumber.runtime.StepDefinitionMatch;
 import gherkin.formatter.Formatter;
 import gherkin.formatter.Reporter;
@@ -11,10 +10,14 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,8 +32,10 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
     public static final String STEP_TAG_NAME = "step";
     public static final String STEPS_TAG_NAME = "steps";
     public static final String BACKGROUND_TAG_NAME = "background";
-    //public static final String WORKSPACE_DIR_NAME = "workspace";
-    public static final String WORKSPACE_DIR_NAME = "test-classes";
+    // workspace is the name of the workspace folder Jenkins creates when it executes tests
+    // when running locally there is no workspace folder and therefore the NGAFormatter will not be generate a report
+    // in order to generate the report please change the WORKSPACE_DIR_NAME to your project root folder name
+    public static final String WORKSPACE_DIR_NAME = "workspace";
 
     private Document _doc = null;
     private Element _rootElement = null;
@@ -39,13 +44,13 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
     private StepElement _currentStep = null;
     private FeatureElement _currentFeature = null;
     private List<StepElement> _backgroundSteps = null;
+    private File featureFile = null;
 
     public GherkinNGAFormatter() {
         try {
             _doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             _rootElement = _doc.createElement(ROOT_TAG_NAME);
             _doc.appendChild(_rootElement);
-            _out = new FileOutputStream(RESULTS_FILE_NAME);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -73,6 +78,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
         }
 
         _currentFeature.setName(feature.getName());
+        _currentFeature.setStarted(Instant.now().toEpochMilli());
     }
 
     @Override
@@ -124,7 +130,10 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             File workspaceDir = getWorkspaceDirFromPath(classFile);
 
             //get the .feature file
-            File featureFile = new FileFinder().findFile(workspaceDir, featureFileSubPath);
+            featureFile = new FileFinder().findFile(workspaceDir, featureFileSubPath);
+            if (featureFile == null) {
+                return;
+            }
             byte[] encoded = Files.readAllBytes(featureFile.toPath());
             String fileStr = new String(encoded, StandardCharsets.UTF_8);
             _currentFeature.setPath(featureFile.getPath().substring(workspaceDir.getPath().length() + 1));
@@ -185,7 +194,8 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             } else if (_resultFiles.size() > 1) {
                 return getFileToUseOutOfMultipleResults(_resultFiles);
             } else {
-                throw new CucumberException("Didn't find the feature file " + fileName + " in the path: " + rootDir);
+                System.out.println("Feature file was not found. NGA report will not be generated. Please make sure the WORKSPACE_DIR_NAME is configured properly");
+                return null;
             }
         }
 
@@ -228,9 +238,6 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
 
         while (file != null && !file.getAbsolutePath().endsWith(WORKSPACE_DIR_NAME)) {
             try {
-                PrintWriter printWriter = new PrintWriter("C:/Hanan1.txt", "utf-8");
-                printWriter.print(file.getParentFile());
-                printWriter.close();
                 file = file.getParentFile();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -242,10 +249,15 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
     @Override
     public void done() {
         try {
+            if (featureFile == null) {
+                // feature file was not found -> do not generate report
+                return;
+            }
             DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
             DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
             LSSerializer serializer = impl.createLSSerializer();
             LSOutput output = impl.createLSOutput();
+            _out = new FileOutputStream(RESULTS_FILE_NAME);
             output.setByteStream(_out);
             serializer.write(_doc, output);
         } catch (Exception e) {
@@ -284,6 +296,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
         private String _name;
         private String _path;
         private String _file;
+        private Long _started;
         private List<ScenarioElement> _scenarios;
 
         FeatureElement() {
@@ -306,12 +319,17 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             this._file = file;
         }
 
+        public void setStarted(Long started) { this._started = started; }
+
         public Element toXMLElement() {
             Element feature = _doc.createElement(FEATURE_TAG_NAME);
 
             // Adding the feature members
             feature.setAttribute("name", _currentFeature._name);
             feature.setAttribute("path", _currentFeature._path);
+            if(_started != null) {
+                feature.setAttribute("started", _currentFeature._started.toString());
+            }
 
             // Adding the file to the feature
             Element fileElement = _doc.createElement(FILE_TAG_NAME);
@@ -414,6 +432,4 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             return step;
         }
     }
-
-
 }
