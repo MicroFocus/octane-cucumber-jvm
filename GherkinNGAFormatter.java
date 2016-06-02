@@ -119,6 +119,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
     @Override
     public void endOfScenarioLifeCycle(Scenario scenario) {
         _currentFeature.getScenarios().add(_currentScenario);
+        _currentFeature.getBackgroundSteps().addAll(_backgroundSteps);
         _currentScenario = null;
     }
 
@@ -292,19 +293,25 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
         Element toXMLElement();
     }
 
-    private class FeatureElement implements GherkinSerializer {
+    protected class FeatureElement implements GherkinSerializer {
         private String _name;
         private String _path;
         private String _file;
         private Long _started;
         private List<ScenarioElement> _scenarios;
+        private List<StepElement> _backgroundSteps;
 
         FeatureElement() {
             _scenarios = new ArrayList<ScenarioElement>();
+            _backgroundSteps = new ArrayList<StepElement>();
         }
 
         public List<ScenarioElement> getScenarios() {
             return _scenarios;
+        }
+
+        public List<StepElement> getBackgroundSteps() {
+            return _backgroundSteps;
         }
 
         public void setName(String name) {
@@ -325,15 +332,15 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             Element feature = _doc.createElement(FEATURE_TAG_NAME);
 
             // Adding the feature members
-            feature.setAttribute("name", _currentFeature._name);
-            feature.setAttribute("path", _currentFeature._path);
-            if(_started != null) {
-                feature.setAttribute("started", _currentFeature._started.toString());
+            feature.setAttribute("name", _name);
+            feature.setAttribute("path", _path);
+            if (_started != null) {
+                feature.setAttribute("started", _started.toString());
             }
 
             // Adding the file to the feature
             Element fileElement = _doc.createElement(FILE_TAG_NAME);
-            fileElement.appendChild(_doc.createCDATASection(_currentFeature._file));
+            fileElement.appendChild(_doc.createCDATASection(_file));
             feature.appendChild(fileElement);
 
             Element scenariosElement = _doc.createElement(SCENARIOS_TAG_NAME);
@@ -363,10 +370,9 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
         }
     }
 
-    private class ScenarioElement implements GherkinSerializer {
+    protected class ScenarioElement implements GherkinSerializer {
         private String _name;
         private List<StepElement> _steps;
-        private List<StepElement> _backgroundSteps;
 
         ScenarioElement(String name) {
             _name = name;
@@ -394,7 +400,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
         }
     }
 
-    private class StepElement implements GherkinSerializer {
+    protected class StepElement implements GherkinSerializer {
         private String _name;
         private String _status;
         private Integer _line;
