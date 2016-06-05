@@ -53,38 +53,59 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             _rootElement = _doc.createElement(ROOT_TAG_NAME);
             _doc.appendChild(_rootElement);
         } catch (Exception e) {
+            //formatter must never throw an exception
             e.printStackTrace();
         }
     }
 
     @Override
     public void syntaxError(String s, String s1, List<String> list, String s2, Integer integer) {
+        try {
 
+        } catch (Exception e) {
+            //formatter must never throw an exception
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void uri(String uri) {
-        // Creating the node for the next feature to run
-        if (_currentFeature == null) {
-            _currentFeature = new FeatureElement();
-        }
+        try {
+            // Creating the node for the next feature to run
+            if (_currentFeature == null) {
+                _currentFeature = new FeatureElement();
+            }
 
-        appendFeatureFile(uri);
+            appendFeatureFile(uri);
+        } catch (Exception e) {
+            //formatter must never throw an exception
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void feature(Feature feature) {
-        if (_currentFeature == null) {
-            _currentFeature = new FeatureElement();
-        }
+        try {
+            if (_currentFeature == null) {
+                _currentFeature = new FeatureElement();
+            }
 
-        _currentFeature.setName(feature.getName());
-        _currentFeature.setStarted(Instant.now().toEpochMilli());
+            _currentFeature.setName(feature.getName());
+            _currentFeature.setStarted(Instant.now().toEpochMilli());
+        } catch (Exception e) {
+            //formatter must never throw an exception
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void scenarioOutline(ScenarioOutline scenarioOutline) {
-        _scenarioOutlineIndex = 1;
+        try {
+            _scenarioOutlineIndex = 1;
+        } catch (Exception e) {
+            //formatter must never throw an exception
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -99,43 +120,62 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
 
     @Override
     public void background(Background background) {
-        _backgroundSteps = new ArrayList<StepElement>();
+        try {
+            _backgroundSteps = new ArrayList<StepElement>();
+        } catch (Exception e) {
+            //formatter must never throw an exception
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void scenario(Scenario scenario) {
-        if(_scenarioOutlineIndex!=null && scenario.getKeyword().compareTo("Scenario Outline")==0){
-            //scenario outline
-            _currentScenario = new ScenarioElement(scenario.getName(),_scenarioOutlineIndex++);
-        } else {
-            //this is a simple scenario
-            _currentScenario = new ScenarioElement(scenario.getName());
-            _scenarioOutlineIndex = null;
+        try {
+            if(_scenarioOutlineIndex!=null && scenario.getKeyword().compareTo("Scenario Outline")==0){
+                //scenario outline
+                _currentScenario = new ScenarioElement(scenario.getName(),_scenarioOutlineIndex++);
+            } else {
+                //this is a simple scenario
+                _currentScenario = new ScenarioElement(scenario.getName());
+                _scenarioOutlineIndex = null;
+            }
+        } catch (Exception e) {
+            //formatter must never throw an exception
+            e.printStackTrace();
         }
-
     }
 
     @Override
     public void step(Step step) {
-        if(_scenarioOutlineIndex!=null && _scenarioOutlineIndex == 1){
-            //inside the generic scenario outline
-            // no need to keep generic steps - skip them
-            return;
-        }
+        try {
+            if(_scenarioOutlineIndex!=null && _scenarioOutlineIndex == 1){
+                //inside the generic scenario outline
+                // no need to keep generic steps - skip them
+                return;
+            }
 
-        StepElement currentStep = new StepElement(step);
-        if (_currentScenario != null) {
-            _currentScenario.getSteps().add(currentStep);
-        } else if (_backgroundSteps != null) {
-            _backgroundSteps.add(currentStep);
+            StepElement currentStep = new StepElement(step);
+            if (_currentScenario != null) {
+                _currentScenario.getSteps().add(currentStep);
+            } else if (_backgroundSteps != null) {
+                _backgroundSteps.add(currentStep);
+            }
+        } catch (Exception e) {
+            //formatter must never throw an exception
+            e.printStackTrace();
         }
     }
 
     @Override
     public void endOfScenarioLifeCycle(Scenario scenario) {
-        _currentFeature.getScenarios().add(_currentScenario);
-        _currentFeature.getBackgroundSteps().addAll(_backgroundSteps);
-        _currentScenario = null;
+        try {
+            _currentFeature.getScenarios().add(_currentScenario);
+            _currentFeature.getBackgroundSteps().addAll(_backgroundSteps);
+            _currentScenario = null;
+        } catch (Exception e) {
+            //formatter must never throw an exception
+            e.printStackTrace();
+        }
     }
 
     private void appendFeatureFile(String featureFileSubPath) {
@@ -155,6 +195,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             _currentFeature.setPath(featureFile.getPath().substring(workspaceDir.getPath().length() + 1));
             _currentFeature.setFile(fileStr);
         } catch (Exception e) {
+            //formatter must never throw an exception
             e.printStackTrace();
         }
     }
@@ -166,10 +207,15 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
 
     @Override
     public void result(Result result) {
-        if (_currentStep != null) {
-            _currentStep.setStatus(result.getStatus());
-            _currentStep.setDuration(result.getDuration());
-            _currentStep = null;
+        try {
+            if (_currentStep != null) {
+                _currentStep.setStatus(result.getStatus());
+                _currentStep.setDuration(result.getDuration());
+                _currentStep = null;
+            }
+        } catch (Exception e) {
+            //formatter must never throw an exception
+            e.printStackTrace();
         }
     }
 
@@ -180,13 +226,18 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
 
     @Override
     public void match(Match match) {
-        if (_currentScenario != null) {
-            for (StepElement step : _currentScenario._steps) {
-                // Checking if it's the same step
-                if (step.getLine() == ((StepDefinitionMatch) match).getStepLocation().getLineNumber()) {
-                    _currentStep = step;
+        try {
+            if (_currentScenario != null) {
+                for (StepElement step : _currentScenario._steps) {
+                    // Checking if it's the same step
+                    if (step.getLine() == ((StepDefinitionMatch) match).getStepLocation().getLineNumber()) {
+                        _currentStep = step;
+                    }
                 }
             }
+        } catch (Exception e) {
+            //formatter must never throw an exception
+            e.printStackTrace();
         }
     }
 
@@ -277,6 +328,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             output.setByteStream(_out);
             serializer.write(_doc, output);
         } catch (Exception e) {
+            //formatter must never throw an exception
             e.printStackTrace();
         }
     }
@@ -288,19 +340,25 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
                 _out.close();
             }
         } catch (IOException e) {
+            //formatter must never throw an exception
             e.printStackTrace();
         }
     }
 
     @Override
     public void eof() {
-        if (_currentFeature != null) {
-            _rootElement.appendChild(_currentFeature.toXMLElement());
+        try {
+            if (_currentFeature != null) {
+                _rootElement.appendChild(_currentFeature.toXMLElement());
 
-            _currentFeature = null;
-            _currentScenario = null;
-            _currentStep = null;
-            _backgroundSteps = null;
+                _currentFeature = null;
+                _currentScenario = null;
+                _currentStep = null;
+                _backgroundSteps = null;
+            }
+        } catch (Exception e) {
+            //formatter must never throw an exception
+            e.printStackTrace();
         }
     }
 
