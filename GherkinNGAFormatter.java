@@ -45,6 +45,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
     private FeatureElement _currentFeature = null;
     private List<StepElement> _backgroundSteps = null;
     private File featureFile = null;
+    private Integer _scenarioOutlineIndex = null;
 
     public GherkinNGAFormatter() {
         try {
@@ -83,7 +84,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
 
     @Override
     public void scenarioOutline(ScenarioOutline scenarioOutline) {
-
+        _scenarioOutlineIndex = 1;
     }
 
     @Override
@@ -103,11 +104,25 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
 
     @Override
     public void scenario(Scenario scenario) {
-        _currentScenario = new ScenarioElement(scenario.getName());
+        if(_scenarioOutlineIndex!=null && scenario.getKeyword().compareTo("Scenario Outline")==0){
+            //scenario outline
+            _currentScenario = new ScenarioElement(scenario.getName(),_scenarioOutlineIndex++);
+        } else {
+            //this is a simple scenario
+            _currentScenario = new ScenarioElement(scenario.getName());
+            _scenarioOutlineIndex = null;
+        }
+
     }
 
     @Override
     public void step(Step step) {
+        if(_scenarioOutlineIndex!=null && _scenarioOutlineIndex == 1){
+            //inside the generic scenario outline
+            // no need to keep generic steps - skip them
+            return;
+        }
+
         StepElement currentStep = new StepElement(step);
         if (_currentScenario != null) {
             _currentScenario.getSteps().add(currentStep);
@@ -346,7 +361,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             Element scenariosElement = _doc.createElement(SCENARIOS_TAG_NAME);
 
             // Serializing the background
-            if (_backgroundSteps != null) {
+            if (_backgroundSteps != null && _backgroundSteps.size()>0) {
                 Element backgroundElement = _doc.createElement(BACKGROUND_TAG_NAME);
                 Element backgroundStepsElement = _doc.createElement(STEPS_TAG_NAME);
                 backgroundElement.appendChild(backgroundStepsElement);
@@ -373,6 +388,12 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
     protected class ScenarioElement implements GherkinSerializer {
         private String _name;
         private List<StepElement> _steps;
+        private Integer _outlineIndex = 0;
+
+        ScenarioElement(String name, int outlineIndex) {
+            this(name);
+            _outlineIndex = outlineIndex;
+        }
 
         ScenarioElement(String name) {
             _name = name;
@@ -387,6 +408,9 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             // Adding the feature members
             Element scenario = _doc.createElement(SCENARIO_TAG_NAME);
             scenario.setAttribute("name", _name);
+            if(_outlineIndex>0){
+                scenario.setAttribute("outlineIndex", _outlineIndex.toString());
+            }
 
             // Serializing the steps
             Element steps = _doc.createElement(STEPS_TAG_NAME);

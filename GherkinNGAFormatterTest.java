@@ -17,6 +17,11 @@ public class GherkinNGAFormatterTest {
     private Long stepDuration = Long.parseLong("1111111");
     private String path = "src\\test\\java\\G2_10033.feature";
     private String featureName = "Some terse yet descriptive text of what is desired like bla bla";
+
+    private String backgroundStep1 = "Given a global administrator named \"Greg\"";
+    private String backgroundStep2 = "And a blog named \"Greg's anti-tax rants\"";
+    private String backgroundStep3 = "And a customer named \"Wilson\"";
+
     private String scenarioName1 = "Some determinable business situation";
     private String scenario1Step1 = "Given the following people exist: Aila and Joe";
     private String scenario1Step2 = "And some precondition 1";
@@ -24,14 +29,22 @@ public class GherkinNGAFormatterTest {
     private String scenario1Step4 = "And some other action";
     private String scenario1Step5 = "Then some testable outcome is achieved";
     private String scenario1Step6 = "And something else we can check happens too";
+
     private String scenarioName2 = "Some another scenario 2";
     private String scenario2Step1 = "Given some precondition";
     private String scenario2Step2 = "When some action by the actor";
     private String scenario2Step3 = "Then some testable outcome is achieved";
     private String scenario2Step4 = "But I don't see something else";
-    private String backgroundStep1 = "Given a global administrator named \"Greg\"";
-    private String backgroundStep2 = "And a blog named \"Greg's anti-tax rants\"";
-    private String backgroundStep3 = "And a customer named \"Wilson\"";
+
+    private String scenarioOutline = "feeding a cow";
+    private String scenarioOutlineStep1 = "Given the cow weighs %s kg";
+    private String scenarioOutlineStep2 = "When we calculate the feeding requirements";
+    private String scenarioOutlineStep3 = "Then the energy should be %s MJ";
+    private String scenarioOutlineWeight1 = "125";
+    private String scenarioOutlineWeight2 = "135";
+    private String scenarioOutlineEnergy1 = "26500";
+    private String scenarioOutlineEnergy2 = "29500";
+
     private String gherkinScript = "[#Auto generated NGA revision tag\n" +
             "@TID1003REV0.4.0\n" +
             "@billing @bicker @annoy\n" +
@@ -55,9 +68,16 @@ public class GherkinNGAFormatterTest {
                                             scenario2Step1 + "\n" +
                                             scenario2Step2 + "\n" +
                                             scenario2Step3 + "\n" +
-                                            scenario2Step4 + "\n";
-
-    //<background><steps><step duration="0" name="Given a global administrator named &quot;Greg&quot;"/><step duration="0" name="And a blog named &quot;Greg's anti-tax rants&quot;"/><step duration="0" name="And a customer named &quot;Wilson&quot;"/></steps></background>
+                                            scenario2Step4 + "\n" +
+            "               Scenario Outline: " + scenarioOutline + "\n" +
+                                            String.format(scenarioOutlineStep1, "<weight>") + "\n" +
+                                            scenarioOutlineStep2 + "\n" +
+                                            String.format(scenarioOutlineStep3, "<energy>") + "\n" +
+            "\n" +
+            "               Examples:\n" +
+            "                   | weight | energy |\n" +
+            "                   |  "+scenarioOutlineWeight1+"   |  "+scenarioOutlineEnergy1+" |\n" +
+            "                   |  "+scenarioOutlineWeight2+"   |  "+scenarioOutlineEnergy2+" |\n";
 
     private String gherkinNGAResultsXml = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n" +
                 "<feature name=\""+featureName+"\" path=\""+path+"\" started=\""+started+"\">"+
@@ -88,6 +108,20 @@ public class GherkinNGAFormatterTest {
                                 "<step duration=\"0\" name=\""+scenario2Step4+"\" status=\"skipped\"/>" +
                             "</steps>" +
                         "</scenario>" +
+                        "<scenario name=\""+scenarioOutline+"\" outlineIndex=\"1\">" +
+                            "<steps>" +
+                                "<step duration=\""+(stepDuration+11)+"\" name=\""+ String.format(scenarioOutlineStep1, scenarioOutlineWeight1)+"\" status=\"passed\"/>" +
+                                "<step duration=\""+(stepDuration+12)+"\" name=\""+scenarioOutlineStep2+"\" status=\"passed\"/>" +
+                                "<step duration=\""+(stepDuration+13)+"\" name=\""+ String.format(scenarioOutlineStep3, scenarioOutlineEnergy1)+"\" status=\"passed\"/>" +
+                            "</steps>" +
+                        "</scenario>" +
+                        "<scenario name=\""+scenarioOutline+"\" outlineIndex=\"2\">" +
+                            "<steps>" +
+                                "<step duration=\""+(stepDuration+14)+"\" name=\""+ String.format(scenarioOutlineStep1, scenarioOutlineWeight2)+"\" status=\"passed\"/>" +
+                                "<step duration=\""+(stepDuration+15)+"\" name=\""+scenarioOutlineStep2+"\" status=\"passed\"/>" +
+                                "<step duration=\""+(stepDuration+16)+"\" name=\""+ String.format(scenarioOutlineStep3, scenarioOutlineEnergy2)+"\" status=\"passed\"/>" +
+                            "</steps>" +
+                        "</scenario>" +
                     "</scenarios>" +
                 "</feature>";
 
@@ -112,6 +146,16 @@ public class GherkinNGAFormatterTest {
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step3,3,skipped,(long)0));
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step4,4,skipped,(long)0));
 
+        GherkinNGAFormatter.ScenarioElement scenarioOutlineElement1 =  gherkinNGAFormatter.new ScenarioElement(scenarioOutline,1);
+        scenarioOutlineElement1.getSteps().add(createStepElement("", String.format(scenarioOutlineStep1,scenarioOutlineWeight1),1,passed,stepDuration+11));
+        scenarioOutlineElement1.getSteps().add(createStepElement("",scenarioOutlineStep2,2,passed,stepDuration+12));
+        scenarioOutlineElement1.getSteps().add(createStepElement("", String.format(scenarioOutlineStep3, scenarioOutlineEnergy1),3,passed,stepDuration+13));
+
+        GherkinNGAFormatter.ScenarioElement scenarioOutlineElement2 =  gherkinNGAFormatter.new ScenarioElement(scenarioOutline,2);
+        scenarioOutlineElement2.getSteps().add(createStepElement("", String.format(scenarioOutlineStep1,scenarioOutlineWeight2),1,passed,stepDuration+14));
+        scenarioOutlineElement2.getSteps().add(createStepElement("",scenarioOutlineStep2,2,passed,stepDuration+15));
+        scenarioOutlineElement2.getSteps().add(createStepElement("", String.format(scenarioOutlineStep3, scenarioOutlineEnergy2),3,passed,stepDuration+16));
+
         GherkinNGAFormatter.FeatureElement featureElement = gherkinNGAFormatter.new FeatureElement();
         featureElement.setName(featureName);
         featureElement.setStarted(started);
@@ -124,6 +168,8 @@ public class GherkinNGAFormatterTest {
 
         featureElement.getScenarios().add(scenarioElement1);
         featureElement.getScenarios().add(scenarioElement2);
+        featureElement.getScenarios().add(scenarioOutlineElement1);
+        featureElement.getScenarios().add(scenarioOutlineElement2);
 
         Assert.assertEquals(gherkinNGAResultsXml,elementToString(featureElement.toXMLElement()));
     }
