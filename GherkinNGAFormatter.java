@@ -170,7 +170,9 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
     public void endOfScenarioLifeCycle(Scenario scenario) {
         try {
             _currentFeature.getScenarios().add(_currentScenario);
-            _currentFeature.getBackgroundSteps().addAll(_backgroundSteps);
+            if(_backgroundSteps!=null){
+                _currentFeature.getBackgroundSteps().addAll(_backgroundSteps);
+            }
             _currentScenario = null;
         } catch (Exception e) {
             //formatter must never throw an exception
