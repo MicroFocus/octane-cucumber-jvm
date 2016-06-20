@@ -4,8 +4,8 @@ import org.junit.runners.model.InitializationError;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.lang.reflect.Proxy;
+import java.util.*;
 
 public class OctaneCucumber extends Cucumber {
     private String OCTANE_FORMATTER = "HPEAlmOctaneGherkinFormatter";
@@ -26,6 +26,26 @@ public class OctaneCucumber extends Cucumber {
         super(clazz);
         CucumberOptions cucumberOptions = (CucumberOptions) clazz.getAnnotation(CucumberOptions.class);
         features = cucumberOptions.features();
+        addFormatterToOptions(cucumberOptions);
+    }
+
+    private void addFormatterToOptions(CucumberOptions cucumberOptions) {
+        try {
+            Object handler = Proxy.getInvocationHandler(cucumberOptions);
+            Field memberValuesField = handler.getClass().getDeclaredField("memberValues");
+            memberValuesField.setAccessible(true);
+            Map<String, Object> memberValues = (Map<String, Object>) memberValuesField.get(handler);
+            String[] originalPlugins = (String[]) memberValues.get("plugin");
+
+            List<String> newPlugins = originalPlugins == null ? new ArrayList<>() : new ArrayList(Arrays.asList(originalPlugins));
+            if (newPlugins.contains(OCTANE_FORMATTER)) {
+                return;
+            }
+            newPlugins.add(OCTANE_FORMATTER);
+            String[] result = new String[newPlugins.size()];
+            memberValues.put("plugin", newPlugins.toArray(result));
+        } catch (Exception e) {
+            System.out.println("Failed to add formatter to plugin: " + e);
+        }
     }
 }
-
