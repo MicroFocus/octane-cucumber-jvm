@@ -8,8 +8,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
-public class GherkinNGAFormatterTest {
-    private GherkinNGAFormatter gherkinNGAFormatter;
+public class HPEAlmOctaneGherkinFormatterTest {
+    private HPEAlmOctaneGherkinFormatter formatter;
     private String passed = "passed";
     private String skipped = "skipped";
     private String failed = "failed";
@@ -58,21 +58,21 @@ public class GherkinNGAFormatterTest {
             "                              And a customer named \"Wilson\"" +
             "\n" +
             "               Scenario: " + scenarioName1 + "\n" +
-                                            scenario1Step2 + "\n" +
-                                            scenario1Step3 + "\n" +
-                                            scenario1Step4 + "\n" +
-                                            scenario1Step5 + "\n" +
-                                            scenario1Step6 + "\n" +
+            scenario1Step2 + "\n" +
+            scenario1Step3 + "\n" +
+            scenario1Step4 + "\n" +
+            scenario1Step5 + "\n" +
+            scenario1Step6 + "\n" +
             "               Scenario: " + scenarioName2 + "\n" +
-                                            "This is scenario 2 description\n" +
-                                            scenario2Step1 + "\n" +
-                                            scenario2Step2 + "\n" +
-                                            scenario2Step3 + "\n" +
-                                            scenario2Step4 + "\n" +
+            "This is scenario 2 description\n" +
+            scenario2Step1 + "\n" +
+            scenario2Step2 + "\n" +
+            scenario2Step3 + "\n" +
+            scenario2Step4 + "\n" +
             "               Scenario Outline: " + scenarioOutline + "\n" +
-                                            String.format(scenarioOutlineStep1, "<weight>") + "\n" +
-                                            scenarioOutlineStep2 + "\n" +
-                                            String.format(scenarioOutlineStep3, "<energy>") + "\n" +
+            String.format(scenarioOutlineStep1, "<weight>") + "\n" +
+            scenarioOutlineStep2 + "\n" +
+            String.format(scenarioOutlineStep3, "<energy>") + "\n" +
             "\n" +
             "               Examples:\n" +
             "                   | weight | energy |\n" +
@@ -80,59 +80,59 @@ public class GherkinNGAFormatterTest {
             "                   |  "+scenarioOutlineWeight2+"   |  "+scenarioOutlineEnergy2+" |\n";
 
     private String gherkinNGAResultsXml = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n" +
-                "<feature name=\""+featureName+"\" path=\""+path+"\" started=\""+started+"\">"+
-                    "<file><![CDATA[" + gherkinScript +"]]></file>"+
-                    "<scenarios>" +
-                        "<background>" +
-                            "<steps>" +
-                                "<step duration=\""+(stepDuration+8)+"\" name=\""+backgroundStep1.replace("\"","&quot;")+"\" status=\"passed\"/>" +
-                                "<step duration=\""+(stepDuration+9)+"\" name=\""+backgroundStep2.replace("\"","&quot;")+"\" status=\"passed\"/>" +
-                                "<step duration=\""+(stepDuration+10)+"\" name=\""+backgroundStep3.replace("\"","&quot;")+"\" status=\"passed\"/>" +
-                            "</steps>" +
-                        "</background>" +
-                        "<scenario name=\""+scenarioName1+"\">" +
-                            "<steps>" +
-                                "<step duration=\""+(stepDuration+1)+"\" name=\""+scenario1Step1+"\" status=\"passed\"/>" +
-                                "<step duration=\""+(stepDuration+2)+"\" name=\""+scenario1Step2+"\" status=\"passed\"/>" +
-                                "<step duration=\""+(stepDuration+3)+"\" name=\""+scenario1Step3+"\" status=\"passed\"/>" +
-                                "<step duration=\""+(stepDuration+4)+"\" name=\""+scenario1Step4+"\" status=\"passed\"/>" +
-                                "<step duration=\""+(stepDuration+5)+"\" name=\""+scenario1Step5+"\" status=\"passed\"/>" +
-                                "<step duration=\""+(stepDuration+6)+"\" name=\""+scenario1Step6+"\" status=\"passed\"/>" +
-                            "</steps>" +
-                        "</scenario>" +
-                        "<scenario name=\""+scenarioName2+"\">" +
-                            "<steps>" +
-                                "<step duration=\""+(stepDuration+7)+"\" name=\""+scenario2Step1+"\" status=\"failed\"/>" +
-                                "<step duration=\"0\" name=\""+scenario2Step2+"\" status=\"skipped\"/>" +
-                                "<step duration=\"0\" name=\""+scenario2Step3+"\" status=\"skipped\"/>" +
-                                "<step duration=\"0\" name=\""+scenario2Step4+"\" status=\"skipped\"/>" +
-                            "</steps>" +
-                        "</scenario>" +
-                        "<scenario name=\""+scenarioOutline+"\" outlineIndex=\"1\">" +
-                            "<steps>" +
-                                "<step duration=\""+(stepDuration+11)+"\" name=\""+ String.format(scenarioOutlineStep1, scenarioOutlineWeight1)+"\" status=\"passed\"/>" +
-                                "<step duration=\""+(stepDuration+12)+"\" name=\""+scenarioOutlineStep2+"\" status=\"passed\"/>" +
-                                "<step duration=\""+(stepDuration+13)+"\" name=\""+ String.format(scenarioOutlineStep3, scenarioOutlineEnergy1)+"\" status=\"passed\"/>" +
-                            "</steps>" +
-                        "</scenario>" +
-                        "<scenario name=\""+scenarioOutline+"\" outlineIndex=\"2\">" +
-                            "<steps>" +
-                                "<step duration=\""+(stepDuration+14)+"\" name=\""+ String.format(scenarioOutlineStep1, scenarioOutlineWeight2)+"\" status=\"passed\"/>" +
-                                "<step duration=\""+(stepDuration+15)+"\" name=\""+scenarioOutlineStep2+"\" status=\"passed\"/>" +
-                                "<step duration=\""+(stepDuration+16)+"\" name=\""+ String.format(scenarioOutlineStep3, scenarioOutlineEnergy2)+"\" status=\"passed\"/>" +
-                            "</steps>" +
-                        "</scenario>" +
-                    "</scenarios>" +
-                "</feature>";
+            "<feature name=\""+featureName+"\" path=\""+path+"\" started=\""+started+"\">"+
+            "<file><![CDATA[" + gherkinScript +"]]></file>"+
+            "<scenarios>" +
+            "<background>" +
+            "<steps>" +
+            "<step duration=\""+(stepDuration+8)+"\" name=\""+backgroundStep1.replace("\"","&quot;")+"\" status=\"passed\"/>" +
+            "<step duration=\""+(stepDuration+9)+"\" name=\""+backgroundStep2.replace("\"","&quot;")+"\" status=\"passed\"/>" +
+            "<step duration=\""+(stepDuration+10)+"\" name=\""+backgroundStep3.replace("\"","&quot;")+"\" status=\"passed\"/>" +
+            "</steps>" +
+            "</background>" +
+            "<scenario name=\""+scenarioName1+"\">" +
+            "<steps>" +
+            "<step duration=\""+(stepDuration+1)+"\" name=\""+scenario1Step1+"\" status=\"passed\"/>" +
+            "<step duration=\""+(stepDuration+2)+"\" name=\""+scenario1Step2+"\" status=\"passed\"/>" +
+            "<step duration=\""+(stepDuration+3)+"\" name=\""+scenario1Step3+"\" status=\"passed\"/>" +
+            "<step duration=\""+(stepDuration+4)+"\" name=\""+scenario1Step4+"\" status=\"passed\"/>" +
+            "<step duration=\""+(stepDuration+5)+"\" name=\""+scenario1Step5+"\" status=\"passed\"/>" +
+            "<step duration=\""+(stepDuration+6)+"\" name=\""+scenario1Step6+"\" status=\"passed\"/>" +
+            "</steps>" +
+            "</scenario>" +
+            "<scenario name=\""+scenarioName2+"\">" +
+            "<steps>" +
+            "<step duration=\""+(stepDuration+7)+"\" name=\""+scenario2Step1+"\" status=\"failed\"/>" +
+            "<step duration=\"0\" name=\""+scenario2Step2+"\" status=\"skipped\"/>" +
+            "<step duration=\"0\" name=\""+scenario2Step3+"\" status=\"skipped\"/>" +
+            "<step duration=\"0\" name=\""+scenario2Step4+"\" status=\"skipped\"/>" +
+            "</steps>" +
+            "</scenario>" +
+            "<scenario name=\""+scenarioOutline+"\" outlineIndex=\"1\">" +
+            "<steps>" +
+            "<step duration=\""+(stepDuration+11)+"\" name=\""+ String.format(scenarioOutlineStep1, scenarioOutlineWeight1)+"\" status=\"passed\"/>" +
+            "<step duration=\""+(stepDuration+12)+"\" name=\""+scenarioOutlineStep2+"\" status=\"passed\"/>" +
+            "<step duration=\""+(stepDuration+13)+"\" name=\""+ String.format(scenarioOutlineStep3, scenarioOutlineEnergy1)+"\" status=\"passed\"/>" +
+            "</steps>" +
+            "</scenario>" +
+            "<scenario name=\""+scenarioOutline+"\" outlineIndex=\"2\">" +
+            "<steps>" +
+            "<step duration=\""+(stepDuration+14)+"\" name=\""+ String.format(scenarioOutlineStep1, scenarioOutlineWeight2)+"\" status=\"passed\"/>" +
+            "<step duration=\""+(stepDuration+15)+"\" name=\""+scenarioOutlineStep2+"\" status=\"passed\"/>" +
+            "<step duration=\""+(stepDuration+16)+"\" name=\""+ String.format(scenarioOutlineStep3, scenarioOutlineEnergy2)+"\" status=\"passed\"/>" +
+            "</steps>" +
+            "</scenario>" +
+            "</scenarios>" +
+            "</feature>";
 
     @Before
     public void init() {
-        gherkinNGAFormatter = new GherkinNGAFormatter();
+        formatter = new HPEAlmOctaneGherkinFormatter();
     }
 
     @Test
     public void testFeatureElementToXMLElement() {
-        GherkinNGAFormatter.ScenarioElement scenarioElement1 = gherkinNGAFormatter.new ScenarioElement(scenarioName1);
+        HPEAlmOctaneGherkinFormatter.ScenarioElement scenarioElement1 = formatter.new ScenarioElement(scenarioName1);
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step1,1,passed,stepDuration+1));
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step2,2,passed,stepDuration+2));
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step3,3,passed,stepDuration+3));
@@ -140,23 +140,23 @@ public class GherkinNGAFormatterTest {
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step5,5,passed,stepDuration+5));
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step6,6,passed,stepDuration+6));
 
-        GherkinNGAFormatter.ScenarioElement scenarioElement2 =  gherkinNGAFormatter.new ScenarioElement(scenarioName2);
+        HPEAlmOctaneGherkinFormatter.ScenarioElement scenarioElement2 =  formatter.new ScenarioElement(scenarioName2);
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step1,1,failed,stepDuration+7));
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step2,2,skipped,(long)0));
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step3,3,skipped,(long)0));
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step4,4,skipped,(long)0));
 
-        GherkinNGAFormatter.ScenarioElement scenarioOutlineElement1 =  gherkinNGAFormatter.new ScenarioElement(scenarioOutline,1);
+        HPEAlmOctaneGherkinFormatter.ScenarioElement scenarioOutlineElement1 =  formatter.new ScenarioElement(scenarioOutline,1);
         scenarioOutlineElement1.getSteps().add(createStepElement("", String.format(scenarioOutlineStep1,scenarioOutlineWeight1),1,passed,stepDuration+11));
         scenarioOutlineElement1.getSteps().add(createStepElement("",scenarioOutlineStep2,2,passed,stepDuration+12));
         scenarioOutlineElement1.getSteps().add(createStepElement("", String.format(scenarioOutlineStep3, scenarioOutlineEnergy1),3,passed,stepDuration+13));
 
-        GherkinNGAFormatter.ScenarioElement scenarioOutlineElement2 =  gherkinNGAFormatter.new ScenarioElement(scenarioOutline,2);
+        HPEAlmOctaneGherkinFormatter.ScenarioElement scenarioOutlineElement2 =  formatter.new ScenarioElement(scenarioOutline,2);
         scenarioOutlineElement2.getSteps().add(createStepElement("", String.format(scenarioOutlineStep1,scenarioOutlineWeight2),1,passed,stepDuration+14));
         scenarioOutlineElement2.getSteps().add(createStepElement("",scenarioOutlineStep2,2,passed,stepDuration+15));
         scenarioOutlineElement2.getSteps().add(createStepElement("", String.format(scenarioOutlineStep3, scenarioOutlineEnergy2),3,passed,stepDuration+16));
 
-        GherkinNGAFormatter.FeatureElement featureElement = gherkinNGAFormatter.new FeatureElement();
+        HPEAlmOctaneGherkinFormatter.FeatureElement featureElement = formatter.new FeatureElement();
         featureElement.setName(featureName);
         featureElement.setStarted(started);
         featureElement.setPath(path);
@@ -191,8 +191,8 @@ public class GherkinNGAFormatterTest {
         return step;
     }
 
-    private GherkinNGAFormatter.StepElement createStepElement(String keyword, String name, Integer line, String status, Long duration) {
-        GherkinNGAFormatter.StepElement stepElement = gherkinNGAFormatter.new StepElement(createStep(keyword, name, line));
+    private HPEAlmOctaneGherkinFormatter.StepElement createStepElement(String keyword, String name, Integer line, String status, Long duration) {
+        HPEAlmOctaneGherkinFormatter.StepElement stepElement = formatter.new StepElement(createStep(keyword, name, line));
         stepElement.setStatus(status);
         stepElement.setDuration(duration);
         return stepElement;

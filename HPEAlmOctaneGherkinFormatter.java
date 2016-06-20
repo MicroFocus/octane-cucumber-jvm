@@ -13,29 +13,23 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GherkinNGAFormatter implements Formatter, Reporter {
+public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
 
-    public static final String RESULTS_FILE_NAME = "gherkinNGAResults.xml_";
-    public static final String ROOT_TAG_NAME = "features";
-    public static final String FEATURE_TAG_NAME = "feature";
-    public static final String SCENARIO_TAG_NAME = "scenario";
-    public static final String SCENARIOS_TAG_NAME = "scenarios";
-    public static final String FILE_TAG_NAME = "file";
-    public static final String STEP_TAG_NAME = "step";
-    public static final String STEPS_TAG_NAME = "steps";
-    public static final String BACKGROUND_TAG_NAME = "background";
-    // workspace is the name of the workspace folder Jenkins creates when it executes tests
-    // when running locally there is no workspace folder and therefore the NGAFormatter will not be generate a report
-    // in order to generate the report please change the WORKSPACE_DIR_NAME to your project root folder name
-    public static final String WORKSPACE_DIR_NAME = "workspace";
+    private static final String RESULTS_FILE_NAME = "gherkinNGAResults.xml_";
+    private static final String ROOT_TAG_NAME = "features";
+    private static final String FEATURE_TAG_NAME = "feature";
+    private static final String SCENARIO_TAG_NAME = "scenario";
+    private static final String SCENARIOS_TAG_NAME = "scenarios";
+    private static final String FILE_TAG_NAME = "file";
+    private static final String STEP_TAG_NAME = "step";
+    private static final String STEPS_TAG_NAME = "steps";
+    private static final String BACKGROUND_TAG_NAME = "background";
 
     private Document _doc = null;
     private Element _rootElement = null;
@@ -47,7 +41,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
     private File featureFile = null;
     private Integer _scenarioOutlineIndex = null;
 
-    public GherkinNGAFormatter() {
+    public HPEAlmOctaneGherkinFormatter() {
         try {
             _doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             _rootElement = _doc.createElement(ROOT_TAG_NAME);
@@ -60,12 +54,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
 
     @Override
     public void syntaxError(String s, String s1, List<String> list, String s2, Integer integer) {
-        try {
 
-        } catch (Exception e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -121,7 +110,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
     @Override
     public void background(Background background) {
         try {
-            _backgroundSteps = new ArrayList<StepElement>();
+            _backgroundSteps = new ArrayList<>();
         } catch (Exception e) {
             //formatter must never throw an exception
             e.printStackTrace();
@@ -170,7 +159,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
     public void endOfScenarioLifeCycle(Scenario scenario) {
         try {
             _currentFeature.getScenarios().add(_currentScenario);
-            if(_backgroundSteps!=null){
+            if (_backgroundSteps != null) {
                 _currentFeature.getBackgroundSteps().addAll(_backgroundSteps);
             }
             _currentScenario = null;
@@ -180,21 +169,15 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
         }
     }
 
-    private void appendFeatureFile(String featureFileSubPath) {
+    private void appendFeatureFile(String featureFile) {
         try {
-            //Get current runtime location
-            URL url = GherkinNGAFormatter.class.getResource(GherkinNGAFormatter.class.getSimpleName() + ".class");
-            File classFile = new File(url.toURI());
-            File workspaceDir = getWorkspaceDirFromPath(classFile);
-
-            //get the .feature file
-            featureFile = new FileFinder().findFile(workspaceDir, featureFileSubPath);
-            if (featureFile == null) {
+            this.featureFile = new FileFinder().findFile(featureFile);
+            if (this.featureFile == null) {
                 return;
             }
-            byte[] encoded = Files.readAllBytes(featureFile.toPath());
+            byte[] encoded = Files.readAllBytes(this.featureFile.toPath());
             String fileStr = new String(encoded, StandardCharsets.UTF_8);
-            _currentFeature.setPath(featureFile.getPath().substring(workspaceDir.getPath().length() + 1));
+            _currentFeature.setPath(this.featureFile.getPath());
             _currentFeature.setFile(fileStr);
         } catch (Exception e) {
             //formatter must never throw an exception
@@ -256,14 +239,31 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
     private class FileFinder {
         private ArrayList<File> _resultFiles = new ArrayList<>();
 
-        public File findFile(File rootDir, String fileName) {
+        File findFile(String fileName) {
+            String[] features = OctaneCucumber.getFeatures();
+            if(features == null || features.length==0){
+                System.out.println("OctaneCucumber.features was not found.\nVerify that you are running you tests with the \"@RunWith(OctaneCucumber.class)\" annotation\nNGA report will not be generated.");
+                return null;
+            }
+
+            for(String root : features){
+                File file = findFile(new File(root), fileName);
+                if(file != null){
+                    return file;
+                }
+            }
+            System.out.println("File " + fileName + " was not found. NGA report will not be generated.");
+            return null;
+        }
+
+        File findFile(File rootDir, String fileName) {
             find(rootDir, fileName);
             if (_resultFiles.size() == 1) {
                 return _resultFiles.get(0);
             } else if (_resultFiles.size() > 1) {
                 return getFileToUseOutOfMultipleResults(_resultFiles);
             } else {
-                System.out.println("Feature file was not found. NGA report will not be generated. Please make sure the WORKSPACE_DIR_NAME is configured properly");
+                System.out.println("Feature file was not found. NGA report will not be generated.");
                 return null;
             }
         }
@@ -301,18 +301,6 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             //else - return the first one we found.
             return files.get(0);
         }
-    }
-
-    private static File getWorkspaceDirFromPath(File file) {
-
-        while (file != null && !file.getAbsolutePath().endsWith(WORKSPACE_DIR_NAME)) {
-            try {
-                file = file.getParentFile();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return file;
     }
 
     @Override
@@ -368,7 +356,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
         Element toXMLElement();
     }
 
-    protected class FeatureElement implements GherkinSerializer {
+    class FeatureElement implements GherkinSerializer {
         private String _name;
         private String _path;
         private String _file;
@@ -377,31 +365,31 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
         private List<StepElement> _backgroundSteps;
 
         FeatureElement() {
-            _scenarios = new ArrayList<ScenarioElement>();
-            _backgroundSteps = new ArrayList<StepElement>();
+            _scenarios = new ArrayList<>();
+            _backgroundSteps = new ArrayList<>();
         }
 
-        public List<ScenarioElement> getScenarios() {
+        List<ScenarioElement> getScenarios() {
             return _scenarios;
         }
 
-        public List<StepElement> getBackgroundSteps() {
+        List<StepElement> getBackgroundSteps() {
             return _backgroundSteps;
         }
 
-        public void setName(String name) {
+        void setName(String name) {
             this._name = name;
         }
 
-        public void setPath(String path) {
+        void setPath(String path) {
             this._path = path;
         }
 
-        public void setFile(String file) {
+        void setFile(String file) {
             this._file = file;
         }
 
-        public void setStarted(Long started) { this._started = started; }
+        void setStarted(Long started) { this._started = started; }
 
         public Element toXMLElement() {
             Element feature = _doc.createElement(FEATURE_TAG_NAME);
@@ -445,7 +433,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
         }
     }
 
-    protected class ScenarioElement implements GherkinSerializer {
+    class ScenarioElement implements GherkinSerializer {
         private String _name;
         private List<StepElement> _steps;
         private Integer _outlineIndex = 0;
@@ -457,10 +445,10 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
 
         ScenarioElement(String name) {
             _name = name;
-            _steps = new ArrayList<StepElement>();
+            _steps = new ArrayList<>();
         }
 
-        public List<StepElement> getSteps() {
+        List<StepElement> getSteps() {
             return _steps;
         }
 
@@ -484,7 +472,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
         }
     }
 
-    protected class StepElement implements GherkinSerializer {
+    class StepElement implements GherkinSerializer {
         private String _name;
         private String _status;
         private Integer _line;
@@ -495,16 +483,16 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             _line = step.getLine();
         }
 
-        public void setStatus(String status) {
+        void setStatus(String status) {
             this._status = status;
         }
 
-        public void setDuration(Long duration) {
+        void setDuration(Long duration) {
             this._duration = duration;
         }
 
 
-        public Integer getLine() {
+        Integer getLine() {
             return _line;
         }
 
@@ -512,7 +500,7 @@ public class GherkinNGAFormatter implements Formatter, Reporter {
             Element step = _doc.createElement(STEP_TAG_NAME);
 
             step.setAttribute("name", _name);
-            if (_status != null && _status != "") {
+            if (_status != null && !_status.isEmpty()) {
                 step.setAttribute("status", _status);
             }
 
