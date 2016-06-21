@@ -8,6 +8,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
+import java.util.ArrayList;
+
 public class HPEAlmOctaneGherkinFormatterTest {
     private HPEAlmOctaneGherkinFormatter formatter;
     private String passed = "passed";
@@ -127,7 +129,7 @@ public class HPEAlmOctaneGherkinFormatterTest {
 
     @Before
     public void init() {
-        formatter = new HPEAlmOctaneGherkinFormatter();
+        formatter = new HPEAlmOctaneGherkinFormatter(null,new ArrayList<String>());
     }
 
     @Test

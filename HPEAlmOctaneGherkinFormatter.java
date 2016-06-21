@@ -1,4 +1,9 @@
+import cucumber.runtime.FeatureBuilder;
 import cucumber.runtime.StepDefinitionMatch;
+import cucumber.runtime.io.FileResource;
+import cucumber.runtime.io.Resource;
+import cucumber.runtime.io.ResourceLoader;
+import cucumber.runtime.model.CucumberFeature;
 import gherkin.formatter.Formatter;
 import gherkin.formatter.Reporter;
 import gherkin.formatter.model.*;
@@ -38,11 +43,14 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     private StepElement _currentStep = null;
     private FeatureElement _currentFeature = null;
     private List<StepElement> _backgroundSteps = null;
-    private File featureFile = null;
     private Integer _scenarioOutlineIndex = null;
+    private List<String> cucumberFeatures;
+    private ResourceLoader cucumberResourceLoader;
 
-    public HPEAlmOctaneGherkinFormatter() {
+    public HPEAlmOctaneGherkinFormatter(ResourceLoader resourceLoader, List<String> features) {
         try {
+            cucumberFeatures = features;
+            cucumberResourceLoader = resourceLoader;
             _doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             _rootElement = _doc.createElement(ROOT_TAG_NAME);
             _doc.appendChild(_rootElement);
@@ -171,14 +179,11 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
 
     private void appendFeatureFile(String featureFile) {
         try {
-            this.featureFile = new FileFinder().findFile(featureFile);
-            if (this.featureFile == null) {
-                return;
-            }
-            byte[] encoded = Files.readAllBytes(this.featureFile.toPath());
-            String fileStr = new String(encoded, StandardCharsets.UTF_8);
-            _currentFeature.setPath(this.featureFile.getPath());
-            _currentFeature.setFile(fileStr);
+            Resource resource = findResource(featureFile);
+            FeatureBuilder builder = new FeatureBuilder(new ArrayList<>());
+            String script = builder.read(resource);
+            _currentFeature.setPath(resource.getPath());
+            _currentFeature.setFile(script);
         } catch (Exception e) {
             //formatter must never throw an exception
             e.printStackTrace();
@@ -236,80 +241,21 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
 
     }
 
-    private class FileFinder {
-        private ArrayList<File> _resultFiles = new ArrayList<>();
-
-        File findFile(String fileName) {
-            String[] features = OctaneCucumber.getFeatures();
-            if(features == null || features.length==0){
-                System.out.println("OctaneCucumber.features was not found.\nVerify that you are running you tests with the \"@RunWith(OctaneCucumber.class)\" annotation\nNGA report will not be generated.");
-                return null;
-            }
-
-            for(String root : features){
-                File file = findFile(new File(root), fileName);
-                if(file != null){
-                    return file;
-                }
-            }
-            System.out.println("File " + fileName + " was not found. NGA report will not be generated.");
-            return null;
-        }
-
-        File findFile(File rootDir, String fileName) {
-            find(rootDir, fileName);
-            if (_resultFiles.size() == 1) {
-                return _resultFiles.get(0);
-            } else if (_resultFiles.size() > 1) {
-                return getFileToUseOutOfMultipleResults(_resultFiles);
-            } else {
-                System.out.println("Feature file was not found. NGA report will not be generated.");
-                return null;
-            }
-        }
-
-        private void find(File rootDir, String fileName) {
-            if (rootDir == null) {
-                return;
-            }
-
-            File[] files = rootDir.listFiles();
-
-            if (files != null) {
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        find(file, fileName);
-                    } else if (file.getAbsolutePath().endsWith(fileName) || file.getAbsolutePath().endsWith(fileName.replace('/', File.separatorChar))) {
-                        _resultFiles.add(file);
-                    }
+    private Resource findResource(String name){
+        for (String featurePath : cucumberFeatures) {
+            Iterable<Resource> resources = cucumberResourceLoader.resources(featurePath, ".feature");
+            for (Resource resource: resources) {
+                if((((FileResource) resource).getFile().getName()).compareTo(name)==0){
+                    return resource;
                 }
             }
         }
-
-        private File getFileToUseOutOfMultipleResults(ArrayList<File> files) {
-            if (files == null || files.isEmpty()) {
-                return null;
-            }
-
-            //If we have a file that has "src" folder in it's path - return it.
-            for (File file : files) {
-                if (file.getAbsolutePath().contains(File.separator + "src" + File.separator)) {
-                    return file;
-                }
-            }
-
-            //else - return the first one we found.
-            return files.get(0);
-        }
+        return null;
     }
 
     @Override
     public void done() {
         try {
-            if (featureFile == null) {
-                // feature file was not found -> do not generate report
-                return;
-            }
             DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
             DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
             LSSerializer serializer = impl.createLSSerializer();
