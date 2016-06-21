@@ -1,7 +1,6 @@
 import cucumber.api.junit.Cucumber;
 import cucumber.runtime.Runtime;
 import cucumber.runtime.RuntimeOptions;
-import cucumber.runtime.io.MultiLoader;
 import cucumber.runtime.io.ResourceLoader;
 import org.junit.runners.model.InitializationError;
 

@@ -1,9 +1,7 @@
 import cucumber.runtime.FeatureBuilder;
 import cucumber.runtime.StepDefinitionMatch;
-import cucumber.runtime.io.FileResource;
 import cucumber.runtime.io.Resource;
 import cucumber.runtime.io.ResourceLoader;
-import cucumber.runtime.model.CucumberFeature;
 import gherkin.formatter.Formatter;
 import gherkin.formatter.Reporter;
 import gherkin.formatter.model.*;
@@ -15,11 +13,8 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,8 +67,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
             if (_currentFeature == null) {
                 _currentFeature = new FeatureElement();
             }
-
-            appendFeatureFile(uri);
+            addFeatureFileInfo(uri);
         } catch (Exception e) {
             //formatter must never throw an exception
             e.printStackTrace();
@@ -177,17 +171,15 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
         }
     }
 
-    private void appendFeatureFile(String featureFile) {
-        try {
-            Resource resource = findResource(featureFile);
-            FeatureBuilder builder = new FeatureBuilder(new ArrayList<>());
-            String script = builder.read(resource);
-            _currentFeature.setPath(resource.getPath());
-            _currentFeature.setFile(script);
-        } catch (Exception e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
+    private void addFeatureFileInfo(String featureFile) {
+        Resource resource = findResource(featureFile);
+        FeatureBuilder builder = new FeatureBuilder(new ArrayList<>());
+        String script = "The script file <" + featureFile +"> was not found";
+        if (resource != null) {
+            script = builder.read(resource);
         }
+        _currentFeature.setPath(resource.getPath());
+        _currentFeature.setFile(script);
     }
 
     @Override
@@ -245,11 +237,12 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
         for (String featurePath : cucumberFeatures) {
             Iterable<Resource> resources = cucumberResourceLoader.resources(featurePath, ".feature");
             for (Resource resource: resources) {
-                if((((FileResource) resource).getFile().getName()).compareTo(name)==0){
+                if(resource.getPath().contains(name.replace('/','\\'))){
                     return resource;
                 }
             }
         }
+        System.out.println("Resource file not found name:" + name);
         return null;
     }
 
