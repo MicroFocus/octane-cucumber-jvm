@@ -9,14 +9,8 @@ import java.util.*;
 
 public class OctaneCucumber extends Cucumber {
     private String OCTANE_FORMATTER = "HPEAlmOctaneGherkinFormatter";
-    private static String[] features = null;
 
-    private static final ThreadLocal<String[]> instance = new ThreadLocal<String[]>() {
-        @Override
-        protected String[] initialValue() {
-            return features;
-        }
-    };
+    private static final ThreadLocal<String[]> instance = new ThreadLocal<>();
 
     public static String[] getFeatures() {
         return instance.get();
@@ -25,7 +19,7 @@ public class OctaneCucumber extends Cucumber {
     public OctaneCucumber(Class clazz) throws IOException, InitializationError {
         super(clazz);
         CucumberOptions cucumberOptions = (CucumberOptions) clazz.getAnnotation(CucumberOptions.class);
-        features = cucumberOptions.features();
+        instance.set(cucumberOptions.features());
         addFormatterToOptions(cucumberOptions);
     }
 
