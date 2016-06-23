@@ -2,6 +2,7 @@ import cucumber.runtime.FeatureBuilder;
 import cucumber.runtime.StepDefinitionMatch;
 import cucumber.runtime.io.Resource;
 import cucumber.runtime.io.ResourceLoader;
+import cucumber.runtime.model.CucumberFeature;
 import gherkin.formatter.Formatter;
 import gherkin.formatter.Reporter;
 import gherkin.formatter.model.*;
@@ -20,17 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
-
-    private static final String RESULTS_FILE_NAME = "gherkinNGAResults.xml_";
-    private static final String ROOT_TAG_NAME = "features";
-    private static final String FEATURE_TAG_NAME = "feature";
-    private static final String SCENARIO_TAG_NAME = "scenario";
-    private static final String SCENARIOS_TAG_NAME = "scenarios";
-    private static final String FILE_TAG_NAME = "file";
-    private static final String STEP_TAG_NAME = "step";
-    private static final String STEPS_TAG_NAME = "steps";
-    private static final String BACKGROUND_TAG_NAME = "background";
-
     private Document _doc = null;
     private Element _rootElement = null;
     private FileOutputStream _out;
@@ -47,7 +37,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
             cucumberFeatures = features;
             cucumberResourceLoader = resourceLoader;
             _doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-            _rootElement = _doc.createElement(ROOT_TAG_NAME);
+            _rootElement = _doc.createElement(GherkinSerializer.ROOT_TAG_NAME);
             _doc.appendChild(_rootElement);
         } catch (Exception e) {
             //formatter must never throw an exception
@@ -122,8 +112,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     @Override
     public void scenario(Scenario scenario) {
         try {
-            if(_scenarioOutlineIndex!=null && scenario.getKeyword().compareTo("Scenario Outline")==0){
-                //scenario outline
+            if(isScenarioOutline(scenario)){
                 _currentScenario = new ScenarioElement(scenario.getName(),_scenarioOutlineIndex++);
             } else {
                 //this is a simple scenario
@@ -136,11 +125,21 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
         }
     }
 
+    private boolean isScenarioOutline(Scenario scenario){
+        return _scenarioOutlineIndex != null && scenario.getKeyword().compareTo("Scenario Outline") == 0;
+    }
+
+    private boolean isScenarioOutlineStep(){
+        if(_scenarioOutlineIndex!=null && _scenarioOutlineIndex == 1){
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void step(Step step) {
         try {
-            if(_scenarioOutlineIndex!=null && _scenarioOutlineIndex == 1){
-                //inside the generic scenario outline
+            if(isScenarioOutlineStep()){
                 // no need to keep generic steps - skip them
                 return;
             }
@@ -173,7 +172,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
 
     private void addFeatureFileInfo(String featureFile) {
         Resource resource = findResource(featureFile);
-        FeatureBuilder builder = new FeatureBuilder(new ArrayList<>());
+        FeatureBuilder builder = new FeatureBuilder(new ArrayList<CucumberFeature>());
         String script = "The script file <" + featureFile +"> was not found";
         if (resource != null) {
             script = builder.read(resource);
@@ -210,7 +209,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     public void match(Match match) {
         try {
             if (_currentScenario != null) {
-                for (StepElement step : _currentScenario._steps) {
+                for (StepElement step : _currentScenario.getSteps()) {
                     // Checking if it's the same step
                     if (step.getLine() == ((StepDefinitionMatch) match).getStepLocation().getLineNumber()) {
                         _currentStep = step;
@@ -253,7 +252,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
             DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
             LSSerializer serializer = impl.createLSSerializer();
             LSOutput output = impl.createLSOutput();
-            _out = new FileOutputStream(RESULTS_FILE_NAME);
+            _out = new FileOutputStream(GherkinSerializer.RESULTS_FILE_NAME);
             output.setByteStream(_out);
             serializer.write(_doc, output);
         } catch (Exception e) {
@@ -278,7 +277,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     public void eof() {
         try {
             if (_currentFeature != null) {
-                _rootElement.appendChild(_currentFeature.toXMLElement());
+                _rootElement.appendChild(_currentFeature.toXMLElement(_doc));
 
                 _currentFeature = null;
                 _currentScenario = null;
@@ -288,165 +287,6 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
         } catch (Exception e) {
             //formatter must never throw an exception
             e.printStackTrace();
-        }
-    }
-
-    interface GherkinSerializer {
-        Element toXMLElement();
-    }
-
-    class FeatureElement implements GherkinSerializer {
-        private String _name;
-        private String _path;
-        private String _file;
-        private Long _started;
-        private List<ScenarioElement> _scenarios;
-        private List<StepElement> _backgroundSteps;
-
-        FeatureElement() {
-            _scenarios = new ArrayList<>();
-            _backgroundSteps = new ArrayList<>();
-        }
-
-        List<ScenarioElement> getScenarios() {
-            return _scenarios;
-        }
-
-        List<StepElement> getBackgroundSteps() {
-            return _backgroundSteps;
-        }
-
-        void setName(String name) {
-            this._name = name;
-        }
-
-        void setPath(String path) {
-            this._path = path;
-        }
-
-        void setFile(String file) {
-            this._file = file;
-        }
-
-        void setStarted(Long started) { this._started = started; }
-
-        public Element toXMLElement() {
-            Element feature = _doc.createElement(FEATURE_TAG_NAME);
-
-            // Adding the feature members
-            feature.setAttribute("name", _name);
-            feature.setAttribute("path", _path);
-            if (_started != null) {
-                feature.setAttribute("started", _started.toString());
-            }
-
-            // Adding the file to the feature
-            Element fileElement = _doc.createElement(FILE_TAG_NAME);
-            fileElement.appendChild(_doc.createCDATASection(_file));
-            feature.appendChild(fileElement);
-
-            Element scenariosElement = _doc.createElement(SCENARIOS_TAG_NAME);
-
-            // Serializing the background
-            if (_backgroundSteps != null && _backgroundSteps.size()>0) {
-                Element backgroundElement = _doc.createElement(BACKGROUND_TAG_NAME);
-                Element backgroundStepsElement = _doc.createElement(STEPS_TAG_NAME);
-                backgroundElement.appendChild(backgroundStepsElement);
-
-                for (StepElement step : _backgroundSteps) {
-                    backgroundStepsElement.appendChild(step.toXMLElement());
-                }
-
-                backgroundElement.appendChild(backgroundStepsElement);
-                scenariosElement.appendChild(backgroundElement);
-            }
-
-            // Serializing the scenarios
-            for (ScenarioElement scenario : _scenarios) {
-                scenariosElement.appendChild(scenario.toXMLElement());
-            }
-
-            feature.appendChild(scenariosElement);
-
-            return feature;
-        }
-    }
-
-    class ScenarioElement implements GherkinSerializer {
-        private String _name;
-        private List<StepElement> _steps;
-        private Integer _outlineIndex = 0;
-
-        ScenarioElement(String name, int outlineIndex) {
-            this(name);
-            _outlineIndex = outlineIndex;
-        }
-
-        ScenarioElement(String name) {
-            _name = name;
-            _steps = new ArrayList<>();
-        }
-
-        List<StepElement> getSteps() {
-            return _steps;
-        }
-
-        public Element toXMLElement() {
-            // Adding the feature members
-            Element scenario = _doc.createElement(SCENARIO_TAG_NAME);
-            scenario.setAttribute("name", _name);
-            if(_outlineIndex>0){
-                scenario.setAttribute("outlineIndex", _outlineIndex.toString());
-            }
-
-            // Serializing the steps
-            Element steps = _doc.createElement(STEPS_TAG_NAME);
-            for (StepElement step : _steps) {
-                steps.appendChild(step.toXMLElement());
-            }
-
-            scenario.appendChild(steps);
-
-            return scenario;
-        }
-    }
-
-    class StepElement implements GherkinSerializer {
-        private String _name;
-        private String _status;
-        private Integer _line;
-        private Long _duration;
-
-        StepElement(Step step) {
-            _name = step.getKeyword() + step.getName();
-            _line = step.getLine();
-        }
-
-        void setStatus(String status) {
-            this._status = status;
-        }
-
-        void setDuration(Long duration) {
-            this._duration = duration;
-        }
-
-
-        Integer getLine() {
-            return _line;
-        }
-
-        public Element toXMLElement() {
-            Element step = _doc.createElement(STEP_TAG_NAME);
-
-            step.setAttribute("name", _name);
-            if (_status != null && !_status.isEmpty()) {
-                step.setAttribute("status", _status);
-            }
-
-            String duration = _duration != null ? _duration.toString() : "0";
-            step.setAttribute("duration", duration);
-
-            return step;
         }
     }
 }

@@ -8,9 +8,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
 
 public class HPEAlmOctaneGherkinFormatterTest {
+    private Document doc = null;
     private HPEAlmOctaneGherkinFormatter formatter;
     private String passed = "passed";
     private String skipped = "skipped";
@@ -81,7 +84,12 @@ public class HPEAlmOctaneGherkinFormatterTest {
             "                   |  "+scenarioOutlineWeight1+"   |  "+scenarioOutlineEnergy1+" |\n" +
             "                   |  "+scenarioOutlineWeight2+"   |  "+scenarioOutlineEnergy2+" |\n";
 
-    private String gherkinNGAResultsXml = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n" +
+    private String xmlVersion = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n";
+    private String emptyFeature = "<feature name=\"\" path=\"\"><file><![CDATA[]]></file>%s</feature>";
+    private String emptyScenario = "<scenario name=\"\">%s</scenario>";
+    private String emptyStep = "<step duration=\"0\" name=\"\"/>";
+
+    private String gherkinNGAResultsXml = xmlVersion +
             "<feature name=\""+featureName+"\" path=\""+path+"\" started=\""+started+"\">"+
             "<file><![CDATA[" + gherkinScript +"]]></file>"+
             "<scenarios>" +
@@ -128,13 +136,14 @@ public class HPEAlmOctaneGherkinFormatterTest {
             "</feature>";
 
     @Before
-    public void init() {
+    public void init() throws ParserConfigurationException {
         formatter = new HPEAlmOctaneGherkinFormatter(null,new ArrayList<String>());
+        doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 
     @Test
     public void testFeatureElementToXMLElement() {
-        HPEAlmOctaneGherkinFormatter.ScenarioElement scenarioElement1 = formatter.new ScenarioElement(scenarioName1);
+        ScenarioElement scenarioElement1 = new ScenarioElement(scenarioName1);
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step1,1,passed,stepDuration+1));
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step2,2,passed,stepDuration+2));
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step3,3,passed,stepDuration+3));
@@ -142,23 +151,23 @@ public class HPEAlmOctaneGherkinFormatterTest {
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step5,5,passed,stepDuration+5));
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step6,6,passed,stepDuration+6));
 
-        HPEAlmOctaneGherkinFormatter.ScenarioElement scenarioElement2 =  formatter.new ScenarioElement(scenarioName2);
+        ScenarioElement scenarioElement2 =  new ScenarioElement(scenarioName2);
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step1,1,failed,stepDuration+7));
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step2,2,skipped,(long)0));
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step3,3,skipped,(long)0));
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step4,4,skipped,(long)0));
 
-        HPEAlmOctaneGherkinFormatter.ScenarioElement scenarioOutlineElement1 =  formatter.new ScenarioElement(scenarioOutline,1);
+        ScenarioElement scenarioOutlineElement1 =  new ScenarioElement(scenarioOutline,1);
         scenarioOutlineElement1.getSteps().add(createStepElement("", String.format(scenarioOutlineStep1,scenarioOutlineWeight1),1,passed,stepDuration+11));
         scenarioOutlineElement1.getSteps().add(createStepElement("",scenarioOutlineStep2,2,passed,stepDuration+12));
         scenarioOutlineElement1.getSteps().add(createStepElement("", String.format(scenarioOutlineStep3, scenarioOutlineEnergy1),3,passed,stepDuration+13));
 
-        HPEAlmOctaneGherkinFormatter.ScenarioElement scenarioOutlineElement2 =  formatter.new ScenarioElement(scenarioOutline,2);
+        ScenarioElement scenarioOutlineElement2 =  new ScenarioElement(scenarioOutline,2);
         scenarioOutlineElement2.getSteps().add(createStepElement("", String.format(scenarioOutlineStep1,scenarioOutlineWeight2),1,passed,stepDuration+14));
         scenarioOutlineElement2.getSteps().add(createStepElement("",scenarioOutlineStep2,2,passed,stepDuration+15));
         scenarioOutlineElement2.getSteps().add(createStepElement("", String.format(scenarioOutlineStep3, scenarioOutlineEnergy2),3,passed,stepDuration+16));
 
-        HPEAlmOctaneGherkinFormatter.FeatureElement featureElement = formatter.new FeatureElement();
+        FeatureElement featureElement = new FeatureElement();
         featureElement.setName(featureName);
         featureElement.setStarted(started);
         featureElement.setPath(path);
@@ -173,7 +182,39 @@ public class HPEAlmOctaneGherkinFormatterTest {
         featureElement.getScenarios().add(scenarioOutlineElement1);
         featureElement.getScenarios().add(scenarioOutlineElement2);
 
-        Assert.assertEquals(gherkinNGAResultsXml,elementToString(featureElement.toXMLElement()));
+        Assert.assertEquals(gherkinNGAResultsXml,elementToString(featureElement.toXMLElement(doc)));
+    }
+
+    @Test
+    public void testEmptyFeatureElementInfo() {
+        String emptyFeatureInfo = xmlVersion + String.format(emptyFeature, "<scenarios/>");
+        FeatureElement featureElement = new FeatureElement();
+        Assert.assertEquals(emptyFeatureInfo,elementToString(featureElement.toXMLElement(doc)));
+    }
+
+    @Test
+    public void testEmptyScenarioElementInfo() {
+        String scenarios = "<scenarios>" + String.format(emptyScenario, "<steps/>") + String.format(emptyScenario, "<steps/>") + "</scenarios>";
+        String emptyFeatureAndScenarioInfo = xmlVersion + String.format(emptyFeature, scenarios);
+        FeatureElement featureElement = new FeatureElement();
+        ScenarioElement scenarioElement1 = new ScenarioElement(null);
+        ScenarioElement scenarioElement2 = new ScenarioElement("");
+        featureElement.getScenarios().add(scenarioElement1);
+        featureElement.getScenarios().add(scenarioElement2);
+        Assert.assertEquals(emptyFeatureAndScenarioInfo,elementToString(featureElement.toXMLElement(doc)));
+    }
+
+    @Test
+    public void testEmptyStepElementInfo() {
+        String steps = "<steps>" + emptyStep + emptyStep + "</steps>";
+        String scenarios = "<scenarios>" + String.format(emptyScenario, steps) + "</scenarios>";
+        String emptyFeatureAndScenarioInfo = xmlVersion + String.format(emptyFeature, scenarios);
+        FeatureElement featureElement = new FeatureElement();
+        ScenarioElement scenarioElement1 = new ScenarioElement("");
+        scenarioElement1.getSteps().add(new StepElement(null));
+        scenarioElement1.getSteps().add(new StepElement(createStep("", "", -1)));
+        featureElement.getScenarios().add(scenarioElement1);
+        Assert.assertEquals(emptyFeatureAndScenarioInfo,elementToString(featureElement.toXMLElement(doc)));
     }
 
     private String elementToString(Element element) {
@@ -193,8 +234,8 @@ public class HPEAlmOctaneGherkinFormatterTest {
         return step;
     }
 
-    private HPEAlmOctaneGherkinFormatter.StepElement createStepElement(String keyword, String name, Integer line, String status, Long duration) {
-        HPEAlmOctaneGherkinFormatter.StepElement stepElement = formatter.new StepElement(createStep(keyword, name, line));
+    private StepElement createStepElement(String keyword, String name, Integer line, String status, Long duration) {
+        StepElement stepElement = new StepElement(createStep(keyword, name, line));
         stepElement.setStatus(status);
         stepElement.setDuration(duration);
         return stepElement;
