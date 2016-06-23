@@ -50,8 +50,9 @@ public class HPEAlmOctaneGherkinFormatterTest {
     private String scenarioOutlineEnergy1 = "26500";
     private String scenarioOutlineEnergy2 = "29500";
 
+    private String testTag = "@TID1003REV0.4.0";
     private String gherkinScript = "[#Auto generated NGA revision tag\n" +
-            "@TID1003REV0.4.0\n" +
+            testTag + "\n" +
             "@billing @bicker @annoy\n" +
             "Feature: " + featureName + "\n" +
             "                              Realize a named business value\n" +
@@ -85,12 +86,12 @@ public class HPEAlmOctaneGherkinFormatterTest {
             "                   |  "+scenarioOutlineWeight2+"   |  "+scenarioOutlineEnergy2+" |\n";
 
     private String xmlVersion = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n";
-    private String emptyFeature = "<feature name=\"\" path=\"\"><file><![CDATA[]]></file>%s</feature>";
+    private String emptyFeature = "<feature name=\"\" path=\"\" tag=\"\"><file><![CDATA[]]></file>%s</feature>";
     private String emptyScenario = "<scenario name=\"\">%s</scenario>";
     private String emptyStep = "<step duration=\"0\" name=\"\"/>";
 
     private String gherkinNGAResultsXml = xmlVersion +
-            "<feature name=\""+featureName+"\" path=\""+path+"\" started=\""+started+"\">"+
+            "<feature name=\""+featureName+"\" path=\""+path+"\" started=\""+started+"\" tag=\"" + testTag +"\">"+
             "<file><![CDATA[" + gherkinScript +"]]></file>"+
             "<scenarios>" +
             "<background>" +
@@ -172,6 +173,7 @@ public class HPEAlmOctaneGherkinFormatterTest {
         featureElement.setStarted(started);
         featureElement.setPath(path);
         featureElement.setFile(gherkinScript);
+        featureElement.setTag(testTag);
 
         featureElement.getBackgroundSteps().add(createStepElement("",backgroundStep1,1,passed,stepDuration+8));
         featureElement.getBackgroundSteps().add(createStepElement("",backgroundStep2,2,passed,stepDuration+9));

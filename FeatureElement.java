@@ -9,6 +9,7 @@ import java.util.List;
  */
 class FeatureElement implements GherkinSerializer {
     private String _name = "";
+    private String _tag = "";
     private String _path = "";
     private String _file = "";
     private Long _started;
@@ -32,6 +33,10 @@ class FeatureElement implements GherkinSerializer {
         this._name = name;
     }
 
+    void setTag(String tag) {
+        this._tag = tag;
+    }
+
     void setPath(String path) {
         this._path = path;
     }
@@ -48,6 +53,7 @@ class FeatureElement implements GherkinSerializer {
         // Adding the feature members
         feature.setAttribute("name", _name);
         feature.setAttribute("path", _path);
+        feature.setAttribute("tag", _tag);
         if (_started != null) {
             feature.setAttribute("started", _started.toString());
         }

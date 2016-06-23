@@ -1,3 +1,4 @@
+import cucumber.runtime.CucumberException;
 import cucumber.runtime.FeatureBuilder;
 import cucumber.runtime.StepDefinitionMatch;
 import cucumber.runtime.io.Resource;
@@ -73,6 +74,12 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
 
             _currentFeature.setName(feature.getName());
             _currentFeature.setStarted(Instant.now().toEpochMilli());
+            if(!feature.getTags().isEmpty()){
+                String tag = feature.getTags().get(0).getName();
+                if(tag.startsWith("@TID")){
+                    _currentFeature.setTag(tag);
+                }
+            }
         } catch (Exception e) {
             //formatter must never throw an exception
             e.printStackTrace();
@@ -159,7 +166,9 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     @Override
     public void endOfScenarioLifeCycle(Scenario scenario) {
         try {
-            _currentFeature.getScenarios().add(_currentScenario);
+            if(_currentScenario != null){
+                _currentFeature.getScenarios().add(_currentScenario);
+            }
             if (_backgroundSteps != null) {
                 _currentFeature.getBackgroundSteps().addAll(_backgroundSteps);
             }
@@ -255,6 +264,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
             _out = new FileOutputStream(GherkinSerializer.RESULTS_FILE_NAME);
             output.setByteStream(_out);
             serializer.write(_doc, output);
+            //System.out.println(serializer.writeToString(_doc));
         } catch (Exception e) {
             //formatter must never throw an exception
             e.printStackTrace();
@@ -288,5 +298,9 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
             //formatter must never throw an exception
             e.printStackTrace();
         }
+    }
+
+    private void throwException(){
+        throw new CucumberException("From HPEAlmOctaneGherkinFormatter");
     }
 }
