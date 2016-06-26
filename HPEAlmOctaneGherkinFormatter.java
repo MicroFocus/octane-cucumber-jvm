@@ -1,6 +1,7 @@
 import cucumber.runtime.CucumberException;
 import cucumber.runtime.FeatureBuilder;
 import cucumber.runtime.StepDefinitionMatch;
+import cucumber.runtime.io.FileResource;
 import cucumber.runtime.io.Resource;
 import cucumber.runtime.io.ResourceLoader;
 import cucumber.runtime.model.CucumberFeature;
@@ -32,6 +33,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     private Integer _scenarioOutlineIndex = null;
     private List<String> cucumberFeatures;
     private ResourceLoader cucumberResourceLoader;
+    private boolean throwException = false;
 
     public HPEAlmOctaneGherkinFormatter(ResourceLoader resourceLoader, List<String> features) {
         try {
@@ -58,6 +60,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
             if (_currentFeature == null) {
                 _currentFeature = new FeatureElement();
             }
+            throwException();
             addFeatureFileInfo(uri);
         } catch (Exception e) {
             //formatter must never throw an exception
@@ -72,6 +75,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
                 _currentFeature = new FeatureElement();
             }
 
+            throwException();
             _currentFeature.setName(feature.getName());
             _currentFeature.setStarted(Instant.now().toEpochMilli());
             if(!feature.getTags().isEmpty()){
@@ -119,6 +123,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     @Override
     public void scenario(Scenario scenario) {
         try {
+            throwException();
             if(isScenarioOutline(scenario)){
                 _currentScenario = new ScenarioElement(scenario.getName(),_scenarioOutlineIndex++);
             } else {
@@ -151,6 +156,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
                 return;
             }
 
+            throwException();
             StepElement currentStep = new StepElement(step);
             if (_currentScenario != null) {
                 _currentScenario.getSteps().add(currentStep);
@@ -166,6 +172,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     @Override
     public void endOfScenarioLifeCycle(Scenario scenario) {
         try {
+            throwException();
             if(_currentScenario != null){
                 _currentFeature.getScenarios().add(_currentScenario);
             }
@@ -182,12 +189,10 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     private void addFeatureFileInfo(String featureFile) {
         Resource resource = findResource(featureFile);
         FeatureBuilder builder = new FeatureBuilder(new ArrayList<CucumberFeature>());
-        String script = "The script file <" + featureFile +"> was not found";
         if (resource != null) {
-            script = builder.read(resource);
+            _currentFeature.setPath(((FileResource) resource).getFile().getPath());
+            _currentFeature.setFile(builder.read(resource));
         }
-        _currentFeature.setPath(resource.getPath());
-        _currentFeature.setFile(script);
     }
 
     @Override
@@ -198,6 +203,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     @Override
     public void result(Result result) {
         try {
+            throwException();
             if (_currentStep != null) {
                 _currentStep.setStatus(result.getStatus());
                 _currentStep.setDuration(result.getDuration());
@@ -217,6 +223,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     @Override
     public void match(Match match) {
         try {
+            throwException();
             if (_currentScenario != null) {
                 for (StepElement step : _currentScenario.getSteps()) {
                     // Checking if it's the same step
@@ -301,6 +308,26 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     }
 
     private void throwException(){
-        throw new CucumberException("From HPEAlmOctaneGherkinFormatter");
+        if(throwException){
+            throw new CucumberException("From HPEAlmOctaneGherkinFormatter");
+        }
+    }
+
+    void setThrowException(boolean val){
+        throwException = val;
+    }
+
+    String getXML() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        String xml = "";
+        try {
+            DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
+            DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
+            LSSerializer serializer = impl.createLSSerializer();
+            xml = serializer.writeToString(_doc);
+        } catch (Exception e){
+            //formatter must never throw an exception
+            e.printStackTrace();
+        }
+        return xml;
     }
 }

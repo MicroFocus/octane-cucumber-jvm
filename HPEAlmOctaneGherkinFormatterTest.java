@@ -78,53 +78,60 @@ public class HPEAlmOctaneGherkinFormatterTest {
         tags.add(tag);
         formatter.feature(new Feature(null,tags,"",featureName,"",line++,"1000"));
 
-        formatter.background(null);
-        line++;
-
-        Step backgroundStep1 = new Step(null,"Given","back",line++,null,null);
-        formatter.step(backgroundStep1);
-
-        Step backgroundStep2 = new Step(null,"And","back",line++,null,null);
-        formatter.step(backgroundStep2);
-
-        long backgroundStep1Duration = (long)400;
-        formatter.match(new StepDefinitionMatch(null,getStepDefinition(),null,backgroundStep1,null));
-        formatter.result(new Result(passed,backgroundStep1Duration,null,null));
-
-        long backgroundStep2Duration = (long)500;
-        formatter.match(new StepDefinitionMatch(null,getStepDefinition(),null,backgroundStep1,null));
-        formatter.result(new Result(passed,backgroundStep1Duration,null,null));
+        ArrayList<GherkinStep> backgroundSteps = new ArrayList<>();
+        backgroundSteps.add(new GherkinStep("Given","back",line++,(long)0,passed));
+        backgroundSteps.add(new GherkinStep("And","back",line++,(long)0,passed));
+        addBackgroundSteps(formatter, backgroundSteps);
 
         Scenario scenario = new Scenario(null,null,"","test scenario","",line++,"2000");
         formatter.scenario(scenario);
-
-        Step step1 = new Step(null,"Given","test",line++,null,null);
-        formatter.step(step1);
-
-        Step step2 = new Step(null,"When","test",line++,null,null);
-        formatter.step(step2);
-
-        Step step3 = new Step(null,"Then","test",line++,null,null);
-        formatter.step(step3);
-
         long step1Duration = (long)100;
-        formatter.match(new StepDefinitionMatch(null,getStepDefinition(),null,step1,null));
-        formatter.result(new Result(passed,step1Duration,null,null));
-
         long step2Duration = (long)200;
-        formatter.match(new StepDefinitionMatch(null,getStepDefinition(),null,step2,null));
-        formatter.result(new Result(passed,step2Duration,null,null));
-
         long step3Duration = (long)300;
-        formatter.match(new StepDefinitionMatch(null,getStepDefinition(),null,step3,null));
-        formatter.result(new Result(failed,step3Duration,null,null));
-
+        ArrayList<GherkinStep> scenario1Steps = new ArrayList<>();
+        scenario1Steps.add(new GherkinStep("Given","test",line++,step1Duration,passed));
+        scenario1Steps.add(new GherkinStep("When","test",line++,step2Duration,passed));
+        scenario1Steps.add(new GherkinStep("Then","test",line++,step3Duration,failed));
+        addAndRunSteps(formatter, scenario1Steps);
         formatter.endOfScenarioLifeCycle(scenario);
+
+        formatter.scenarioOutline(null);
+        ArrayList<GherkinStep> scenarioOutlineSteps = new ArrayList<>();
+        scenario1Steps.add(new GherkinStep("Given","hello \"<name>\"",line++,(long)0,""));
+        scenario1Steps.add(new GherkinStep("When","When what \"<question>\"",line++,(long)0,""));
+        scenario1Steps.add(new GherkinStep("Then","Then wow",line++,(long)0,""));
+        addSteps(formatter, scenarioOutlineSteps);
+
+        addBackgroundSteps(formatter, backgroundSteps);
+
+        Scenario scenarioOutline_1 = new Scenario(null,null,"Scenario Outline","Table TTT","",line++,"3000");
+        formatter.scenario(scenarioOutline_1);
+        long step7Duration = (long)400;
+        long step8Duration = (long)500;
+        long step9Duration = (long)600;
+        ArrayList<GherkinStep> scenarioOutlineSteps_1 = new ArrayList<>();
+        scenarioOutlineSteps_1.add(new GherkinStep("Given","hello \"Dan\"",line++,step7Duration,passed));
+        scenarioOutlineSteps_1.add(new GherkinStep("When","When what \"What\"",line++,step8Duration,passed));
+        scenarioOutlineSteps_1.add(new GherkinStep("Then","Then wow",line++,step9Duration,failed));
+        addAndRunSteps(formatter, scenarioOutlineSteps_1);
+        formatter.endOfScenarioLifeCycle(scenarioOutline_1);
+
+        Scenario scenarioOutline_2 = new Scenario(null,null,"Scenario Outline","Table TTT","",line++,"3000");
+        formatter.scenario(scenarioOutline_2);
+        long step10Duration = (long)700;
+        long step11Duration = (long)800;
+        long step12Duration = (long)900;
+        ArrayList<GherkinStep> scenarioOutlineSteps_2 = new ArrayList<>();
+        scenarioOutlineSteps_2.add(new GherkinStep("Given","hello \"Sari\"",line++,step10Duration,passed));
+        scenarioOutlineSteps_2.add(new GherkinStep("When","When what \"Why\"",line++,step11Duration,passed));
+        scenarioOutlineSteps_2.add(new GherkinStep("Then","Then wow",line++,step12Duration,failed));
+        addAndRunSteps(formatter, scenarioOutlineSteps_2);
+        formatter.endOfScenarioLifeCycle(scenarioOutline_2);
+
         formatter.eof();
         String actualXml = formatter.getXML();
         formatter.done();
         formatter.close();
-
 
         String expectedXml = "";
         if(!withExceptions){
@@ -149,6 +156,20 @@ public class HPEAlmOctaneGherkinFormatterTest {
                                         "<step duration=\""+step3Duration+"\" name=\"Thentest\" status=\"Failed\"/>" +
                                     "</steps>" +
                                 "</scenario>" +
+                                    "<scenario name=\"Table TTT\" outlineIndex=\"1\">" +
+                                        "<steps>" +
+                                            "<step duration=\""+step7Duration+"\" name=\"Givenhello &quot;Dan&quot;\" status=\"Passed\"/>" +
+                                            "<step duration=\""+step8Duration+"\" name=\"WhenWhen what &quot;What&quot;\" status=\"Passed\"/>" +
+                                            "<step duration=\""+step9Duration+"\" name=\"ThenThen wow\" status=\"Failed\"/>" +
+                                        "</steps>" +
+                                    "</scenario>" +
+                                    "<scenario name=\"Table TTT\" outlineIndex=\"2\">" +
+                                        "<steps>" +
+                                            "<step duration=\""+step10Duration+"\" name=\"Givenhello &quot;Sari&quot;\" status=\"Passed\"/>" +
+                                            "<step duration=\""+step11Duration+"\" name=\"WhenWhen what &quot;Why&quot;\" status=\"Passed\"/>" +
+                                            "<step duration=\""+step12Duration+"\" name=\"ThenThen wow\" status=\"Failed\"/>" +
+                                        "</steps>" +
+                                    "</scenario>" +
                             "</scenarios>" +
                         "</feature>" +
                     "</features>";
@@ -160,6 +181,34 @@ public class HPEAlmOctaneGherkinFormatterTest {
         }
 
         Assert.assertEquals(expectedXml,actualXml);
+    }
+
+    private void addBackgroundSteps(HPEAlmOctaneGherkinFormatter formatter, ArrayList<GherkinStep> gherkinSteps) {
+        formatter.background(null);
+        addAndRunSteps(formatter,gherkinSteps);
+    }
+
+
+    private ArrayList<Step> addSteps(HPEAlmOctaneGherkinFormatter formatter, ArrayList<GherkinStep> gherkinSteps) {
+        ArrayList<Step> steps = new ArrayList<>();
+        for(GherkinStep gherkinStep : gherkinSteps){
+            Step step = new Step(null,gherkinStep.getKeyword(),gherkinStep.getName(),gherkinStep.getLine(),null,null);
+            formatter.step(step);
+            steps.add(step);
+        }
+        return steps;
+    }
+
+    private void runSteps(HPEAlmOctaneGherkinFormatter formatter, ArrayList<GherkinStep> gherkinSteps,ArrayList<Step> runTimeSteps ){
+        for(int i=0 ; i < runTimeSteps.size() ; i++){
+            formatter.match(new StepDefinitionMatch(null,getStepDefinition(),null,runTimeSteps.get(i),null));
+            formatter.result(new Result(gherkinSteps.get(i).getStatus(),gherkinSteps.get(i).getDuration(),null,null));
+        }
+    }
+
+    private void addAndRunSteps(HPEAlmOctaneGherkinFormatter formatter, ArrayList<GherkinStep> gherkinSteps){
+        ArrayList<Step> runTimeSteps = addSteps(formatter,gherkinSteps);
+        runSteps(formatter,gherkinSteps,runTimeSteps);
     }
 
     private StepDefinition getStepDefinition() {
@@ -182,5 +231,41 @@ public class HPEAlmOctaneGherkinFormatterTest {
         InputStream inputStream = getClass().getResourceAsStream(file);
         String result = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining("\n"));
         return result.replace("\n","\r\n");
+    }
+
+    private class GherkinStep {
+        String keyword;
+        String name;
+        Integer line;
+        Long duration;
+        String status;
+
+        public GherkinStep(String keyword, String name, Integer line, Long duration, String status) {
+            this.keyword = keyword;
+            this.name = name;
+            this.line = line;
+            this.duration = duration;
+            this.status = status;
+        }
+
+        public String getKeyword() {
+            return keyword;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Integer getLine() {
+            return line;
+        }
+
+        public Long getDuration() {
+            return duration;
+        }
+
+        public String getStatus() {
+            return status;
+        }
     }
 }
