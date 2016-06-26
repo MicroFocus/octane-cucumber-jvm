@@ -13,6 +13,10 @@ import java.util.stream.Collectors;
 
 public class HPEAlmOctaneGherkinFormatterTest {
 
+    private String xmlVersion = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n";
+    private String passed = "Passed";
+    private String failed = "Failed";
+
     @Test
     public void testNoExceptionsAreThrownForFormatterInterface() {
         HPEAlmOctaneGherkinFormatter formatter = new HPEAlmOctaneGherkinFormatter(null, new ArrayList<String>());
@@ -42,13 +46,18 @@ public class HPEAlmOctaneGherkinFormatterTest {
         formatter.write(null);
     }
 
-    private String testTag = "@TID1003REV0.4.0";
-    private String xmlVersion = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n";
-    private String passed = "Passed";
-    private String failed = "Failed";
+    @Test
+    public void testFullFlow() throws IllegalAccessException, ClassNotFoundException, InstantiationException, IOException {
+        runFullFlow(false);
+    }
 
     @Test
-    public void test1() throws IllegalAccessException, ClassNotFoundException, InstantiationException, IOException {
+    public void testFullFlowWithExceptions() throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+        runFullFlow(true);
+    }
+
+    private void runFullFlow(boolean withExceptions) throws IllegalAccessException, ClassNotFoundException, InstantiationException {
+        String testTag = "@TID1003REV0.4.0";
         String featurePath = "src\\main\\features";
         String featureFileName = "test1.feature";
 
@@ -58,6 +67,7 @@ public class HPEAlmOctaneGherkinFormatterTest {
         ClassLoader classLoader = this.getClass().getClassLoader();
         ResourceLoader resourceLoader = new MultiLoader(classLoader);
         HPEAlmOctaneGherkinFormatter formatter = new HPEAlmOctaneGherkinFormatter(resourceLoader, features);
+        formatter.setThrowException(withExceptions);
 
         formatter.uri(featureFileName);
 
@@ -115,31 +125,41 @@ public class HPEAlmOctaneGherkinFormatterTest {
         formatter.done();
         formatter.close();
 
-        String expectedXml = xmlVersion +
-                "<features>" +
-                    "<feature name=\"" + featureName +"\" " +
+
+        String expectedXml = "";
+        if(!withExceptions){
+            expectedXml = xmlVersion +
+                    "<features>" +
+                        "<feature name=\"" + featureName +"\" " +
                                 "path=\""+featurePath+ "\\" + featureFileName + "\"" +
                                 " started=\"\"" +
                                 " tag=\""+testTag+"\">" +
-                                "<file><![CDATA["+getScript(featureFileName)+"]]></file>" +
-                                "<scenarios>" +
-                                    "<background>" +
-                                        "<steps>" +
-                                            "<step duration=\"0\" name=\"Givenback\"/>" +
-                                            "<step duration=\"0\" name=\"Andback\"/>" +
-                                        "</steps>" +
-                                    "</background>"+
-                                    "<scenario name=\"test scenario\">" +
-                                        "<steps>" +
-                                            "<step duration=\""+step1Duration+"\" name=\"Giventest\" status=\"Passed\"/>" +
-                                            "<step duration=\""+step2Duration+"\" name=\"Whentest\" status=\"Passed\"/>" +
-                                            "<step duration=\""+step3Duration+"\" name=\"Thentest\" status=\"Failed\"/>" +
-                                        "</steps>" +
-                                    "</scenario>" +
-                                "</scenarios>" +
-                    "</feature>" +
-                "</features>";
-        Assert.assertEquals(expectedXml,removeStartedFromXml(actualXml));
+                            "<file><![CDATA["+getScript(featureFileName)+"]]></file>" +
+                            "<scenarios>" +
+                                "<background>" +
+                                    "<steps>" +
+                                        "<step duration=\"0\" name=\"Givenback\"/>" +
+                                        "<step duration=\"0\" name=\"Andback\"/>" +
+                                    "</steps>" +
+                                "</background>"+
+                                "<scenario name=\"test scenario\">" +
+                                    "<steps>" +
+                                        "<step duration=\""+step1Duration+"\" name=\"Giventest\" status=\"Passed\"/>" +
+                                        "<step duration=\""+step2Duration+"\" name=\"Whentest\" status=\"Passed\"/>" +
+                                        "<step duration=\""+step3Duration+"\" name=\"Thentest\" status=\"Failed\"/>" +
+                                    "</steps>" +
+                                "</scenario>" +
+                            "</scenarios>" +
+                        "</feature>" +
+                    "</features>";
+
+            actualXml = removeStartedFromXml(actualXml);
+        } else {
+            expectedXml = xmlVersion +
+                    "<features><feature name=\"\" path=\"\" tag=\"\"><file><![CDATA[]]></file><scenarios/></feature></features>";
+        }
+
+        Assert.assertEquals(expectedXml,actualXml);
     }
 
     private StepDefinition getStepDefinition() {
