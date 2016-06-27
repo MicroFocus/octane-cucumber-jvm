@@ -1,29 +1,31 @@
+package infra;
+
 import gherkin.formatter.model.Step;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-class StepElement implements GherkinSerializer {
+public class StepElement implements GherkinSerializer {
     private String _name = "";
     private String _status = "";
     private Integer _line = 0;
     private Long _duration = (long)0;
 
-    StepElement(Step step) {
+    public StepElement(Step step) {
         if(step!=null){
             _name = step.getKeyword() + step.getName();
             _line = step.getLine();
         }
     }
 
-    void setStatus(String status) {
+    public void setStatus(String status) {
         this._status = status;
     }
 
-    void setDuration(Long duration) {
+    public void setDuration(Long duration) {
         this._duration = duration;
     }
 
-    Integer getLine() {
+    public Integer getLine() {
         return _line;
     }
 

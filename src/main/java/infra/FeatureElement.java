@@ -1,3 +1,5 @@
+package infra;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -7,7 +9,7 @@ import java.util.List;
 /**
  * Created by intract on 23/06/2016.
  */
-class FeatureElement implements GherkinSerializer {
+public class FeatureElement implements GherkinSerializer {
     private String _name = "";
     private String _tag = "";
     private String _path = "";
@@ -16,39 +18,39 @@ class FeatureElement implements GherkinSerializer {
     private List<ScenarioElement> _scenarios;
     private List<StepElement> _backgroundSteps;
 
-    FeatureElement() {
+    public FeatureElement() {
         _scenarios = new ArrayList<>();
         _backgroundSteps = new ArrayList<>();
     }
 
-    List<ScenarioElement> getScenarios() {
+    public List<ScenarioElement> getScenarios() {
         return _scenarios;
     }
 
-    List<StepElement> getBackgroundSteps() {
+    public List<StepElement> getBackgroundSteps() {
         return _backgroundSteps;
     }
 
-    void setName(String name) {
+    public void setName(String name) {
         this._name = name;
     }
 
-    void setTag(String tag) {
+    public void setTag(String tag) {
         this._tag = tag;
     }
 
-    void setPath(String path) {
+    public void setPath(String path) {
         this._path = path;
     }
 
-    void setFile(String file) {
+    public void setFile(String file) {
         this._file = file;
     }
 
-    void setStarted(Long started) { this._started = started; }
+    public void setStarted(Long started) { this._started = started; }
 
     public Element toXMLElement(Document doc) {
-        Element feature = doc.createElement(FEATURE_TAG_NAME);
+        Element feature = doc.createElement(GherkinSerializer.FEATURE_TAG_NAME);
 
         // Adding the feature members
         feature.setAttribute("name", _name);
@@ -59,20 +61,20 @@ class FeatureElement implements GherkinSerializer {
         }
 
         // Adding the file to the feature
-        Element fileElement = doc.createElement(FILE_TAG_NAME);
+        Element fileElement = doc.createElement(GherkinSerializer.FILE_TAG_NAME);
         fileElement.appendChild(doc.createCDATASection(_file));
         feature.appendChild(fileElement);
 
-        Element scenariosElement = doc.createElement(SCENARIOS_TAG_NAME);
+        Element scenariosElement = doc.createElement(GherkinSerializer.SCENARIOS_TAG_NAME);
 
         // Serializing the background
         if (_backgroundSteps != null && _backgroundSteps.size()>0) {
-            Element backgroundStepsElement = doc.createElement(STEPS_TAG_NAME);
+            Element backgroundStepsElement = doc.createElement(GherkinSerializer.STEPS_TAG_NAME);
             for (StepElement step : _backgroundSteps) {
                 backgroundStepsElement.appendChild(step.toXMLElement(doc));
             }
 
-            Element backgroundElement = doc.createElement(BACKGROUND_TAG_NAME);
+            Element backgroundElement = doc.createElement(GherkinSerializer.BACKGROUND_TAG_NAME);
             backgroundElement.appendChild(backgroundStepsElement);
             scenariosElement.appendChild(backgroundElement);
         }

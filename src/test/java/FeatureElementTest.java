@@ -1,4 +1,7 @@
 import gherkin.formatter.model.Step;
+import infra.FeatureElement;
+import infra.ScenarioElement;
+import infra.StepElement;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;

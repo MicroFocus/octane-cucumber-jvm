@@ -1,3 +1,5 @@
+package infra;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -7,22 +9,22 @@ import java.util.List;
 /**
  * Created by intract on 23/06/2016.
  */
-class ScenarioElement implements GherkinSerializer {
+public class ScenarioElement implements GherkinSerializer {
     private String _name = "";
     private List<StepElement> _steps;
     private Integer _outlineIndex = 0;
 
-    ScenarioElement(String name, int outlineIndex) {
+    public ScenarioElement(String name, int outlineIndex) {
         this(name);
         _outlineIndex = outlineIndex;
     }
 
-    ScenarioElement(String name) {
+    public ScenarioElement(String name) {
         _name = name;
         _steps = new ArrayList<>();
     }
 
-    List<StepElement> getSteps() {
+    public List<StepElement> getSteps() {
         return _steps;
     }
 

@@ -24,13 +24,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>info.cukes</groupId>
-            <artifactId>gherkin</artifactId>
-            <version>2.12.2</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>info.cukes</groupId>
@@ -43,6 +36,11 @@
             <version>1.2.4</version>
         </dependency>
         <dependency>
+            <groupId>info.cukes</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>1.1.5</version>
+        </dependency>
+        <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
             <version>3.4</version>
@@ -51,11 +49,6 @@
             <groupId>info.cukes</groupId>
             <artifactId>cucumber-junit</artifactId>
             <version>1.2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
         </dependency>
     </dependencies>
 
