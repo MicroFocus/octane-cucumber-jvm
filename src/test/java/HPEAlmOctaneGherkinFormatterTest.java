@@ -58,7 +58,7 @@ public class HPEAlmOctaneGherkinFormatterTest {
 
     private void runFullFlow(boolean withExceptions) throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         String testTag = "@TID1003REV0.4.0";
-        String featurePath = "src\\main\\features";
+        String featurePath = "src\\main\\resources";
         String featureFileName = "test1.feature";
 
         ArrayList<String> features = new ArrayList<>();
