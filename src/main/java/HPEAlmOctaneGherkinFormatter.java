@@ -20,6 +20,7 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Instant;
@@ -37,107 +38,72 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     private Integer _scenarioOutlineIndex = null;
     private List<String> cucumberFeatures;
     private ResourceLoader cucumberResourceLoader;
-    private boolean throwException = false;
 
     public HPEAlmOctaneGherkinFormatter(ResourceLoader resourceLoader, List<String> features) {
+        cucumberFeatures = features;
+        cucumberResourceLoader = resourceLoader;
         try {
-            cucumberFeatures = features;
-            cucumberResourceLoader = resourceLoader;
             _doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             _rootElement = _doc.createElement(GherkinSerializer.ROOT_TAG_NAME);
             _doc.appendChild(_rootElement);
-        } catch (Exception e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            throw new CucumberException("Failed to create xml document",e);
         }
     }
 
     @Override
-    public void syntaxError(String s, String s1, List<String> list, String s2, Integer integer) {
-
-    }
+    public void syntaxError(String s, String s1, List<String> list, String s2, Integer integer) {}
 
     @Override
     public void uri(String uri) {
-        try {
-            // Creating the node for the next feature to run
-            if (_currentFeature == null) {
-                _currentFeature = new FeatureElement();
-            }
-            throwException();
-            addFeatureFileInfo(uri);
-        } catch (Exception e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
-        }
+        setCurrentFeature();
+        addFeatureFileInfo(uri);
     }
 
     @Override
     public void feature(Feature feature) {
-        try {
-            if (_currentFeature == null) {
-                _currentFeature = new FeatureElement();
+        setCurrentFeature();
+        _currentFeature.setName(feature.getName());
+        _currentFeature.setStarted(Instant.now().toEpochMilli());
+        if(!feature.getTags().isEmpty()){
+            String tag = feature.getTags().get(0).getName();
+            if(tag.startsWith("@TID")){
+                _currentFeature.setTag(tag);
             }
+        }
+    }
 
-            throwException();
-            _currentFeature.setName(feature.getName());
-            _currentFeature.setStarted(Instant.now().toEpochMilli());
-            if(!feature.getTags().isEmpty()){
-                String tag = feature.getTags().get(0).getName();
-                if(tag.startsWith("@TID")){
-                    _currentFeature.setTag(tag);
-                }
-            }
-        } catch (Exception e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
+    private void setCurrentFeature(){
+        // Creating the node for the next feature to run
+        if (_currentFeature == null) {
+            _currentFeature = new FeatureElement();
         }
     }
 
     @Override
     public void scenarioOutline(ScenarioOutline scenarioOutline) {
-        try {
-            _scenarioOutlineIndex = 1;
-        } catch (Exception e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
-        }
+        _scenarioOutlineIndex = 1;
     }
 
     @Override
-    public void examples(Examples examples) {
-
-    }
+    public void examples(Examples examples) {}
 
     @Override
-    public void startOfScenarioLifeCycle(Scenario scenario) {
-
-    }
+    public void startOfScenarioLifeCycle(Scenario scenario) {}
 
     @Override
     public void background(Background background) {
-        try {
-            _backgroundSteps = new ArrayList<>();
-        } catch (Exception e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
-        }
+        _backgroundSteps = new ArrayList<>();
     }
 
     @Override
     public void scenario(Scenario scenario) {
-        try {
-            throwException();
-            if(isScenarioOutline(scenario)){
-                _currentScenario = new ScenarioElement(scenario.getName(),_scenarioOutlineIndex++);
-            } else {
-                //this is a simple scenario
-                _currentScenario = new ScenarioElement(scenario.getName());
-                _scenarioOutlineIndex = null;
-            }
-        } catch (Exception e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
+        if(isScenarioOutline(scenario)){
+            _currentScenario = new ScenarioElement(scenario.getName(),_scenarioOutlineIndex++);
+        } else {
+            //this is a simple scenario
+            _currentScenario = new ScenarioElement(scenario.getName());
+            _scenarioOutlineIndex = null;
         }
     }
 
@@ -154,103 +120,73 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
 
     @Override
     public void step(Step step) {
-        try {
-            if(isScenarioOutlineStep()){
-                // no need to keep generic steps - skip them
-                return;
-            }
+        if(isScenarioOutlineStep()){
+            // no need to keep generic steps - skip them
+            return;
+        }
 
-            throwException();
-            StepElement currentStep = new StepElement(step);
-            if (_currentScenario != null) {
-                _currentScenario.getSteps().add(currentStep);
-            } else if (_backgroundSteps != null) {
-                _backgroundSteps.add(currentStep);
-            }
-        } catch (Exception e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
+        StepElement currentStep = new StepElement(step);
+        if (_currentScenario != null) {
+            _currentScenario.getSteps().add(currentStep);
+        } else if (_backgroundSteps != null) {
+            _backgroundSteps.add(currentStep);
         }
     }
 
     @Override
     public void endOfScenarioLifeCycle(Scenario scenario) {
-        try {
-            throwException();
-            if(_currentScenario != null){
-                _currentFeature.getScenarios().add(_currentScenario);
-            }
-            if (_backgroundSteps != null) {
-                _currentFeature.getBackgroundSteps().addAll(_backgroundSteps);
-            }
-            _currentScenario = null;
-        } catch (Exception e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
+        if(_currentScenario != null){
+            _currentFeature.getScenarios().add(_currentScenario);
         }
+        if (_backgroundSteps != null) {
+            _currentFeature.getBackgroundSteps().addAll(_backgroundSteps);
+        }
+        _currentScenario = null;
     }
 
     private void addFeatureFileInfo(String featureFile) {
-        Resource resource = findResource(featureFile);
-        FeatureBuilder builder = new FeatureBuilder(new ArrayList<CucumberFeature>());
-        if (resource != null) {
+        try {
+            Resource resource = findResource(featureFile);
+            FeatureBuilder builder = new FeatureBuilder(new ArrayList<CucumberFeature>());
             _currentFeature.setPath(((FileResource) resource).getFile().getPath());
             _currentFeature.setFile(builder.read(resource));
+        } catch (Exception e) {
+            throw new CucumberException("Failed to find feature file:" + featureFile ,e);
         }
     }
 
     @Override
-    public void before(Match match, Result result) {
-
-    }
+    public void before(Match match, Result result) {}
 
     @Override
     public void result(Result result) {
-        try {
-            throwException();
-            if (_currentStep != null) {
-                _currentStep.setStatus(result.getStatus());
-                _currentStep.setDuration(result.getDuration());
-                _currentStep = null;
-            }
-        } catch (Exception e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
+        if (_currentStep != null) {
+            _currentStep.setStatus(result.getStatus());
+            _currentStep.setDuration(result.getDuration());
+            _currentStep = null;
         }
     }
 
     @Override
-    public void after(Match match, Result result) {
-
-    }
+    public void after(Match match, Result result) {}
 
     @Override
     public void match(Match match) {
-        try {
-            throwException();
-            if (_currentScenario != null) {
-                for (StepElement step : _currentScenario.getSteps()) {
-                    // Checking if it's the same step
-                    if (step.getLine() == ((StepDefinitionMatch) match).getStepLocation().getLineNumber()) {
-                        _currentStep = step;
-                    }
+        if (_currentScenario != null) {
+            for (StepElement step : _currentScenario.getSteps()) {
+                // Checking if it's the same step
+                if (step.getLine() == ((StepDefinitionMatch) match).getStepLocation().getLineNumber()) {
+                    _currentStep = step;
                 }
             }
-        } catch (Exception e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
         }
     }
 
     @Override
-    public void embedding(String s, byte[] bytes) {
-
-    }
+    public void embedding(String s, byte[] bytes) {}
 
     @Override
-    public void write(String s) {
-
-    }
+    public void write(String s) {}
 
     private Resource findResource(String name){
         for (String featurePath : cucumberFeatures) {
@@ -277,8 +213,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
             serializer.write(_doc, output);
             //System.out.println(serializer.writeToString(_doc));
         } catch (Exception e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
+            throw new CucumberException("Failed to write document to disc",e);
         }
     }
 
@@ -289,49 +224,26 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
                 _out.close();
             }
         } catch (IOException e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
+            throw new CucumberException("Failed to close the FileOutputStream",e);
         }
     }
 
     @Override
     public void eof() {
-        try {
-            if (_currentFeature != null) {
-                _rootElement.appendChild(_currentFeature.toXMLElement(_doc));
+        if (_currentFeature != null) {
+            _rootElement.appendChild(_currentFeature.toXMLElement(_doc));
 
-                _currentFeature = null;
-                _currentScenario = null;
-                _currentStep = null;
-                _backgroundSteps = null;
-            }
-        } catch (Exception e) {
-            //formatter must never throw an exception
-            e.printStackTrace();
+            _currentFeature = null;
+            _currentScenario = null;
+            _currentStep = null;
+            _backgroundSteps = null;
         }
-    }
-
-    private void throwException(){
-        if(throwException){
-            throw new CucumberException("From HPEAlmOctaneGherkinFormatter");
-        }
-    }
-
-    void setThrowException(boolean val){
-        throwException = val;
     }
 
     String getXML() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        String xml = "";
-        try {
-            DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
-            DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
-            LSSerializer serializer = impl.createLSSerializer();
-            xml = serializer.writeToString(_doc);
-        } catch (Exception e){
-            //formatter must never throw an exception
-            e.printStackTrace();
-        }
-        return xml;
+        DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
+        DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
+        LSSerializer serializer = impl.createLSSerializer();
+        return serializer.writeToString(_doc);
     }
 }

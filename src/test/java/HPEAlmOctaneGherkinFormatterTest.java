@@ -18,45 +18,7 @@ public class HPEAlmOctaneGherkinFormatterTest {
     private String failed = "Failed";
 
     @Test
-    public void testNoExceptionsAreThrownForFormatterInterface() {
-        HPEAlmOctaneGherkinFormatter formatter = new HPEAlmOctaneGherkinFormatter(null, new ArrayList<String>());
-        formatter.syntaxError(null,null,null,null,0);
-        formatter.uri(null);
-        formatter.feature(null);
-        formatter.scenarioOutline(null);
-        formatter.examples(null);
-        formatter.startOfScenarioLifeCycle(null);
-        formatter.background(null);
-        formatter.scenario(null);
-        formatter.step(null);
-        formatter.endOfScenarioLifeCycle(null);
-        formatter.done();
-        formatter.close();
-        formatter.eof();
-    }
-
-    @Test
-    public void testNoExceptionsAreThrownForFormatterReporterInterface() {
-        HPEAlmOctaneGherkinFormatter formatter = new HPEAlmOctaneGherkinFormatter(null, new ArrayList<String>());
-        formatter.before(null,null);
-        formatter.result(null);
-        formatter.after(null,null);
-        formatter.match(null);
-        formatter.embedding(null,null);
-        formatter.write(null);
-    }
-
-    @Test
     public void testFullFlow() throws IllegalAccessException, ClassNotFoundException, InstantiationException, IOException {
-        runFullFlow(false);
-    }
-
-    @Test
-    public void testFullFlowWithExceptions() throws IllegalAccessException, InstantiationException, ClassNotFoundException {
-        runFullFlow(true);
-    }
-
-    private void runFullFlow(boolean withExceptions) throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         String testTag = "@TID1003REV0.4.0";
         String featurePath = "src\\main\\resources";
         String featureFileName = "F1\\test1.feature";
@@ -67,7 +29,6 @@ public class HPEAlmOctaneGherkinFormatterTest {
         ClassLoader classLoader = this.getClass().getClassLoader();
         ResourceLoader resourceLoader = new MultiLoader(classLoader);
         HPEAlmOctaneGherkinFormatter formatter = new HPEAlmOctaneGherkinFormatter(resourceLoader, features);
-        formatter.setThrowException(withExceptions);
 
         formatter.uri(featureFileName);
 
@@ -133,54 +94,46 @@ public class HPEAlmOctaneGherkinFormatterTest {
         formatter.done();
         formatter.close();
 
-        String expectedXml = "";
-        if(!withExceptions){
-            expectedXml = xmlVersion +
-                    "<features>" +
-                        "<feature name=\"" + featureName +"\" " +
-                                "path=\""+featurePath+ "\\" + featureFileName + "\"" +
-                                " started=\"\"" +
-                                " tag=\""+testTag+"\">" +
-                            "<file><![CDATA["+getScript(featureFileName)+"]]></file>" +
-                            "<scenarios>" +
-                                "<background>" +
-                                    "<steps>" +
-                                        "<step duration=\"0\" name=\"Givenback\"/>" +
-                                        "<step duration=\"0\" name=\"Andback\"/>" +
-                                    "</steps>" +
-                                "</background>"+
-                                "<scenario name=\"test scenario\">" +
-                                    "<steps>" +
-                                        "<step duration=\""+step1Duration+"\" name=\"Giventest\" status=\"Passed\"/>" +
-                                        "<step duration=\""+step2Duration+"\" name=\"Whentest\" status=\"Passed\"/>" +
-                                        "<step duration=\""+step3Duration+"\" name=\"Thentest\" status=\"Failed\"/>" +
-                                    "</steps>" +
-                                "</scenario>" +
-                                    "<scenario name=\"Table TTT\" outlineIndex=\"1\">" +
-                                        "<steps>" +
-                                            "<step duration=\""+step7Duration+"\" name=\"Givenhello &quot;Dan&quot;\" status=\"Passed\"/>" +
-                                            "<step duration=\""+step8Duration+"\" name=\"WhenWhen what &quot;What&quot;\" status=\"Passed\"/>" +
-                                            "<step duration=\""+step9Duration+"\" name=\"ThenThen wow\" status=\"Failed\"/>" +
-                                        "</steps>" +
-                                    "</scenario>" +
-                                    "<scenario name=\"Table TTT\" outlineIndex=\"2\">" +
-                                        "<steps>" +
-                                            "<step duration=\""+step10Duration+"\" name=\"Givenhello &quot;Sari&quot;\" status=\"Passed\"/>" +
-                                            "<step duration=\""+step11Duration+"\" name=\"WhenWhen what &quot;Why&quot;\" status=\"Passed\"/>" +
-                                            "<step duration=\""+step12Duration+"\" name=\"ThenThen wow\" status=\"Failed\"/>" +
-                                        "</steps>" +
-                                    "</scenario>" +
-                            "</scenarios>" +
-                        "</feature>" +
-                    "</features>";
+        String expectedXml = xmlVersion +
+                            "<features>" +
+                                "<feature name=\"" + featureName +"\" " +
+                                        "path=\""+featurePath+ "\\" + featureFileName + "\"" +
+                                        " started=\"\"" +
+                                        " tag=\""+testTag+"\">" +
+                                    "<file><![CDATA["+getScript(featureFileName)+"]]></file>" +
+                                    "<scenarios>" +
+                                        "<background>" +
+                                            "<steps>" +
+                                                "<step duration=\"0\" name=\"Givenback\"/>" +
+                                                "<step duration=\"0\" name=\"Andback\"/>" +
+                                            "</steps>" +
+                                        "</background>"+
+                                        "<scenario name=\"test scenario\">" +
+                                            "<steps>" +
+                                                "<step duration=\""+step1Duration+"\" name=\"Giventest\" status=\"Passed\"/>" +
+                                                "<step duration=\""+step2Duration+"\" name=\"Whentest\" status=\"Passed\"/>" +
+                                                "<step duration=\""+step3Duration+"\" name=\"Thentest\" status=\"Failed\"/>" +
+                                            "</steps>" +
+                                        "</scenario>" +
+                                            "<scenario name=\"Table TTT\" outlineIndex=\"1\">" +
+                                                "<steps>" +
+                                                    "<step duration=\""+step7Duration+"\" name=\"Givenhello &quot;Dan&quot;\" status=\"Passed\"/>" +
+                                                    "<step duration=\""+step8Duration+"\" name=\"WhenWhen what &quot;What&quot;\" status=\"Passed\"/>" +
+                                                    "<step duration=\""+step9Duration+"\" name=\"ThenThen wow\" status=\"Failed\"/>" +
+                                                "</steps>" +
+                                            "</scenario>" +
+                                            "<scenario name=\"Table TTT\" outlineIndex=\"2\">" +
+                                                "<steps>" +
+                                                    "<step duration=\""+step10Duration+"\" name=\"Givenhello &quot;Sari&quot;\" status=\"Passed\"/>" +
+                                                    "<step duration=\""+step11Duration+"\" name=\"WhenWhen what &quot;Why&quot;\" status=\"Passed\"/>" +
+                                                    "<step duration=\""+step12Duration+"\" name=\"ThenThen wow\" status=\"Failed\"/>" +
+                                                "</steps>" +
+                                            "</scenario>" +
+                                    "</scenarios>" +
+                                "</feature>" +
+                            "</features>";
 
-            actualXml = removeStartedFromXml(actualXml);
-        } else {
-            expectedXml = xmlVersion +
-                    "<features><feature name=\"\" path=\"\" tag=\"\"><file><![CDATA[]]></file><scenarios/></feature></features>";
-        }
-
-        Assert.assertEquals(expectedXml,actualXml);
+        Assert.assertEquals(expectedXml,removeStartedFromXml(actualXml));
     }
 
     private void addBackgroundSteps(HPEAlmOctaneGherkinFormatter formatter, ArrayList<GherkinStep> gherkinSteps) {
