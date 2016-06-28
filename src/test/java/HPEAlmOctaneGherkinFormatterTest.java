@@ -95,7 +95,7 @@ public class HPEAlmOctaneGherkinFormatterTest {
         formatter.close();
 
         String expectedXml = xmlVersion +
-                            "<features>" +
+                            "<features version=\"" +HPEAlmOctaneGherkinFormatter.XML_VERSION + "\">" +
                                 "<feature name=\"" + featureName +"\" " +
                                         "path=\""+featurePath+ "\\" + featureFileName + "\"" +
                                         " started=\"\"" +

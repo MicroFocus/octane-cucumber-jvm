@@ -38,6 +38,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     private Integer _scenarioOutlineIndex = null;
     private List<String> cucumberFeatures;
     private ResourceLoader cucumberResourceLoader;
+    public static String XML_VERSION = "1";
 
     public HPEAlmOctaneGherkinFormatter(ResourceLoader resourceLoader, List<String> features) {
         cucumberFeatures = features;
@@ -45,6 +46,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
         try {
             _doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             _rootElement = _doc.createElement(GherkinSerializer.ROOT_TAG_NAME);
+            _rootElement.setAttribute("version",XML_VERSION);
             _doc.appendChild(_rootElement);
         } catch (ParserConfigurationException e) {
             throw new CucumberException("Failed to create xml document",e);
