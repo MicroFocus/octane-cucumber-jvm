@@ -163,6 +163,10 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
 
     @Override
     public void result(Result result) {
+        if(result == Result.UNDEFINED){
+            return;
+        }
+
         if (_currentStep != null) {
             _currentStep.setStatus(result.getStatus());
             _currentStep.setDuration(result.getDuration());
@@ -175,6 +179,11 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
 
     @Override
     public void match(Match match) {
+        if(match == Match.UNDEFINED){
+            _currentStep = null;
+            return;
+        }
+
         if (_currentScenario != null) {
             for (StepElement step : _currentScenario.getSteps()) {
                 // Checking if it's the same step
