@@ -39,6 +39,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     private List<String> cucumberFeatures;
     private ResourceLoader cucumberResourceLoader;
     public static String XML_VERSION = "1";
+    private String errorPrefix = "<HPEAlmOctaneGherkinFormatter Error>";
 
     public HPEAlmOctaneGherkinFormatter(ResourceLoader resourceLoader, List<String> features) {
         cucumberFeatures = features;
@@ -49,7 +50,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
             _rootElement.setAttribute("version",XML_VERSION);
             _doc.appendChild(_rootElement);
         } catch (ParserConfigurationException e) {
-            throw new CucumberException("Failed to create xml document",e);
+            throw new CucumberException(errorPrefix + "Failed to create xml document",e);
         }
     }
 
@@ -153,7 +154,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
             _currentFeature.setPath(((FileResource) resource).getFile().getPath());
             _currentFeature.setFile(builder.read(resource));
         } catch (Exception e) {
-            throw new CucumberException("Failed to find feature file:" + featureFile ,e);
+            throw new CucumberException(errorPrefix + "Failed to find feature file:" + featureFile ,e);
         }
     }
 
@@ -215,7 +216,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
             serializer.write(_doc, output);
             //System.out.println(serializer.writeToString(_doc));
         } catch (Exception e) {
-            throw new CucumberException("Failed to write document to disc",e);
+            throw new CucumberException(errorPrefix + "Failed to write document to disc",e);
         }
     }
 
@@ -226,7 +227,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
                 _out.close();
             }
         } catch (IOException e) {
-            throw new CucumberException("Failed to close the FileOutputStream",e);
+            throw new CucumberException(errorPrefix + "Failed to close the FileOutputStream",e);
         }
     }
 
