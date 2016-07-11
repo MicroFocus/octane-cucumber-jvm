@@ -141,7 +141,8 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
         if(_currentScenario != null){
             _currentFeature.getScenarios().add(_currentScenario);
         }
-        if (_backgroundSteps != null) {
+
+        if (_backgroundSteps != null && _currentFeature.getBackgroundSteps().size()==0) {
             _currentFeature.getBackgroundSteps().addAll(_backgroundSteps);
         }
         _currentScenario = null;
