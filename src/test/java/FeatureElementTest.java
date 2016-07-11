@@ -92,6 +92,9 @@ public class FeatureElementTest {
     private String emptyFeature = "<feature name=\"\" path=\"\" tag=\"\"><file><![CDATA[]]></file>%s</feature>";
     private String emptyScenario = "<scenario name=\"\">%s</scenario>";
     private String emptyStep = "<step duration=\"0\" name=\"\"/>";
+    private String errorMessage = "java.lang.ArithmeticException: / by zero\n" +
+            "\tat Test.MyStepdefs.hello(MyStepdefs.java:18)\n" +
+            "\tat ✽.Given hello \"dan\"(F2/test2.feature:25)";
 
     private String gherkinNGAResultsXml = xmlVersion +
             "<feature name=\""+featureName+"\" path=\""+path+"\" started=\""+started+"\" tag=\"" + testTag +"\">"+
@@ -116,7 +119,9 @@ public class FeatureElementTest {
             "</scenario>" +
             "<scenario name=\""+scenarioName2+"\">" +
             "<steps>" +
-            "<step duration=\""+(stepDuration+7)+"\" name=\""+scenario2Step1+"\" status=\"failed\"/>" +
+            "<step duration=\""+(stepDuration+7)+"\" name=\""+scenario2Step1+"\" status=\"failed\">" +
+                "<error_message><![CDATA[" + errorMessage + "]]></error_message>" +
+            "</step>" +
             "<step duration=\"0\" name=\""+scenario2Step2+"\" status=\"skipped\"/>" +
             "<step duration=\"0\" name=\""+scenario2Step3+"\" status=\"skipped\"/>" +
             "<step duration=\"0\" name=\""+scenario2Step4+"\" status=\"skipped\"/>" +
@@ -156,7 +161,7 @@ public class FeatureElementTest {
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step6,6,passed,stepDuration+6));
 
         ScenarioElement scenarioElement2 =  new ScenarioElement(scenarioName2);
-        scenarioElement2.getSteps().add(createStepElement("",scenario2Step1,1,failed,stepDuration+7));
+        scenarioElement2.getSteps().add(createStepElement("",scenario2Step1,1,failed,stepDuration+7,errorMessage));
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step2,2,skipped,(long)0));
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step3,3,skipped,(long)0));
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step4,4,skipped,(long)0));
@@ -243,6 +248,12 @@ public class FeatureElementTest {
         StepElement stepElement = new StepElement(createStep(keyword, name, line));
         stepElement.setStatus(status);
         stepElement.setDuration(duration);
+        return stepElement;
+    }
+
+    private StepElement createStepElement(String keyword, String name, Integer line, String status, Long duration, String errorMessage) {
+        StepElement stepElement = createStepElement(keyword,name,line,status,duration);
+        stepElement.setErrorMessage(errorMessage);
         return stepElement;
     }
 }

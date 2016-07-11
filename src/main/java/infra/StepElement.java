@@ -9,12 +9,17 @@ public class StepElement implements GherkinSerializer {
     private String _status = "";
     private Integer _line = 0;
     private Long _duration = (long)0;
+    private String errorMessage = "";
 
     public StepElement(Step step) {
         if(step!=null){
             _name = step.getKeyword() + step.getName();
             _line = step.getLine();
         }
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     public void setStatus(String status) {
@@ -39,6 +44,12 @@ public class StepElement implements GherkinSerializer {
 
         String duration = _duration != null ? _duration.toString() : "0";
         step.setAttribute("duration", duration);
+
+        if(errorMessage!=null & !errorMessage.isEmpty()){
+            Element errorElement = doc.createElement(GherkinSerializer.ERROR_MESSAGE_TAG_NAME);
+            errorElement.appendChild(doc.createCDATASection(errorMessage));
+            step.appendChild(errorElement);
+        }
 
         return step;
     }

@@ -170,6 +170,9 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
         if (_currentStep != null) {
             _currentStep.setStatus(result.getStatus());
             _currentStep.setDuration(result.getDuration());
+            if(result.getErrorMessage()!=null){
+                _currentStep.setErrorMessage(result.getErrorMessage());
+            }
             _currentStep = null;
         }
     }

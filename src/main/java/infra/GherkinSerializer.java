@@ -13,6 +13,7 @@ public interface GherkinSerializer {
     static final String STEP_TAG_NAME = "step";
     static final String STEPS_TAG_NAME = "steps";
     static final String BACKGROUND_TAG_NAME = "background";
+    static final String ERROR_MESSAGE_TAG_NAME = "error_message";
 
     Element toXMLElement(Document doc);
 }
