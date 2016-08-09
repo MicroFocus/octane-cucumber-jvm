@@ -3,10 +3,10 @@ ALM Octane cucumber-jvm formatter
 
 This plugin enable uploading cucumber-jvm tests back into ALM Octane.
 
-Usage example:
-==============
 Please notice that the example below uses junit to run cucumber-jvm tests using the @RunWith attribute.
 To use our formatter, we changed in the example below the @RunWith parameter from cucumber.class to OctaneCucumber.class 
+
+Usage Example
 ==============
 package feature.manualRunner;
 
