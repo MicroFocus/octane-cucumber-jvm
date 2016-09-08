@@ -1,3 +1,6 @@
+package com.hpe.alm.octane;
+
+import com.hpe.alm.octane.HPEAlmOctaneGherkinFormatter;
 import cucumber.runtime.StepDefinition;
 import cucumber.runtime.StepDefinitionMatch;
 import cucumber.runtime.io.MultiLoader;
@@ -20,7 +23,7 @@ public class HPEAlmOctaneGherkinFormatterTest {
     @Test
     public void testFullFlow() throws IllegalAccessException, ClassNotFoundException, InstantiationException, IOException {
         String testTag = "@TID1003REV0.4.0";
-        String featurePath = "src\\main\\resources";
+        String featurePath = "src\\test\\resources\\com\\hpe\\alm\\octane";
         String featureFileName = "F1\\test1.feature";
 
         ArrayList<String> features = new ArrayList<>();

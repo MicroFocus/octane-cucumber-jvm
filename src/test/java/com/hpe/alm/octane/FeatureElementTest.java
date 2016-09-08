@@ -1,7 +1,10 @@
+package com.hpe.alm.octane;
+
+import com.hpe.alm.octane.HPEAlmOctaneGherkinFormatter;
 import gherkin.formatter.model.Step;
-import infra.FeatureElement;
-import infra.ScenarioElement;
-import infra.StepElement;
+import com.hpe.alm.octane.infra.FeatureElement;
+import com.hpe.alm.octane.infra.ScenarioElement;
+import com.hpe.alm.octane.infra.StepElement;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;

@@ -1,4 +1,4 @@
-package Test;
+package com.hpe.alm.octane;
 
 import cucumber.api.PendingException;
 import cucumber.api.java.en.Given;

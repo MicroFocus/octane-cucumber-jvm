@@ -1,4 +1,4 @@
-package infra;
+package com.hpe.alm.octane.infra;
 
 import gherkin.formatter.model.Step;
 import org.w3c.dom.Document;

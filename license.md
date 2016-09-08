@@ -1,42 +1,21 @@
-Commercial Standard License
-------------------------------
+MIT License
 
-Preamble/intro
-  This software license may be freely used in unmodified form (with exceptions).
-  A work may only be copyrighted under this license in its unmodified form, or
-  with some subsections removed or swapped out. 
+Copyright (c) [2016] [HPE Software]
 
-Overview
-  These are the changes made to this specific license:
-  Copyright Owner: Hewlett Packard Enterprise
-  Product Name: ALM Octane
-  License Modifications
-    Source code is provided.
-    Warranty is NOT given.
-    You are allowed to have this software installed on unlimited machines at once.
-    Commercial or educational use is allowed.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-Definitions
-  "Product", or "software" refers to the work that is copyrighted under
-  this license.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-  "We", or "us" refer to the copyright owner of this product. That owner is
-  Hewlett Packard Enterprise
-
-  "You" refers to the licensee of this product.
-
-License, not purchase
-  By purchasing this license, you are allowed to use this product, but we retain
-  the copyright to the software.
-
-Redistribution
-  You may not redistribute or resell the software.
-
-Warranty
-  This product does NOT come with any warranty, express or implied,
-  notwithstanding legislation to the contrary.
-
-Source Code
-  This software does provide the source code, and it is legal to attempt
-  to aquire it, whether by reverse engineering or otherwise.
-
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

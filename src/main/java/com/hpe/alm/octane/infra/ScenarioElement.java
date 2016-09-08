@@ -1,4 +1,4 @@
-package infra;
+package com.hpe.alm.octane.infra;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
