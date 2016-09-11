@@ -13,7 +13,7 @@ ALM Octane cucumber-jvm formatter enable uploading cucumber-jvm tests back into 
 
 The JUnit runner uses the JUnit framework to run Cucumber. 
 The default configuration require a single empty class with an annotation that looks like this:
-```
+```java
 package mypackage;
 import cucumber.api.junit.Cucumber;
 import org.junit.runner.RunWith;
@@ -24,9 +24,9 @@ public class RunCukesTest {
 }
 ```
 
-## How to configure in your project:
+## How to configure octane-cucumber-jvm in your project:
 1. Add a dependency in your pom file:
-```
+```xml
 <dependencies>
     <dependency>
         <groupId>com.hpe.alm.octane</groupId>
@@ -37,12 +37,12 @@ public class RunCukesTest {
 ```
 
 2. Import the formatter into the Junit Runner class (see example below)
-```
+```java
 import com.hpe.alm.octane.OctaneCucumber;
 ```
 
 3. Change the cucumber.class to OctaneCucumber.class. See a full example:
-```
+```java
 Package feature.manualRunner;
 
 Import com.hpe.alm.octane.OctaneCucumber;
