@@ -23,6 +23,7 @@ import org.w3c.dom.ls.LSSerializer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Instant;
@@ -207,15 +208,22 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     public void write(String s) {}
 
     private Resource findResource(String name){
+        ArrayList<String> paths = new ArrayList<>();
         for (String featurePath : cucumberFeatures) {
             Iterable<Resource> resources = cucumberResourceLoader.resources(featurePath, ".feature");
             for (Resource resource: resources) {
-                if(resource.getPath().contains(name.replace('/','\\'))){
+                String path = resource.getPath();
+                if(path.contains(name.replace('/', File.separatorChar))){
                     return resource;
                 }
+                paths.add(path);
             }
         }
         System.out.println("Resource file not found name:" + name);
+        System.out.println("File.separatorChar = " + File.separatorChar);
+        for (String path : paths) {
+            System.out.println("path = " + path);
+        }
         return null;
     }
 
