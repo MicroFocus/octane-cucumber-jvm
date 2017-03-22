@@ -1,5 +1,6 @@
 package com.hpe.alm.octane;
 
+import com.hpe.alm.octane.infra.*;
 import cucumber.runtime.CucumberException;
 import cucumber.runtime.FeatureBuilder;
 import cucumber.runtime.StepDefinitionMatch;
@@ -10,22 +11,15 @@ import cucumber.runtime.model.CucumberFeature;
 import gherkin.formatter.Formatter;
 import gherkin.formatter.Reporter;
 import gherkin.formatter.model.*;
-import com.hpe.alm.octane.infra.FeatureElement;
-import com.hpe.alm.octane.infra.GherkinSerializer;
-import com.hpe.alm.octane.infra.ScenarioElement;
-import com.hpe.alm.octane.infra.StepElement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +27,7 @@ import java.util.List;
 public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     private Document _doc = null;
     private Element _rootElement = null;
-    private FileOutputStream _out;
+    private OutputFile outputFile;
     private ScenarioElement _currentScenario = null;
     private StepElement _currentStep = null;
     private FeatureElement _currentFeature = null;
@@ -41,19 +35,18 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
     private Integer _scenarioOutlineIndex = null;
     private List<String> cucumberFeatures;
     private ResourceLoader cucumberResourceLoader;
-    public static String XML_VERSION = "1";
-    private String errorPrefix = "<HPEAlmOctaneGherkinFormatter Error>";
 
-    public HPEAlmOctaneGherkinFormatter(ResourceLoader resourceLoader, List<String> features) {
+    public HPEAlmOctaneGherkinFormatter(ResourceLoader resourceLoader, List<String> features, OutputFile outputFile) {
         cucumberFeatures = features;
         cucumberResourceLoader = resourceLoader;
+        this.outputFile = outputFile;
         try {
             _doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             _rootElement = _doc.createElement(GherkinSerializer.ROOT_TAG_NAME);
-            _rootElement.setAttribute("version",XML_VERSION);
+            _rootElement.setAttribute("version",Constants.XML_VERSION);
             _doc.appendChild(_rootElement);
         } catch (ParserConfigurationException e) {
-            throw new CucumberException(errorPrefix + "Failed to create xml document",e);
+            throw new CucumberException(Constants.errorPrefix + "Failed to create xml document",e);
         }
     }
 
@@ -158,7 +151,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
             _currentFeature.setPath(((FileResource) resource).getFile().getPath());
             _currentFeature.setFile(builder.read(resource));
         } catch (Exception e) {
-            throw new CucumberException(errorPrefix + "Failed to find feature file:" + featureFile ,e);
+            throw new CucumberException(Constants.errorPrefix + "Failed to find feature file:" + featureFile ,e);
         }
     }
 
@@ -229,29 +222,11 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
 
     @Override
     public void done() {
-        try {
-            DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
-            DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
-            LSSerializer serializer = impl.createLSSerializer();
-            LSOutput output = impl.createLSOutput();
-            _out = new FileOutputStream(GherkinSerializer.RESULTS_FILE_NAME);
-            output.setByteStream(_out);
-            serializer.write(_doc, output);
-            //System.out.println(serializer.writeToString(_doc));
-        } catch (Exception e) {
-            throw new CucumberException(errorPrefix + "Failed to write document to disc",e);
-        }
+        outputFile.write(_doc);
     }
 
     @Override
     public void close() {
-        try {
-            if (_out != null) {
-                _out.close();
-            }
-        } catch (IOException e) {
-            throw new CucumberException(errorPrefix + "Failed to close the FileOutputStream",e);
-        }
     }
 
     @Override

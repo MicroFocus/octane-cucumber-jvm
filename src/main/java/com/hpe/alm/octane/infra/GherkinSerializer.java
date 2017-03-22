@@ -5,7 +5,6 @@ import org.w3c.dom.Element;
 
 public interface GherkinSerializer {
     static final String FEATURE_TAG_NAME = "feature";
-    static final String RESULTS_FILE_NAME = "OctaneGherkinResults.xml";
     static final String ROOT_TAG_NAME = "features";
     static final String SCENARIO_TAG_NAME = "scenario";
     static final String SCENARIOS_TAG_NAME = "scenarios";

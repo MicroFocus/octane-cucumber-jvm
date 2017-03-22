@@ -1,5 +1,6 @@
 package com.hpe.alm.octane;
 
+import com.hpe.alm.octane.infra.OutputFile;
 import cucumber.api.junit.Cucumber;
 import cucumber.runtime.Runtime;
 import cucumber.runtime.RuntimeOptions;
@@ -15,7 +16,8 @@ public class OctaneCucumber extends Cucumber {
     }
 
     protected Runtime createRuntime(ResourceLoader resourceLoader, ClassLoader classLoader, RuntimeOptions runtimeOptions) throws InitializationError, IOException {
-        runtimeOptions.addPlugin(new HPEAlmOctaneGherkinFormatter(resourceLoader,runtimeOptions.getFeaturePaths()));
+        OutputFile outputFile = new OutputFile(this.getTestClass().getJavaClass());
+        runtimeOptions.addPlugin(new HPEAlmOctaneGherkinFormatter(resourceLoader, runtimeOptions.getFeaturePaths(), outputFile));
         return super.createRuntime(resourceLoader, classLoader, runtimeOptions);
     }
 }

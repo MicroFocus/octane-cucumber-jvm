@@ -1,6 +1,6 @@
 package com.hpe.alm.octane;
 
-import com.hpe.alm.octane.HPEAlmOctaneGherkinFormatter;
+import com.hpe.alm.octane.infra.OutputFile;
 import gherkin.formatter.model.Step;
 import com.hpe.alm.octane.infra.FeatureElement;
 import com.hpe.alm.octane.infra.ScenarioElement;
@@ -149,7 +149,7 @@ public class FeatureElementTest {
 
     @Before
     public void init() throws ParserConfigurationException {
-        formatter = new HPEAlmOctaneGherkinFormatter(null,new ArrayList<String>());
+        formatter = new HPEAlmOctaneGherkinFormatter(null,new ArrayList<String>(), new OutputFile(this.getClass()));
         doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 

@@ -1,6 +1,7 @@
 package com.hpe.alm.octane;
 
-import com.hpe.alm.octane.HPEAlmOctaneGherkinFormatter;
+import com.hpe.alm.octane.infra.Constants;
+import com.hpe.alm.octane.infra.OutputFile;
 import cucumber.runtime.StepDefinition;
 import cucumber.runtime.StepDefinitionMatch;
 import cucumber.runtime.io.MultiLoader;
@@ -31,7 +32,7 @@ public class HPEAlmOctaneGherkinFormatterTest {
 
         ClassLoader classLoader = this.getClass().getClassLoader();
         ResourceLoader resourceLoader = new MultiLoader(classLoader);
-        HPEAlmOctaneGherkinFormatter formatter = new HPEAlmOctaneGherkinFormatter(resourceLoader, features);
+        HPEAlmOctaneGherkinFormatter formatter = new HPEAlmOctaneGherkinFormatter(resourceLoader, features, new OutputFile(this.getClass()));
 
         formatter.uri(featureFileName);
 
@@ -98,7 +99,7 @@ public class HPEAlmOctaneGherkinFormatterTest {
         formatter.close();
 
         String expectedXml = xmlVersion +
-                            "<features version=\"" +HPEAlmOctaneGherkinFormatter.XML_VERSION + "\">" +
+                            "<features version=\"" + Constants.XML_VERSION + "\">" +
                                 "<feature name=\"" + featureName +"\" " +
                                         "path=\""+featurePath+ "\\" + featureFileName + "\"" +
                                         " started=\"\"" +
