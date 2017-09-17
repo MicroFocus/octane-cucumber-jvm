@@ -1,4 +1,4 @@
-#Auto generated NGA revision tag
+@MyTag
 @TID2001REV0.2.0
 Feature: test Feature3
 	Background:

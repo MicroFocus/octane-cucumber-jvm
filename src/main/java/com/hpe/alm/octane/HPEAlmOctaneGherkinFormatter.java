@@ -64,10 +64,10 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
         setCurrentFeature();
         _currentFeature.setName(feature.getName());
         _currentFeature.setStarted(Instant.now().toEpochMilli());
-        if(!feature.getTags().isEmpty()){
-            String tag = feature.getTags().get(0).getName();
-            if(tag.startsWith("@TID")){
-                _currentFeature.setTag(tag);
+        for(Tag tag : feature.getTags()) {
+            if(tag.getName().startsWith("@TID")) {
+                _currentFeature.setTag(tag.getName());
+                break;
             }
         }
     }
