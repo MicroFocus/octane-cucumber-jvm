@@ -108,8 +108,8 @@ public class HPEAlmOctaneGherkinFormatterTest {
                                     "<scenarios>" +
                                         "<background>" +
                                             "<steps>" +
-                                                "<step duration=\"0\" name=\"Givenback\" status=\"skipped\"/>" +
-                                                "<step duration=\"0\" name=\"Andback\" status=\"skipped\"/>" +
+                                                "<step duration=\"0\" name=\"Givenback\" status=\"Passed\"/>" +
+                                                "<step duration=\"0\" name=\"Andback\" status=\"Passed\"/>" +
                                             "</steps>" +
                                         "</background>"+
                                         "<scenario name=\"test scenario\">" +

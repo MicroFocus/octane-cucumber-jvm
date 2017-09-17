@@ -182,11 +182,17 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
         }
 
         if (_currentScenario != null) {
-            for (StepElement step : _currentScenario.getSteps()) {
-                // Checking if it's the same step
-                if (step.getLine() == ((StepDefinitionMatch) match).getStepLocation().getLineNumber()) {
-                    _currentStep = step;
-                }
+            setCurrentStep(_currentScenario.getSteps(), (StepDefinitionMatch)match);
+        } else if (_backgroundSteps != null) {
+            setCurrentStep(_backgroundSteps, (StepDefinitionMatch)match);
+        }
+    }
+
+    private void setCurrentStep(List<StepElement> steps, StepDefinitionMatch match) {
+        for (StepElement step : steps) {
+            // Checking if it's the same step
+            if (step.getLine() == match.getStepLocation().getLineNumber()) {
+                _currentStep = step;
             }
         }
     }
