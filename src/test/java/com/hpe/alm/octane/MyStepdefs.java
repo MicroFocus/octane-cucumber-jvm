@@ -1,6 +1,7 @@
 package com.hpe.alm.octane;
 
 import cucumber.api.PendingException;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -49,5 +50,47 @@ public class MyStepdefs {
     public void test() throws Throwable {
         // Write code here that turns the phrase above into concrete actions
         //throw new PendingException();
+    }
+
+
+    @Given("^I am logged in$")
+    public void i_am_logged_in() throws Throwable {
+    }
+
+    @When("^pending step$")
+    public void pending_step() throws Throwable {
+        // Write code here that turns the phrase above into concrete actions
+        throw new PendingException();
+    }
+
+    @Then("^another pending step$")public void another_pending_step() throws Throwable {
+        // Write code here that turns the phrase above into concrete actions
+        throw new PendingException();
+    }
+
+    @And("^I'm failed$")
+    public void iMFailed() throws Throwable {
+        // Write code here that turns the phrase above into concrete actions
+        throw new Exception("exception happened");
+    }
+
+    @When("^passed step$")
+    public void passedStep() throws Throwable {
+
+    }
+
+    @Then("^another passed step$")
+    public void anotherPassedStep() throws Throwable {
+
+    }
+
+    @When("^failed step$")
+    public void failedStep() throws Throwable {
+        iMFailed();
+    }
+
+    @Then("^another failed step$")
+    public void anotherFailedStep() throws Throwable {
+        failedStep();
     }
 }
