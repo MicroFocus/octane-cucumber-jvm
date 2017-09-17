@@ -94,7 +94,7 @@ public class FeatureElementTest {
     private String xmlVersion = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n";
     private String emptyFeature = "<feature name=\"\" path=\"\" tag=\"\"><file><![CDATA[]]></file>%s</feature>";
     private String emptyScenario = "<scenario name=\"\">%s</scenario>";
-    private String emptyStep = "<step duration=\"0\" name=\"\"/>";
+    private String emptyStep = "<step duration=\"0\" name=\"\" status=\"skipped\"/>";
     private String errorMessage = "java.lang.ArithmeticException: / by zero\n" +
             "\tat Test.MyStepdefs.hello(MyStepdefs.java:18)\n" +
             "\tat ✽.Given hello \"dan\"(F2/test2.feature:25)";

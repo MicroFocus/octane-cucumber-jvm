@@ -128,6 +128,7 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
         if (_currentScenario != null) {
             _currentScenario.getSteps().add(currentStep);
         } else if (_backgroundSteps != null) {
+            currentStep.setBackgroundStep();
             _backgroundSteps.add(currentStep);
         }
     }
@@ -160,10 +161,6 @@ public class HPEAlmOctaneGherkinFormatter implements Formatter, Reporter {
 
     @Override
     public void result(Result result) {
-        if(result == Result.UNDEFINED){
-            return;
-        }
-
         if (_currentStep != null) {
             _currentStep.setStatus(result.getStatus());
             _currentStep.setDuration(result.getDuration());
