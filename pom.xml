@@ -30,21 +30,21 @@
     <developers>
         <developer>
             <name>Sharon Vardi</name>
-            <email>sharon.frank@hpe.com</email>
-            <organization>HPE</organization>
-            <organizationUrl>http://www.hpe.com</organizationUrl>
+            <email>sharon.frank@microfocus.com</email>
+            <organization>Micro Focus</organization>
+            <organizationUrl>http://www.microfocus.com</organizationUrl>
         </developer>
         <developer>
             <name>Michael Intract</name>
-            <email>michael.intract@hpe.com</email>
-            <organization>HPE</organization>
-            <organizationUrl>http://www.hpe.com</organizationUrl>
+            <email>michael.intract@microfocus.com</email>
+            <organization>Micro Focus</organization>
+            <organizationUrl>http://www.microfocus.com</organizationUrl>
         </developer>
         <developer>
             <name>Yuval Koren</name>
-            <email>yuval.koren@hpe.com</email>
-            <organization>HPE</organization>
-            <organizationUrl>http://www.hpe.com</organizationUrl>
+            <email>yuval.koren@microfocus.com</email>
+            <organization>Micro Focus</organization>
+            <organizationUrl>http://www.microfocus.com</organizationUrl>
         </developer>
     </developers>
 
