@@ -50,9 +50,30 @@ public class OctaneCucumberTest {
 		String expectedXml = expectedResultFileReader.lines().collect(Collectors.joining());
 
 		BufferedReader actualResultFileReader = new BufferedReader(new FileReader(Constants.RESULTS_FOLDER + "/" + resultFileName));
-		String actualResultFileContent = actualResultFileReader.lines().collect(Collectors.joining());
-		String actualXml = actualResultFileContent.replaceAll(" duration=\"\\d*\"", "").replaceAll(" started=\"\\d*\"", "");
+		String actualXml = actualResultFileReader.lines().collect(Collectors.joining());
+
+		validatePath(expectedXml, actualXml);
+
+		actualXml = actualXml
+			.replaceAll(" duration=\"\\d*\"", "")
+			.replaceAll(" started=\"\\d*\"", "")
+			.replaceAll(" path=\".*\"", "");
+
+		expectedXml = expectedXml.replaceAll(" path=\".*\"", "");
 
 		Assert.assertEquals(expectedXml, actualXml);
+	}
+
+	private void validatePath(String expected, String actual) {
+		int expectedPathStart = expected.indexOf("path=");
+		int expectedPathEnd = expected.indexOf("\"", expectedPathStart + 7);
+		String expectedPath = expected.substring(expectedPathStart + 6, expectedPathEnd);
+
+		int actualPathStart = actual.indexOf("path=");
+		int actualPathEnd = actual.indexOf("\"", actualPathStart + 7);
+		String actualPath = actual.substring(actualPathStart, actualPathEnd);
+		String actualPathSuffix = actualPath.substring(actualPath.length()-expectedPath.length(), actualPath.length());
+
+		Assert.assertEquals("Path suffix not equal", expectedPath, actualPathSuffix);
 	}
 }

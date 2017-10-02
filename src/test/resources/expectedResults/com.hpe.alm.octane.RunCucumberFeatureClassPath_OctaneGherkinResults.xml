@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<features version="1"><feature name="test Feature" path="C:\QC\Views\Git\octane-cucumber-jvm\target\test-classes\com\hpe\alm\octane\F1\test1.feature" tag="@TID2001REV0.2.0"><file><![CDATA[#Auto generated NGA revision tag
+<features version="1"><feature name="test Feature" path="com\hpe\alm\octane\F1\test1.feature" tag="@TID2001REV0.2.0"><file><![CDATA[#Auto generated NGA revision tag
 @TID2001REV0.2.0
 Feature: test Feature
 	Background:
