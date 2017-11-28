@@ -3,8 +3,8 @@ ALM Octane cucumber-jvm formatter enable uploading cucumber-jvm tests back into 
 
 ## How does it work
 1. you use this plugin in your JUnit cucumber tests (See instructions below)
-2. When running the tests, the plugin outputs a file named gherkinNGAResults.xml_ with the results
-3. Octane plugin for Jenkins reads this file and upload the results back to Octane (read how to configure Octane Jenkins plugin from Octane online help)
+2. When running the tests, the plugin outputs _OctaneGherkinResults.xml files with the results
+3. Octane plugin for Jenkins reads these files and upload the results back to Octane (read how to configure Octane Jenkins plugin from Octane online help)
 4. You can see the results in your Gherkin test in Octane
 
 ## Prerequisites:
@@ -34,7 +34,7 @@ public class RunCukesTest {
     <dependency>
         <groupId>com.hpe.alm.octane</groupId>
         <artifactId>octane-cucumber-jvm</artifactId>
-        <version>12.53.16</version>
+        <version>12.55.7</version>
     </dependency>
 </dependencies>
 ```
