@@ -11,7 +11,7 @@ ALM Octane cucumber-jvm formatter enable uploading cucumber-jvm tests back into 
 * You are using Java language and the cucumber-jvm library to develop cucumber tests
 * You are using Junit Runner to run the cucumber-jvm library like explained in the [following link](https://cucumber.io/docs/reference/jvm#junit-runner)
 
-The JUnit runner uses the JUnit framework to run Cucumber. 
+The JUnit runner uses the JUnit framework to run Cucumber.
 The default configuration require a single empty class with an annotation that looks like this:
 ```java
 /**********************************
