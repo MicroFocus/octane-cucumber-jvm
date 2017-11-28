@@ -14,7 +14,7 @@
         A plugin to upload cucumber test results into ALM Octane.
         The plugin works with the Junit framework that runs cucumber-jvm tests.
     </description>
-    <url>https://github.com/HPSoftware/octane-cucumber-jvm</url>
+    <url>https://github.com/MicroFocus/octane-cucumber-jvm</url>
 
     <properties>
         <cucumber.version>1.2.4</cucumber.version>
