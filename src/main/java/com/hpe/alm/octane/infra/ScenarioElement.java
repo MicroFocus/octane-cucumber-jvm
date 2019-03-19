@@ -10,14 +10,21 @@ import java.util.List;
  * Created by intract on 23/06/2016.
  */
 public class ScenarioElement implements GherkinSerializer {
-    private String _name = "";
+    private String _name;
     private List<StepElement> _steps;
     private Integer _outlineIndex = 0;
+    private String type = "Scenario";
 
-    public ScenarioElement(String name, int outlineIndex) {
+    public ScenarioElement(String name, int _outlineIndex) {
         this(name);
-        _outlineIndex = outlineIndex;
+        this._outlineIndex = _outlineIndex;
     }
+
+    public ScenarioElement(String name, String type) {
+        this(name);
+        this.type = type;
+    }
+
 
     public ScenarioElement(String name) {
         _name = name;

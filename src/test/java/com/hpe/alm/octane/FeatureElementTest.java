@@ -1,10 +1,10 @@
 package com.hpe.alm.octane;
 
-import com.hpe.alm.octane.infra.OutputFile;
-import gherkin.formatter.model.Step;
 import com.hpe.alm.octane.infra.FeatureElement;
+import com.hpe.alm.octane.infra.OutputFile;
 import com.hpe.alm.octane.infra.ScenarioElement;
 import com.hpe.alm.octane.infra.StepElement;
+import gherkin.ast.Step;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,11 +16,10 @@ import org.w3c.dom.ls.LSSerializer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.util.ArrayList;
 
 public class FeatureElementTest {
     private Document doc = null;
-    private HPEAlmOctaneGherkinFormatter formatter;
+    private OctaneGherkinFormatter formatter;
     private String passed = "passed";
     private String skipped = "skipped";
     private String failed = "failed";
@@ -149,7 +148,7 @@ public class FeatureElementTest {
 
     @Before
     public void init() throws ParserConfigurationException {
-        formatter = new HPEAlmOctaneGherkinFormatter(null,new ArrayList<String>(), new OutputFile(this.getClass()));
+        formatter = new OctaneGherkinFormatter(null, new OutputFile(this.getClass()));
         doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 
@@ -183,7 +182,7 @@ public class FeatureElementTest {
         featureElement.setName(featureName);
         featureElement.setStarted(started);
         featureElement.setPath(path);
-        featureElement.setFile(gherkinScript);
+        featureElement.setFileContent(gherkinScript);
         featureElement.setTag(testTag);
 
         featureElement.getBackgroundSteps().add(createStepElement("",backgroundStep1,1,passed,stepDuration+8));
@@ -238,17 +237,17 @@ public class FeatureElementTest {
         return serializer.writeToString(element);
     }
 
-    private Step createStep(String keyword, String name, Integer line) {
+    private Step createStep(String keyword, String text, Integer line) {
         Step step = EasyMock.createMock(Step.class);
         EasyMock.expect(step.getKeyword()).andReturn(keyword).anyTimes();
-        EasyMock.expect(step.getName()).andReturn(name).anyTimes();
-        EasyMock.expect(step.getLine()).andReturn(line).anyTimes();
+        EasyMock.expect(step.getText()).andReturn(text).anyTimes();
+        EasyMock.expect(step.getLocation().getLine()).andReturn(line).anyTimes();
         EasyMock.replay(step);
         return step;
     }
 
-    private StepElement createStepElement(String keyword, String name, Integer line, String status, Long duration) {
-        StepElement stepElement = new StepElement(createStep(keyword, name, line));
+    private StepElement createStepElement(String keyword, String text, Integer line, String status, Long duration) {
+        StepElement stepElement = new StepElement(createStep(keyword, text, line));
         stepElement.setStatus(status);
         stepElement.setDuration(duration);
         return stepElement;

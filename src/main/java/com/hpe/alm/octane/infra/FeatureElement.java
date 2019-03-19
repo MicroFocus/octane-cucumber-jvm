@@ -13,7 +13,7 @@ public class FeatureElement implements GherkinSerializer {
     private String _name = "";
     private String _tag = "";
     private String _path = "";
-    private String _file = "";
+    private String _fileContent = "";
     private Long _started;
     private List<ScenarioElement> _scenarios;
     private List<StepElement> _backgroundSteps;
@@ -43,8 +43,8 @@ public class FeatureElement implements GherkinSerializer {
         this._path = path;
     }
 
-    public void setFile(String file) {
-        this._file = file;
+    public void setFileContent(String _fileContent) {
+        this._fileContent = _fileContent;
     }
 
     public void setStarted(Long started) { this._started = started; }
@@ -62,7 +62,7 @@ public class FeatureElement implements GherkinSerializer {
 
         // Adding the file to the feature
         Element fileElement = doc.createElement(GherkinSerializer.FILE_TAG_NAME);
-        fileElement.appendChild(doc.createCDATASection(_file));
+        fileElement.appendChild(doc.createCDATASection(_fileContent));
         feature.appendChild(fileElement);
 
         Element scenariosElement = doc.createElement(GherkinSerializer.SCENARIOS_TAG_NAME);
