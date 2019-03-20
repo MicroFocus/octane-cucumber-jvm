@@ -6,21 +6,21 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class StepElement implements GherkinSerializer {
-    private String _text = "";
+    private String _name = "";
     private String _status = Result.Type.SKIPPED.lowerCaseName();
     private Integer _line = 0;
     private Long _duration = (long)0;
     private String errorMessage = "";
     private boolean isBackgroundStep = false;
 
-    public StepElement(String text, Integer line){
-        _text = text;
+    public StepElement(String name, Integer line){
+        _name = name;
         _line = line;
     }
 
     public StepElement(Step step) {
         if(step != null){
-            _text = step.getKeyword() + step.getText();
+            _name = step.getKeyword() + step.getText();
             _line = step.getLocation().getLine();
         }
     }
@@ -34,7 +34,7 @@ public class StepElement implements GherkinSerializer {
     }
 
     public void setStatus(String status) {
-        this._status = status;
+        this._status = status.toLowerCase();
     }
 
     public void setDuration(Long duration) {
@@ -48,7 +48,7 @@ public class StepElement implements GherkinSerializer {
     public Element toXMLElement(Document doc) {
         Element step = doc.createElement(STEP_TAG_NAME);
 
-        step.setAttribute("text", _text);
+        step.setAttribute("name", _name);
         step.setAttribute("status", _status);
 
         String duration = _duration != null ? _duration.toString() : "0";
