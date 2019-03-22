@@ -11,28 +11,38 @@ import java.util.List;
  */
 public class ScenarioElement implements GherkinSerializer {
     private String _name;
+    private Integer index;
     private List<StepElement> _steps;
     private Integer _outlineIndex = 0;
     private String type = "Scenario";
 
-    public ScenarioElement(String name, int _outlineIndex) {
-        this(name);
+    public ScenarioElement(Integer index, String name, int _outlineIndex) {
+        this(index, name);
         this._outlineIndex = _outlineIndex;
     }
 
-    public ScenarioElement(String name, String type) {
-        this(name);
+    public ScenarioElement(Integer index, String name, String type) {
+        this(index, name);
         this.type = type;
     }
 
 
-    public ScenarioElement(String name) {
+    public ScenarioElement(Integer index, String name) {
         _name = name;
+        this.index = index;
         _steps = new ArrayList<>();
     }
 
     public List<StepElement> getSteps() {
         return _steps;
+    }
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
     }
 
     public Element toXMLElement(Document doc) {

@@ -154,7 +154,7 @@ public class FeatureElementTest {
 
     @Test
     public void testFeatureElementToXMLElement() {
-        ScenarioElement scenarioElement1 = new ScenarioElement(scenarioName1);
+        ScenarioElement scenarioElement1 = new ScenarioElement(1, scenarioName1);
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step1,1,passed,stepDuration+1));
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step2,2,passed,stepDuration+2));
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step3,3,passed,stepDuration+3));
@@ -162,18 +162,18 @@ public class FeatureElementTest {
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step5,5,passed,stepDuration+5));
         scenarioElement1.getSteps().add(createStepElement("",scenario1Step6,6,passed,stepDuration+6));
 
-        ScenarioElement scenarioElement2 =  new ScenarioElement(scenarioName2);
+        ScenarioElement scenarioElement2 =  new ScenarioElement(2, scenarioName2);
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step1,1,failed,stepDuration+7,errorMessage));
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step2,2,skipped,(long)0));
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step3,3,skipped,(long)0));
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step4,4,skipped,(long)0));
 
-        ScenarioElement scenarioOutlineElement1 =  new ScenarioElement(scenarioOutline,1);
+        ScenarioElement scenarioOutlineElement1 =  new ScenarioElement(3, scenarioOutline,1);
         scenarioOutlineElement1.getSteps().add(createStepElement("", String.format(scenarioOutlineStep1,scenarioOutlineWeight1),1,passed,stepDuration+11));
         scenarioOutlineElement1.getSteps().add(createStepElement("",scenarioOutlineStep2,2,passed,stepDuration+12));
         scenarioOutlineElement1.getSteps().add(createStepElement("", String.format(scenarioOutlineStep3, scenarioOutlineEnergy1),3,passed,stepDuration+13));
 
-        ScenarioElement scenarioOutlineElement2 =  new ScenarioElement(scenarioOutline,2);
+        ScenarioElement scenarioOutlineElement2 =  new ScenarioElement(4, scenarioOutline,2);
         scenarioOutlineElement2.getSteps().add(createStepElement("", String.format(scenarioOutlineStep1,scenarioOutlineWeight2),1,passed,stepDuration+14));
         scenarioOutlineElement2.getSteps().add(createStepElement("",scenarioOutlineStep2,2,passed,stepDuration+15));
         scenarioOutlineElement2.getSteps().add(createStepElement("", String.format(scenarioOutlineStep3, scenarioOutlineEnergy2),3,passed,stepDuration+16));
@@ -209,8 +209,8 @@ public class FeatureElementTest {
         String scenarios = "<scenarios>" + String.format(emptyScenario, "<steps/>") + String.format(emptyScenario, "<steps/>") + "</scenarios>";
         String emptyFeatureAndScenarioInfo = xmlVersion + String.format(emptyFeature, scenarios);
         FeatureElement featureElement = new FeatureElement();
-        ScenarioElement scenarioElement1 = new ScenarioElement(null);
-        ScenarioElement scenarioElement2 = new ScenarioElement("");
+        ScenarioElement scenarioElement1 = new ScenarioElement(1, null);
+        ScenarioElement scenarioElement2 = new ScenarioElement(2, "");
         featureElement.getScenarios().add(scenarioElement1);
         featureElement.getScenarios().add(scenarioElement2);
         Assert.assertEquals(emptyFeatureAndScenarioInfo,elementToString(featureElement.toXMLElement(doc)));
@@ -222,7 +222,7 @@ public class FeatureElementTest {
         String scenarios = "<scenarios>" + String.format(emptyScenario, steps) + "</scenarios>";
         String emptyFeatureAndScenarioInfo = xmlVersion + String.format(emptyFeature, scenarios);
         FeatureElement featureElement = new FeatureElement();
-        ScenarioElement scenarioElement1 = new ScenarioElement("");
+        ScenarioElement scenarioElement1 = new ScenarioElement(1, "");
         scenarioElement1.getSteps().add(new StepElement(null));
         scenarioElement1.getSteps().add(new StepElement(createStep("", "", -1)));
         featureElement.getScenarios().add(scenarioElement1);
