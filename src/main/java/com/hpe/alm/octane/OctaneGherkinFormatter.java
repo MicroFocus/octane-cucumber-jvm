@@ -185,7 +185,7 @@ public class OctaneGherkinFormatter implements EventListener {
 
     private void scenarioFinished(TestCaseFinished event) {
         ScenarioElement scenarioElement = getCurrentScenarioElement(event.getTestCase());
-        scenarioElement.getSteps().removeAll(backgroundSteps);
+        scenarioElement.getSteps().removeAll(getCurrentFeatureElement(event.getTestCase()).getBackgroundSteps());
         stepIndex = 0;
     }
 
