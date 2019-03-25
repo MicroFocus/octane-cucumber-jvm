@@ -28,20 +28,19 @@ public class OctaneGherkinFormatter implements EventListener {
     private Document _doc;
     private Element _rootElement;
     private OutputFile outputFile;
-    private StepElement _currentStep = null;
     private Map<String, FeatureElement> _features = new LinkedHashMap<>();
-    private List<StepElement> _backgroundSteps = new ArrayList<>();
-    private Integer _scenarioOutlineIndex = null;
-    private Integer _scenarioIndex = null;
-    private Integer _stepIndex = null;
+    private List<StepElement> backgroundSteps = new ArrayList<>();
+    private Integer _scenarioIndex = -1;
+    private Integer _scenarioOutlineIndex = 0;
+    private Integer _stepIndex = 0;
     private Map<String, GherkinDocument> cucumberFeatures = new HashMap<>();
 
     private EventHandler<TestSourceRead> testSourceReadHandler = this::handleSourceRead;
-    private EventHandler<TestCaseStarted> testCaseStartedHandler =  event -> handleTestCaseStarted();
-    private EventHandler<TestCaseFinished> testCaseFinishedHandler = this::handleTestCaseFinished;
-    private EventHandler<TestStepStarted> stepStartedHandler = event -> handleTestStepStarted();
-    private EventHandler<TestStepFinished> stepFinishedHandler = this::handleTestStepFinished;
-    private EventHandler<TestRunFinished> runFinishedHandler = event -> finishReport();
+    private EventHandler<TestCaseStarted> testCaseStartedHandler =  event -> scenarioStarted();
+    private EventHandler<TestCaseFinished> testCaseFinishedHandler = this::scenarioFinished;
+   // private EventHandler<TestStepStarted> stepStartedHandler = event -> testStepStarted();
+    private EventHandler<TestStepFinished> stepFinishedHandler = this::testStepFinished;
+    private EventHandler<TestRunFinished> runFinishedHandler = event -> finishTestReport();
 
     OctaneGherkinFormatter(List<CucumberFeature> cucumberFeatures, OutputFile outputFile){
         initFeatures(cucumberFeatures);
@@ -56,45 +55,79 @@ public class OctaneGherkinFormatter implements EventListener {
         }
     }
 
-    private void initFeatures(List<CucumberFeature> features){
-        features.forEach(cucumberFeature -> cucumberFeatures.put(cucumberFeature.getUri(), cucumberFeature.getGherkinFeature()));
-    }
-
     @Override
     public void setEventPublisher(EventPublisher publisher) {
         publisher.registerHandlerFor(TestSourceRead.class, testSourceReadHandler);
         publisher.registerHandlerFor(TestCaseStarted.class, testCaseStartedHandler);
         publisher.registerHandlerFor(TestCaseFinished.class, testCaseFinishedHandler);
-        publisher.registerHandlerFor(TestStepStarted.class, stepStartedHandler);
         publisher.registerHandlerFor(TestStepFinished.class, stepFinishedHandler);
         publisher.registerHandlerFor(TestRunFinished.class, runFinishedHandler);
     }
 
-    /**************** Source Read *****************/
+    private void initFeatures(List<CucumberFeature> features){
+        features.forEach(cucumberFeature -> cucumberFeatures.put(cucumberFeature.getUri(), cucumberFeature.getGherkinFeature()));
+    }
+
     private void handleSourceRead(TestSourceRead event) {
-        Feature feature = cucumberFeatures.get(event.uri).getFeature();
-        FeatureElement featureElement = new FeatureElement();
+        Feature feature = getCurrentFeature(event);
         List<ScenarioDefinition> scenarioDefinitions = feature.getChildren();
+        FeatureElement featureElement = new FeatureElement();
+        setScenariosInfo(scenarioDefinitions, featureElement);
+        setFeatureInfo(event, feature, featureElement);
+        _features.put(event.uri, featureElement);
+    }
+
+    private Feature getCurrentFeature(TestSourceRead event) {
+        return cucumberFeatures.get(event.uri).getFeature();
+    }
+
+    private void setScenariosInfo(List<ScenarioDefinition> scenarioDefinitions, FeatureElement featureElement){
         int scenarioIndex = 0;
         for(ScenarioDefinition scenarioDefinition : scenarioDefinitions) {
-            ScenarioElement scenarioElement = new ScenarioElement(scenarioIndex, scenarioDefinition.getName(), scenarioDefinition.getKeyword());
-            //todo - if scenario is outline, update scenario index
-            scenarioDefinition.getSteps().forEach(step -> {
-                StepElement stepElement = new StepElement(step.getKeyword(), step.getText(), step.getLocation().getLine());
-                if(scenarioDefinition.getKeyword().equals("Background")) {
-                    stepElement.setBackgroundStep();
-                    _backgroundSteps.add(stepElement);
+            ScenarioElement scenarioElement;
+            if(isScenarioOutline(scenarioDefinition)) {
+                scenarioElement = new ScenarioElement(scenarioIndex, scenarioDefinition.getName(), scenarioDefinition.getKeyword(), _scenarioOutlineIndex++);
+                featureElement.getScenarios().add(scenarioElement);
+            } else {
+                scenarioElement = new ScenarioElement(scenarioIndex, scenarioDefinition.getName(), scenarioDefinition.getKeyword());
+                if(isScenarioBackground(scenarioDefinition)) {
+                    scenarioDefinition.getSteps().forEach(step -> {
+                        StepElement stepElement = new StepElement(step.getKeyword(), step.getText(), step.getLocation().getLine());
+                        stepElement.setBackgroundStep();
+                        backgroundSteps.add(stepElement);
+                    });
+                    featureElement.getBackgroundSteps().addAll(backgroundSteps);
                 }
-                scenarioElement.getSteps().add(stepElement);
-                //todo - ignore outline generic step
-            });
-            featureElement.getScenarios().add(scenarioElement);
-            if (_backgroundSteps != null && featureElement.getBackgroundSteps().size() == 0) {
-                featureElement.getBackgroundSteps().addAll(_backgroundSteps);
+                else {
+                    scenarioDefinition.getSteps().forEach(step -> {
+                        StepElement stepElement = new StepElement(step.getKeyword(), step.getText(), step.getLocation().getLine());
+                        scenarioElement.getSteps().add(stepElement);
+                    });
+                    featureElement.getScenarios().add(scenarioElement);
+                }
             }
             scenarioIndex++;
         }
+        addBackgroundStepsToScenarios(featureElement);
+    }
 
+    private void addBackgroundStepsToScenarios(FeatureElement featureElement) {
+        if(backgroundSteps.size() > 0) {
+            featureElement.getScenarios().forEach(scenarioElement1 -> {
+                scenarioElement1.getSteps().addAll(0, backgroundSteps);
+            });
+        }
+    }
+
+    private boolean isScenarioBackground(ScenarioDefinition scenarioDefinition){
+        return scenarioDefinition.getKeyword().equals("Background");
+    }
+
+    private boolean isScenarioOutline(ScenarioDefinition scenarioDefinition){
+        return scenarioDefinition.getKeyword().equals("Scenario Outline");
+    }
+
+    private void setFeatureInfo(TestSourceRead event, Feature feature, FeatureElement featureElement) {
         featureElement.setName(feature.getName());
         featureElement.setPath(findAbsolutePath(event.uri));
         featureElement.setFileContent(event.source);
@@ -106,102 +139,78 @@ public class OctaneGherkinFormatter implements EventListener {
                 break;
             }
         }
-        _features.put(event.uri, featureElement);
-        _scenarioIndex = -1;
     }
 
     private String findAbsolutePath(String uri) {
         URL res = getClass().getClassLoader().getResource(uri);
-        File file = null;
-        try {
-            file = Paths.get(res.toURI()).toFile();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        String absolutePath = file.getAbsolutePath();
-        if (absolutePath.contains(uri.replace('/', File.separatorChar))) {
-            return absolutePath;
+        if(res != null) {
+            File file = null;
+            try {
+                file = Paths.get(res.toURI()).toFile();
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+            String absolutePath = file != null ? file.getAbsolutePath() : "";
+            if (absolutePath.contains(uri.replace('/', File.separatorChar))) {
+                return absolutePath;
+            }
         }
         return null;
     }
 
-        /**************** Test Case ******************/
-        private void handleTestCaseStarted() {
-            _scenarioIndex++;
-            _stepIndex = -1;
-//        TestCase scenario = event.getTestCase();
-//        if(isScenarioOutline(scenario)){
-//            _currentScenario = new ScenarioElement(_scenarioIndex, scenario.getName(),_scenarioOutlineIndex++);
-//        } else {
-//            //this is a simple scenario
-//            _currentScenario = new ScenarioElement(_scenarioIndex, scenario.getName());
-//            _scenarioOutlineIndex = null;
-//        }
-        }
-
-        private boolean isScenarioOutline(TestCase scenario){
-            return _scenarioOutlineIndex != null && scenario.getScenarioDesignation().compareTo("Scenario Outline") == 0;
-        }
-
-        private void handleTestCaseFinished(TestCaseFinished event) {
-            TestCase testCase = event.getTestCase();
-            FeatureElement featureElement = _features.get(testCase.getUri());
-            if (_backgroundSteps != null && featureElement.getBackgroundSteps().size() == 0) {
-                featureElement.getBackgroundSteps().addAll(_backgroundSteps);
-            }
-        }
-
-        /**************** Test Step ******************/
-        private void handleTestStepStarted(){
-            _stepIndex++;
-        }
-
-        private void handleTestStepFinished(TestStepFinished event) {
-            ScenarioElement scenarioElement = getCurrentScenario(event.getTestCase());
-            if(scenarioElement != null) {
-                StepElement stepElement;
-                if (scenarioElement.getIndex() != 0) {
-                    stepElement = getCurrentStep(scenarioElement);
-                } else {
-                    FeatureElement featureElement = getCurrentFeature(event.getTestCase());
-                    stepElement = featureElement.getBackgroundSteps().get(0);
-                }
-                Result result = event.result;
-                //todo - ignore outline generic step
-                if (stepElement != null) {
-                    stepElement.setStatus(result.getStatus().name());
-                    stepElement.setDuration(result.getDuration());
-                    if (result.getErrorMessage() != null) {
-                        stepElement.setErrorMessage(result.getErrorMessage());
-                    }
-                }
-            }
-        }
-
-        private StepElement getCurrentStep(ScenarioElement scenarioElement){
-            return scenarioElement.getSteps().get(_stepIndex);
-        }
-
-        private ScenarioElement getCurrentScenario(TestCase testCase){
-            FeatureElement featureElement = getCurrentFeature(testCase);
-            Optional<ScenarioElement> optionalScenario = featureElement.getScenarios().stream()
-                    .filter(scenarioElement1 -> scenarioElement1.getIndex().equals(_scenarioIndex)).findFirst();
-
-            return optionalScenario.orElse(null);
-        }
-
-        private FeatureElement getCurrentFeature(TestCase testCase){
-            return _features.get(testCase.getUri());
-        }
-
-        private boolean isScenarioOutlineStep(){
-            return _scenarioOutlineIndex != null && _scenarioOutlineIndex == 1;
-        }
-
-        /**************** Test Step ******************/
-
-        private void finishReport(){
-            _features.values().forEach(featureElement -> _rootElement.appendChild(featureElement.toXMLElement(_doc)));
-            outputFile.write(_doc);
-        }
+    /**************** Test Case ******************/
+    private void scenarioStarted() {
+        _scenarioIndex++;
     }
+
+    private void scenarioFinished(TestCaseFinished event) {
+        FeatureElement featureElement = getCurrentFeatureElement(event.getTestCase());
+        if (backgroundSteps != null && featureElement.getBackgroundSteps().size() == 0) {
+            featureElement.getBackgroundSteps().addAll(backgroundSteps);
+        }
+        _stepIndex = 0;
+        _scenarioIndex = -1;
+    }
+
+    /**************** Test Step ******************/
+    private void testStepFinished(TestStepFinished event) {
+        StepElement stepElement;
+        ScenarioElement scenarioElement = getCurrentScenarioElement(event.getTestCase());
+        if(scenarioElement.isScenarioOutline()){
+            return;
+        }
+        if (!scenarioElement.isBackgroundScenario()) {
+            stepElement = getCurrentStepElement(scenarioElement);
+        } else {
+            FeatureElement featureElement = getCurrentFeatureElement(event.getTestCase());
+            stepElement = featureElement.getBackgroundSteps().get(_stepIndex);
+        }
+        Result result = event.result;
+        if (stepElement != null) {
+            stepElement.setStatus(result.getStatus().name());
+            stepElement.setDuration(result.getDuration());
+            if (result.getErrorMessage() != null) {
+                stepElement.setErrorMessage(result.getErrorMessage());
+            }
+        }
+        _stepIndex++;
+    }
+
+    private StepElement getCurrentStepElement(ScenarioElement scenarioElement){
+        return scenarioElement.getSteps().get(_stepIndex);
+    }
+
+    private ScenarioElement getCurrentScenarioElement(TestCase testCase){
+        FeatureElement featureElement = getCurrentFeatureElement(testCase);
+        return featureElement.getScenarios().get(_scenarioIndex);
+    }
+
+    private FeatureElement getCurrentFeatureElement(TestCase testCase){
+        return _features.get(testCase.getUri());
+    }
+
+    private void finishTestReport(){
+        _features.values().forEach(featureElement -> _rootElement.appendChild(featureElement.toXMLElement(_doc)));
+        outputFile.write(_doc);
+    }
+}

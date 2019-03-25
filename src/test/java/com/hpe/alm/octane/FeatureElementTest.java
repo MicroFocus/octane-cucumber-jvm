@@ -168,12 +168,12 @@ public class FeatureElementTest {
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step3,3,skipped,(long)0));
         scenarioElement2.getSteps().add(createStepElement("",scenario2Step4,4,skipped,(long)0));
 
-        ScenarioElement scenarioOutlineElement1 =  new ScenarioElement(3, scenarioOutline,1);
+        ScenarioElement scenarioOutlineElement1 =  new ScenarioElement(3, scenarioOutline,"Scenario Outline", 1);
         scenarioOutlineElement1.getSteps().add(createStepElement("", String.format(scenarioOutlineStep1,scenarioOutlineWeight1),1,passed,stepDuration+11));
         scenarioOutlineElement1.getSteps().add(createStepElement("",scenarioOutlineStep2,2,passed,stepDuration+12));
         scenarioOutlineElement1.getSteps().add(createStepElement("", String.format(scenarioOutlineStep3, scenarioOutlineEnergy1),3,passed,stepDuration+13));
 
-        ScenarioElement scenarioOutlineElement2 =  new ScenarioElement(4, scenarioOutline,2);
+        ScenarioElement scenarioOutlineElement2 =  new ScenarioElement(4, scenarioOutline,"Scenario Outline", 2);
         scenarioOutlineElement2.getSteps().add(createStepElement("", String.format(scenarioOutlineStep1,scenarioOutlineWeight2),1,passed,stepDuration+14));
         scenarioOutlineElement2.getSteps().add(createStepElement("",scenarioOutlineStep2,2,passed,stepDuration+15));
         scenarioOutlineElement2.getSteps().add(createStepElement("", String.format(scenarioOutlineStep3, scenarioOutlineEnergy2),3,passed,stepDuration+16));

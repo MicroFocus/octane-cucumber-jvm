@@ -10,15 +10,15 @@ import java.util.List;
  * Created by intract on 23/06/2016.
  */
 public class ScenarioElement implements GherkinSerializer {
-    private String _name;
+    private String name;
     private Integer index;
-    private List<StepElement> _steps;
-    private Integer _outlineIndex = 0;
-    private String type = "Scenario";
+    private List<StepElement> steps;
+    private Integer outlineIndex = 0;
+    private String type;
 
-    public ScenarioElement(Integer index, String name, int _outlineIndex) {
-        this(index, name);
-        this._outlineIndex = _outlineIndex;
+    public ScenarioElement(Integer index, String name, String type, int outlineIndex) {
+        this(index, name, type);
+        this.outlineIndex = outlineIndex;
     }
 
     public ScenarioElement(Integer index, String name, String type) {
@@ -26,36 +26,39 @@ public class ScenarioElement implements GherkinSerializer {
         this.type = type;
     }
 
-
     public ScenarioElement(Integer index, String name) {
-        _name = name;
         this.index = index;
-        _steps = new ArrayList<>();
+        this.name = name;
+        steps = new ArrayList<>();
     }
 
     public List<StepElement> getSteps() {
-        return _steps;
+        return steps;
     }
 
     public Integer getIndex() {
         return index;
     }
 
-    public void setIndex(Integer index) {
-        this.index = index;
+    public boolean isBackgroundScenario(){
+        return type.equals("Background");
+    }
+
+    public boolean isScenarioOutline(){
+        return type.equals("Scenario Outline");
     }
 
     public Element toXMLElement(Document doc) {
         // Adding the feature members
         Element scenario = doc.createElement(SCENARIO_TAG_NAME);
-        scenario.setAttribute("name", _name);
-        if(_outlineIndex>0){
-            scenario.setAttribute("outlineIndex", _outlineIndex.toString());
+        scenario.setAttribute("name", name);
+        if(outlineIndex > 0){
+            scenario.setAttribute("outlineIndex", outlineIndex.toString());
         }
 
         // Serializing the steps
         Element steps = doc.createElement(STEPS_TAG_NAME);
-        for (StepElement step : _steps) {
+        for (StepElement step : this.steps) {
             steps.appendChild(step.toXMLElement(doc));
         }
 
