@@ -1,5 +1,6 @@
 package com.hpe.alm.octane.infra;
 
+import gherkin.ast.TableRow;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -38,6 +39,10 @@ public class ScenarioElement implements GherkinSerializer {
 
     public Integer getIndex() {
         return index;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public boolean isBackgroundScenario(){

@@ -15,8 +15,8 @@ Feature: test Feature2
 
 		Examples:
 			|name	|question	|
-			|dan	|what		|
-			|sari	|who		|
+			|ayelet	|what		|
+			|sharon	|who		|
 	Scenario: test scenario3
 		Given test3
 		When test3
@@ -28,5 +28,5 @@ Feature: test Feature2
 
 		Examples:
 			|name	|question	|
-			|dan	|what		|
-			|sari	|who		|
+			|yuval	|what		|
+			|daniel	|who		|
