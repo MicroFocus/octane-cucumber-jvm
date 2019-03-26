@@ -6,12 +6,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class StepElement implements GherkinSerializer {
-    private String name;
-    private String keyword;
+    private String name = "";
+    private String keyword = "";
     private String status = Result.Type.SKIPPED.lowerCaseName();
     private Integer line = 0;
     private Long duration = 0L;
-    private String errorMessage;
+    private String errorMessage = "";
     private boolean isBackgroundStep = false;
 
     public StepElement(String name, String keyword, Integer line){

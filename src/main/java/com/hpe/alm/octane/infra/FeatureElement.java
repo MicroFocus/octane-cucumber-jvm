@@ -10,67 +10,67 @@ import java.util.List;
  * Created by intract on 23/06/2016.
  */
 public class FeatureElement implements GherkinSerializer {
-    private String _name = "";
-    private String _tag = "";
-    private String _path = "";
-    private String _fileContent = "";
-    private Long _started;
-    private List<ScenarioElement> _scenarios;
-    private List<StepElement> _backgroundSteps;
+    private String name = "";
+    private String tag = "";
+    private String path = "";
+    private String fileContent = "";
+    private Long started;
+    private List<ScenarioElement> scenarios;
+    private List<StepElement> backgroundSteps;
 
     public FeatureElement() {
-        _scenarios = new ArrayList<>();
-        _backgroundSteps = new ArrayList<>();
+        scenarios = new ArrayList<>();
+        backgroundSteps = new ArrayList<>();
     }
 
     public List<ScenarioElement> getScenarios() {
-        return _scenarios;
+        return scenarios;
     }
 
     public List<StepElement> getBackgroundSteps() {
-        return _backgroundSteps;
+        return backgroundSteps;
     }
 
     public void setName(String name) {
-        this._name = name;
+        this.name = name;
     }
 
     public void setTag(String tag) {
-        this._tag = tag;
+        this.tag = tag;
     }
 
     public void setPath(String path) {
-        this._path = path;
+        this.path = path;
     }
 
     public void setFileContent(String _fileContent) {
-        this._fileContent = _fileContent;
+        this.fileContent = _fileContent;
     }
 
-    public void setStarted(Long started) { this._started = started; }
+    public void setStarted(Long started) { this.started = started; }
 
     public Element toXMLElement(Document doc) {
         Element feature = doc.createElement(GherkinSerializer.FEATURE_TAG_NAME);
 
         // Adding the feature members
-        feature.setAttribute("name", _name);
-        feature.setAttribute("path", _path);
-        feature.setAttribute("tag", _tag);
-        if (_started != null) {
-            feature.setAttribute("started", _started.toString());
+        feature.setAttribute("name", name);
+        feature.setAttribute("path", path);
+        feature.setAttribute("tag", tag);
+        if (started != null) {
+            feature.setAttribute("started", started.toString());
         }
 
         // Adding the file to the feature
         Element fileElement = doc.createElement(GherkinSerializer.FILE_TAG_NAME);
-        fileElement.appendChild(doc.createCDATASection(_fileContent));
+        fileElement.appendChild(doc.createCDATASection(fileContent));
         feature.appendChild(fileElement);
 
         Element scenariosElement = doc.createElement(GherkinSerializer.SCENARIOS_TAG_NAME);
 
         // Serializing the background
-        if (_backgroundSteps != null && _backgroundSteps.size()>0) {
+        if (backgroundSteps != null && backgroundSteps.size()>0) {
             Element backgroundStepsElement = doc.createElement(GherkinSerializer.STEPS_TAG_NAME);
-            for (StepElement step : _backgroundSteps) {
+            for (StepElement step : backgroundSteps) {
                 backgroundStepsElement.appendChild(step.toXMLElement(doc));
             }
 
@@ -80,7 +80,7 @@ public class FeatureElement implements GherkinSerializer {
         }
 
         // Serializing the scenarios
-        for (ScenarioElement scenario : _scenarios) {
+        for (ScenarioElement scenario : scenarios) {
             scenariosElement.appendChild(scenario.toXMLElement(doc));
         }
 

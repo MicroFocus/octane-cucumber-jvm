@@ -1,6 +1,5 @@
 package com.hpe.alm.octane.infra;
 
-import gherkin.ast.TableRow;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -15,7 +14,7 @@ public class ScenarioElement implements GherkinSerializer {
     private Integer index;
     private List<StepElement> steps;
     private Integer outlineIndex = 0;
-    private String type;
+    private String type = ScenarioType.SCENARIO.getScenarioType();
 
     public ScenarioElement(Integer index, String name, String type, int outlineIndex) {
         this(index, name, type);
@@ -45,12 +44,8 @@ public class ScenarioElement implements GherkinSerializer {
         return name;
     }
 
-    public boolean isBackgroundScenario(){
-        return type.equals("Background");
-    }
-
     public boolean isScenarioOutline(){
-        return type.equals("Scenario Outline");
+        return type.equals(ScenarioType.OUTLINE.getScenarioType());
     }
 
     public Element toXMLElement(Document doc) {
@@ -70,5 +65,20 @@ public class ScenarioElement implements GherkinSerializer {
         scenario.appendChild(steps);
 
         return scenario;
+    }
+
+    public enum ScenarioType {
+        OUTLINE("Scenario Outline"),
+        BACKGROUND("Background"),
+        SCENARIO("Scenario");
+
+        private String displayType;
+        ScenarioType(String displayType) {
+            this.displayType = displayType;
+        }
+
+        public String getScenarioType(){
+            return displayType;
+        }
     }
 }

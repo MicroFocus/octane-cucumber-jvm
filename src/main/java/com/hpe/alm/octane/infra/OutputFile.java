@@ -33,7 +33,7 @@ public class OutputFile {
 		}
 	}
 
-	public File getOutputFile(Class testClass) {
+	private File getOutputFile(Class testClass) {
 		if(testClass == null) {
 			throw new IllegalArgumentException("testClass cannot be null");
 		}

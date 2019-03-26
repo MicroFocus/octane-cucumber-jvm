@@ -4,6 +4,7 @@ import com.hpe.alm.octane.infra.FeatureElement;
 import com.hpe.alm.octane.infra.OutputFile;
 import com.hpe.alm.octane.infra.ScenarioElement;
 import com.hpe.alm.octane.infra.StepElement;
+import gherkin.ast.Location;
 import gherkin.ast.Step;
 import org.easymock.EasyMock;
 import org.junit.Assert;
@@ -16,6 +17,7 @@ import org.w3c.dom.ls.LSSerializer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.util.ArrayList;
 
 public class FeatureElementTest {
     private Document doc = null;
@@ -148,7 +150,7 @@ public class FeatureElementTest {
 
     @Before
     public void init() throws ParserConfigurationException {
-        formatter = new OctaneGherkinFormatter(null, new OutputFile(this.getClass()));
+        formatter = new OctaneGherkinFormatter(new ArrayList<>(), new OutputFile(this.getClass()));
         doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 
@@ -239,15 +241,17 @@ public class FeatureElementTest {
 
     private Step createStep(String keyword, String text, Integer line) {
         Step step = EasyMock.createMock(Step.class);
+        Location location = EasyMock.createMock(Location.class);
         EasyMock.expect(step.getKeyword()).andReturn(keyword).anyTimes();
         EasyMock.expect(step.getText()).andReturn(text).anyTimes();
-        EasyMock.expect(step.getLocation().getLine()).andReturn(line).anyTimes();
+        EasyMock.expect(step.getLocation()).andReturn(location).anyTimes();
+        EasyMock.expect(location.getLine()).andReturn(line).anyTimes();
         EasyMock.replay(step);
         return step;
     }
 
-    private StepElement createStepElement(String keyword, String text, Integer line, String status, Long duration) {
-        StepElement stepElement = new StepElement(createStep(keyword, text, line));
+    private StepElement createStepElement(String keyword, String name, Integer line, String status, Long duration) {
+        StepElement stepElement = new StepElement(createStep(keyword, name, line));
         stepElement.setStatus(status);
         stepElement.setDuration(duration);
         return stepElement;

@@ -140,11 +140,11 @@ public class OctaneGherkinFormatter implements EventListener {
     }
 
     private boolean isScenarioBackground(ScenarioDefinition scenarioDefinition){
-        return scenarioDefinition.getKeyword().equals("Background");
+        return scenarioDefinition.getKeyword().equals(ScenarioElement.ScenarioType.BACKGROUND.getScenarioType());
     }
 
     private boolean isScenarioOutline(ScenarioDefinition scenarioDefinition){
-        return scenarioDefinition.getKeyword().equals("Scenario Outline");
+        return scenarioDefinition.getKeyword().equals(ScenarioElement.ScenarioType.OUTLINE.getScenarioType());
     }
 
     private void setFeatureInfo(TestSourceRead event, Feature feature, FeatureElement featureElement) {
@@ -163,7 +163,7 @@ public class OctaneGherkinFormatter implements EventListener {
 
     private String findAbsolutePath(String uri) {
         URL res = getClass().getClassLoader().getResource(uri);
-        if(res != null) {
+        if(res != null && !res.getPath().isEmpty()) {
             File file = null;
             try {
                 file = Paths.get(res.toURI()).toFile();
@@ -174,6 +174,9 @@ public class OctaneGherkinFormatter implements EventListener {
             if (absolutePath.contains(uri.replace('/', File.separatorChar))) {
                 return absolutePath;
             }
+        } else {
+            File file = new File(uri);
+            return file.getAbsolutePath();
         }
         return null;
     }
