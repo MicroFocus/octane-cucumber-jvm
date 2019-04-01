@@ -175,7 +175,9 @@ public class OctaneGherkinFormatter implements EventListener {
     /**************** Scenario Finished ******************/
     void scenarioFinished(TestCaseFinished event) {
         ScenarioElement scenarioElement = getCurrentScenarioElement(event.getTestCase());
-        scenarioElement.getSteps().removeAll(getCurrentFeatureElement(event.getTestCase()).getBackgroundSteps());
+        if(scenarioElement != null) {
+            scenarioElement.getSteps().removeAll(getCurrentFeatureElement(event.getTestCase()).getBackgroundSteps());
+        }
         stepIndex = 0;
         scenarioIndexRead++;
     }
@@ -183,13 +185,17 @@ public class OctaneGherkinFormatter implements EventListener {
     /**************** Test Step Finished ******************/
     void testStepFinished(TestStepFinished event) {
         ScenarioElement scenarioElement = getCurrentScenarioElement(event.getTestCase());
-        StepElement stepElement = getCurrentStepElement(scenarioElement);
-        setStepInfo(event, stepElement);
-        if(scenarioElement.isScenarioOutline()){
-            PickleStepTestStep testStep = (PickleStepTestStep)(event.testStep);
-            stepElement.setName(testStep.getStepText());
+        if(scenarioElement != null) {
+            StepElement stepElement = getCurrentStepElement(scenarioElement);
+            if(stepElement != null) {
+                setStepInfo(event, stepElement);
+                if (scenarioElement.isScenarioOutline()) {
+                    PickleStepTestStep testStep = (PickleStepTestStep) (event.testStep);
+                    stepElement.setName(stepElement.getKeyword() + testStep.getStepText());
+                }
+                stepIndex++;
+            }
         }
-        stepIndex++;
     }
 
     private void setStepInfo(TestStepFinished event, StepElement stepElement) {
@@ -197,8 +203,8 @@ public class OctaneGherkinFormatter implements EventListener {
         if (stepElement != null) {
             stepElement.setStatus(result.getStatus().name());
             stepElement.setDuration(result.getDuration());
-            if (result.getErrorMessage() != null) {
-                stepElement.setErrorMessage(result.getErrorMessage());
+            if (result.getError() != null && result.getError().getMessage() != null) {
+                stepElement.setErrorMessage(result.getError().getMessage());
             }
         }
     }
@@ -211,10 +217,7 @@ public class OctaneGherkinFormatter implements EventListener {
     }
 
     private StepElement getCurrentStepElement(ScenarioElement scenarioElement){
-        if(scenarioElement != null) {
-            return scenarioElement.getSteps().get(stepIndex);
-        }
-        return null;
+        return scenarioElement.getSteps().get(stepIndex);
     }
 
     private FeatureElement getCurrentFeatureElement(TestCase testCase){

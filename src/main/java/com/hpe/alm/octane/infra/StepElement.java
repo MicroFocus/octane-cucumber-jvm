@@ -7,6 +7,7 @@ import org.w3c.dom.Element;
 
 public class StepElement implements GherkinSerializer {
     private String name = "";
+    private String keyword = "";
     private String status = Result.Type.SKIPPED.lowerCaseName();
     private Integer line = 0;
     private Long duration = 0L;
@@ -16,6 +17,7 @@ public class StepElement implements GherkinSerializer {
     public StepElement(Step step) {
         if(step != null){
             name = step.getKeyword() + step.getText();
+            keyword = step.getKeyword();
             line = step.getLocation().getLine();
         }
     }
@@ -42,6 +44,14 @@ public class StepElement implements GherkinSerializer {
 
     public String getName() {
         return name;
+    }
+
+    public String getKeyword() {
+        return keyword;
+    }
+
+    public Integer getLine() {
+        return line;
     }
 
     public Element toXMLElement(Document doc) {
