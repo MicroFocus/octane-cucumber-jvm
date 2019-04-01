@@ -28,13 +28,13 @@ public class OctaneCucumber extends Cucumber {
                 cucumberFeatureField = featureRunner.getClass().getDeclaredField("cucumberFeature");
                 cucumberFeatureField.setAccessible(true);
                 cucumberFeatures.add((CucumberFeature)cucumberFeatureField.get(featureRunner));
-
+                cucumberFeatureField.setAccessible(false);
             } catch (NoSuchFieldException | IllegalAccessException e) {
                 e.printStackTrace();
             }
         });
         Runtime runtime = builder.withAdditionalPlugins(new OctaneGherkinFormatter(cucumberFeatures, outputFile))
                 .withRuntimeOptions(new RuntimeOptionsFactory(clazz).create()).build();
-        runtime.run();
+        runtime.run();//todo - where to add the runtime
     }
 }

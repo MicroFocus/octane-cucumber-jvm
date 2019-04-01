@@ -11,6 +11,9 @@ import cucumber.runtime.model.CucumberFeature;
 import gherkin.ast.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,25 +23,16 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.*;
 
-//todo - need to check it with Gherkin 2.0
-
+//todo - need to check it with other versions
 public class OctaneGherkinFormatter implements EventListener {
     private Document doc;
     private Element rootElement;
     private OutputFile outputFile;
-    private Map<String, FeatureElement> _features = new LinkedHashMap<>();
-    private List<StepElement> backgroundSteps = new ArrayList<>();
-    private Integer scenarioIndexRead = -1;
+    private Map<String, FeatureElement> featuresMap = new LinkedHashMap<>();
+    private Integer scenarioIndexRead = 0;
     private Integer scenarioIndexWrite = 0;
-    private Integer scenarioOutlineIndex = 0;
     private Integer stepIndex = 0;
     private Map<String, GherkinDocument> cucumberFeatures = new HashMap<>();
-
-    private EventHandler<TestSourceRead> testSourceReadHandler = this::handleSourceRead;
-    private EventHandler<TestCaseStarted> testCaseStartedHandler =  event -> scenarioStarted();
-    private EventHandler<TestCaseFinished> testCaseFinishedHandler = this::scenarioFinished;
-    private EventHandler<TestStepFinished> stepFinishedHandler = this::testStepFinished;
-    private EventHandler<TestRunFinished> runFinishedHandler = event -> finishTestReport();
 
     OctaneGherkinFormatter(List<CucumberFeature> cucumberFeatures, OutputFile outputFile){
         initFeatures(cucumberFeatures);
@@ -55,84 +49,80 @@ public class OctaneGherkinFormatter implements EventListener {
 
     @Override
     public void setEventPublisher(EventPublisher publisher) {
-        publisher.registerHandlerFor(TestSourceRead.class, testSourceReadHandler);
-        publisher.registerHandlerFor(TestCaseStarted.class, testCaseStartedHandler);
-        publisher.registerHandlerFor(TestCaseFinished.class, testCaseFinishedHandler);
-        publisher.registerHandlerFor(TestStepFinished.class, stepFinishedHandler);
-        publisher.registerHandlerFor(TestRunFinished.class, runFinishedHandler);
+        publisher.registerHandlerFor(TestSourceRead.class, this::readFeatureFile);
+        publisher.registerHandlerFor(TestCaseFinished.class, this::scenarioFinished);
+        publisher.registerHandlerFor(TestStepFinished.class, this::testStepFinished);
+        publisher.registerHandlerFor(TestRunFinished.class, event -> finishTestReport());
     }
 
     private void initFeatures(List<CucumberFeature> features){
         features.forEach(cucumberFeature -> cucumberFeatures.put(cucumberFeature.getUri(), cucumberFeature.getGherkinFeature()));
     }
 
-    private void handleSourceRead(TestSourceRead event) {
+    void readFeatureFile(TestSourceRead event) {
         Feature feature = getCurrentFeature(event);
-        List<ScenarioDefinition> scenarioDefinitions = feature.getChildren();
         FeatureElement featureElement = new FeatureElement();
-        setScenariosInfo(scenarioDefinitions, featureElement);
+        setScenariosInfo(feature.getChildren(), featureElement, new ArrayList<>());
         setFeatureInfo(event, feature, featureElement);
-        _features.put(event.uri, featureElement);
-        backgroundSteps.clear(); //reset the background steps for the next feature
+        featuresMap.put(event.uri, featureElement);
     }
 
     private Feature getCurrentFeature(TestSourceRead event) {
         return cucumberFeatures.get(event.uri).getFeature();
     }
 
-    private void setScenariosInfo(List<ScenarioDefinition> scenarioDefinitions, FeatureElement featureElement){
+    private void setScenariosInfo(List<ScenarioDefinition> scenarioDefinitions, FeatureElement featureElement, List<StepElement> backgroundSteps){
+        Integer scenarioOutlineIndex = 1;
         for(ScenarioDefinition scenarioDefinition : scenarioDefinitions) {
             if(isScenarioBackground(scenarioDefinition)) {
-                setBackgroundScenarioInfo(featureElement, scenarioDefinition);
+                setBackgroundScenarioInfo(featureElement, scenarioDefinition, backgroundSteps);
             } else if(isScenarioOutline(scenarioDefinition)) {
-                setScenarioOutlineInfo(featureElement, scenarioDefinition);
+                setScenarioOutlineInfo(featureElement, scenarioDefinition, scenarioOutlineIndex);
             } else {
                 setRegularScenarioInfo(featureElement, scenarioDefinition);
             }
         }
-        addBackgroundStepsToScenarios(featureElement);
+        addBackgroundStepsToScenarios(featureElement, backgroundSteps);
     }
 
-    private void setScenarioOutlineInfo(FeatureElement featureElement, ScenarioDefinition scenarioDefinition) {
-        ScenarioElement scenarioElement;
-        ScenarioOutline scenarioOutline = (ScenarioOutline) scenarioDefinition;
-        for (Examples examples : scenarioOutline.getExamples())
-        {
-            for (TableRow ignored : examples.getTableBody())
-            {
-                scenarioElement = new ScenarioElement(scenarioIndexWrite++, scenarioDefinition.getName(), scenarioDefinition.getKeyword(), ++scenarioOutlineIndex);
-                List<StepElement> steps = new ArrayList<>();
-                scenarioDefinition.getSteps().forEach(step -> {
-                    StepElement stepElement = new StepElement(step.getText(), step.getKeyword(), step.getLocation().getLine());
-                    steps.add(stepElement);
-                });
-                scenarioElement.getSteps().addAll(steps);
-                featureElement.getScenarios().add(scenarioElement);
-            }
-        }
-        scenarioOutlineIndex = 0;
-    }
-
-    private void setRegularScenarioInfo(FeatureElement featureElement, ScenarioDefinition scenarioDefinition) {
-        ScenarioElement scenarioElement;
-        scenarioElement = new ScenarioElement(scenarioIndexWrite++, scenarioDefinition.getName(), scenarioDefinition.getKeyword());
+    private void setBackgroundScenarioInfo(FeatureElement featureElement, ScenarioDefinition scenarioDefinition, List<StepElement> backgroundSteps) {
         scenarioDefinition.getSteps().forEach(step -> {
-            StepElement stepElement = new StepElement(step.getText(), step.getKeyword(), step.getLocation().getLine());
-            scenarioElement.getSteps().add(stepElement);
-        });
-        featureElement.getScenarios().add(scenarioElement);
-    }
-
-    private void setBackgroundScenarioInfo(FeatureElement featureElement, ScenarioDefinition scenarioDefinition) {
-        scenarioDefinition.getSteps().forEach(step -> {
-            StepElement stepElement = new StepElement(step.getText(), step.getKeyword(), step.getLocation().getLine());
+            StepElement stepElement = new StepElement(step);
             stepElement.setBackgroundStep();
             backgroundSteps.add(stepElement);
         });
         featureElement.getBackgroundSteps().addAll(backgroundSteps);
     }
 
-    private void addBackgroundStepsToScenarios(FeatureElement featureElement) {
+    private void setScenarioOutlineInfo(FeatureElement featureElement, ScenarioDefinition scenarioDefinition, Integer scenarioOutlineIndex) {
+        ScenarioOutline scenarioOutline = (ScenarioOutline) scenarioDefinition;
+        for (Examples examples : scenarioOutline.getExamples())
+        {
+            for (TableRow ignored : examples.getTableBody())
+            {
+                ScenarioElement scenarioElement = new ScenarioElement(scenarioIndexWrite++, scenarioDefinition.getName(), scenarioDefinition.getKeyword(), scenarioOutlineIndex++);
+                addStepsToScenario(scenarioDefinition, scenarioElement);
+                featureElement.getScenarios().add(scenarioElement);
+            }
+        }
+    }
+
+    private void setRegularScenarioInfo(FeatureElement featureElement, ScenarioDefinition scenarioDefinition) {
+        ScenarioElement scenarioElement = new ScenarioElement(scenarioIndexWrite++, scenarioDefinition.getName(), scenarioDefinition.getKeyword());
+        addStepsToScenario(scenarioDefinition, scenarioElement);
+        featureElement.getScenarios().add(scenarioElement);
+    }
+
+    private void addStepsToScenario(ScenarioDefinition scenarioDefinition, ScenarioElement scenarioElement) {
+        List<StepElement> steps = new ArrayList<>();
+        scenarioDefinition.getSteps().forEach(step -> {
+            StepElement stepElement = new StepElement(step);
+            steps.add(stepElement);
+        });
+        scenarioElement.getSteps().addAll(steps);
+    }
+
+    private void addBackgroundStepsToScenarios(FeatureElement featureElement, List<StepElement> backgroundSteps) {
         if(backgroundSteps.size() > 0) {
             featureElement.getScenarios().forEach(scenarioElement ->
                     scenarioElement.getSteps().addAll(0, backgroundSteps));
@@ -161,6 +151,7 @@ public class OctaneGherkinFormatter implements EventListener {
         }
     }
 
+    //todo - try to get ResourceLoader
     private String findAbsolutePath(String uri) {
         URL res = getClass().getClassLoader().getResource(uri);
         if(res != null && !res.getPath().isEmpty()) {
@@ -181,19 +172,16 @@ public class OctaneGherkinFormatter implements EventListener {
         return null;
     }
 
-    /**************** Test Case ******************/
-    private void scenarioStarted() {
-        scenarioIndexRead++;
-    }
-
-    private void scenarioFinished(TestCaseFinished event) {
+    /**************** Scenario Finished ******************/
+    void scenarioFinished(TestCaseFinished event) {
         ScenarioElement scenarioElement = getCurrentScenarioElement(event.getTestCase());
         scenarioElement.getSteps().removeAll(getCurrentFeatureElement(event.getTestCase()).getBackgroundSteps());
         stepIndex = 0;
+        scenarioIndexRead++;
     }
 
-    /**************** Test Step ******************/
-    private void testStepFinished(TestStepFinished event) {
+    /**************** Test Step Finished ******************/
+    void testStepFinished(TestStepFinished event) {
         ScenarioElement scenarioElement = getCurrentScenarioElement(event.getTestCase());
         StepElement stepElement = getCurrentStepElement(scenarioElement);
         setStepInfo(event, stepElement);
@@ -230,11 +218,18 @@ public class OctaneGherkinFormatter implements EventListener {
     }
 
     private FeatureElement getCurrentFeatureElement(TestCase testCase){
-        return _features.get(testCase.getUri());
+        return featuresMap.get(testCase.getUri());
     }
 
-    private void finishTestReport(){
-        _features.values().forEach(featureElement -> rootElement.appendChild(featureElement.toXMLElement(doc)));
+    void finishTestReport(){
+        featuresMap.values().forEach(featureElement -> rootElement.appendChild(featureElement.toXMLElement(doc)));
         outputFile.write(doc);
+    }
+
+    String getXML() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
+        DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
+        LSSerializer serializer = impl.createLSSerializer();
+        return serializer.writeToString(doc);
     }
 }

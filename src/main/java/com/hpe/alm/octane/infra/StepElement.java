@@ -7,18 +7,11 @@ import org.w3c.dom.Element;
 
 public class StepElement implements GherkinSerializer {
     private String name = "";
-    private String keyword = "";
     private String status = Result.Type.SKIPPED.lowerCaseName();
     private Integer line = 0;
     private Long duration = 0L;
     private String errorMessage = "";
     private boolean isBackgroundStep = false;
-
-    public StepElement(String name, String keyword, Integer line){
-        this.name = name;
-        this.keyword = keyword;
-        this.line = line;
-    }
 
     public StepElement(Step step) {
         if(step != null){
@@ -35,10 +28,6 @@ public class StepElement implements GherkinSerializer {
         isBackgroundStep = true;
     }
 
-    public boolean isBackgroundStep() {
-        return isBackgroundStep;
-    }
-
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
@@ -51,22 +40,14 @@ public class StepElement implements GherkinSerializer {
         this.duration = duration;
     }
 
-    public Integer getLine() {
-        return line;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public String getKeyword() {
-        return keyword;
     }
 
     public Element toXMLElement(Document doc) {
         Element step = doc.createElement(STEP_TAG_NAME);
 
-        step.setAttribute("name", keyword + name);
+        step.setAttribute("name", name);
         step.setAttribute("status", status);
 
         String duration = this.duration != null ? this.duration.toString() : "0";
