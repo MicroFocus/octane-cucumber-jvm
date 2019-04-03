@@ -203,8 +203,8 @@ public class OctaneGherkinFormatter implements EventListener {
         if (stepElement != null) {
             stepElement.setStatus(result.getStatus().name());
             stepElement.setDuration(result.getDuration());
-            if (result.getError() != null && result.getError().getMessage() != null) {
-                stepElement.setErrorMessage(result.getError().getMessage());
+            if (result.getError() != null) {
+                stepElement.setErrorMessage(result.getErrorMessage());
             }
         }
     }

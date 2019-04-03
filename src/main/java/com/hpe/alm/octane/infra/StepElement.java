@@ -63,8 +63,7 @@ public class StepElement implements GherkinSerializer {
         String duration = this.duration != null ? this.duration.toString() : "0";
         step.setAttribute("duration", duration);
 
-        //temporarily set error message only for non-background steps
-        if(errorMessage!=null && !errorMessage.isEmpty() && !isBackgroundStep){
+        if(errorMessage != null && !errorMessage.isEmpty()){
             Element errorElement = doc.createElement(GherkinSerializer.ERROR_MESSAGE_TAG_NAME);
             errorElement.appendChild(doc.createCDATASection(errorMessage));
             step.appendChild(errorElement);

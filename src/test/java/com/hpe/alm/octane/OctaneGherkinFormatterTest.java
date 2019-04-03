@@ -41,16 +41,17 @@ public class OctaneGherkinFormatterTest {
 
     @Test
     public void testFullFlow() throws IllegalAccessException, ClassNotFoundException, InstantiationException, IOException {
-        String featureAbsoultePath = getFeaturePath();
+        String featureAbsolutePath = getFeaturePath();
         ClassLoader classLoader = this.getClass().getClassLoader();
         ResourceLoader resourceLoader = new MultiLoader(classLoader);
-        Iterable<Resource> resources = resourceLoader.resources(featureAbsoultePath, ".feature");
+        Iterable<Resource> resources = resourceLoader.resources(featureAbsolutePath, ".feature");
         ArrayList<CucumberFeature> features = new ArrayList<>();
-        String source = getFeatures(featureAbsoultePath, resources, features);
+        String source = getFeatures(featureAbsolutePath, resources, features);
         OctaneGherkinFormatter formatter = new OctaneGherkinFormatter(features, new OutputFile(this.getClass()));
-        formatter.readFeatureFile(new TestSourceRead(System.currentTimeMillis(), featureAbsoultePath, source));
+        formatter.readFeatureFile(new TestSourceRead(System.currentTimeMillis(), featureAbsolutePath, source));
 
         String featureName = "test Feature";
+        String errorMsg = "This is an error";
         int line = 2;
 
         ArrayList<GherkinStep> backgroundSteps = new ArrayList<>();
@@ -58,7 +59,7 @@ public class OctaneGherkinFormatterTest {
         backgroundSteps.add(new GherkinStep("And","back",line++, 0L, passed));
 
         Scenario scenario = new Scenario(new ArrayList<>(), new Location(0, line++), ScenarioElement.ScenarioType.SCENARIO.getScenarioType(),"test scenario","",new ArrayList<>());
-        TestCaseMock testCaseMock = new TestCaseMock(scenario, featureAbsoultePath);
+        TestCaseMock testCaseMock = new TestCaseMock(scenario, featureAbsolutePath);
         addBackgroundSteps(formatter, backgroundSteps, testCaseMock);
         long step1Duration = 100;
         long step2Duration = 200;
@@ -66,10 +67,10 @@ public class OctaneGherkinFormatterTest {
         ArrayList<GherkinStep> scenarioSteps = new ArrayList<>();
         scenarioSteps.add(new GherkinStep("Given","test", line++, step1Duration, passed));
         scenarioSteps.add(new GherkinStep("When","test", line++, step2Duration, passed));
-        scenarioSteps.add(new GherkinStep("Then","test", line++, step3Duration, failed));
+        scenarioSteps.add(new GherkinStep("Then","test", line++, step3Duration, passed));
         addAndRunSteps(formatter, scenarioSteps, testCaseMock);
         formatter.scenarioFinished(new TestCaseFinished(System.currentTimeMillis(),testCaseMock,
-                new Result(Result.Type.FAILED, step1Duration + step2Duration + step3Duration, new Exception("this is the failure message"))));
+                new Result(Result.Type.PASSED, step1Duration + step2Duration + step3Duration, null)));
 
         ArrayList<GherkinStep> scenarioOutlineSteps = new ArrayList<>();
         scenarioOutlineSteps.add(new GherkinStep("Given","hello \"<name>\"",line++, 0L,""));
@@ -80,7 +81,7 @@ public class OctaneGherkinFormatterTest {
         Scenario scenarioOutline_1 = new Scenario(new ArrayList<>(), new Location(0, line++),
                 ScenarioElement.ScenarioType.OUTLINE.getScenarioType(),
                 "Table TTT","",new ArrayList<>());
-        TestCaseMock testCaseMockOutline = new TestCaseMock(scenarioOutline_1, featureAbsoultePath);
+        TestCaseMock testCaseMockOutline = new TestCaseMock(scenarioOutline_1, featureAbsolutePath);
         addBackgroundSteps(formatter, backgroundSteps, testCaseMockOutline);
 
         long step7Duration = 400;
@@ -89,7 +90,7 @@ public class OctaneGherkinFormatterTest {
         ArrayList<GherkinStep> scenarioOutlineSteps_1 = new ArrayList<>();
         scenarioOutlineSteps_1.add(new GherkinStep("Given","hello \"Dan\"", line++,step7Duration, passed));
         scenarioOutlineSteps_1.add(new GherkinStep("When","what \"What\"", line++,step8Duration, passed));
-        scenarioOutlineSteps_1.add(new GherkinStep("Then","wow", line++, step9Duration, failed));
+        scenarioOutlineSteps_1.add(new GherkinStep("Then","wow", line++, step9Duration, passed, null));
         addAndRunSteps(formatter, scenarioOutlineSteps_1, testCaseMock);
         formatter.scenarioFinished(new TestCaseFinished(System.currentTimeMillis(),testCaseMockOutline,
                 new Result(Result.Type.PASSED, step7Duration + step8Duration + step9Duration, null)));
@@ -97,30 +98,30 @@ public class OctaneGherkinFormatterTest {
         Scenario scenarioOutline_2 = new Scenario(new ArrayList<>(), new Location(0, line++),
                 ScenarioElement.ScenarioType.OUTLINE.getScenarioType(),
                 "Table TTT2","",new ArrayList<>());
-        TestCaseMock testCaseMockOutline2 = new TestCaseMock(scenarioOutline_2, featureAbsoultePath);
+        TestCaseMock testCaseMockOutline2 = new TestCaseMock(scenarioOutline_2, featureAbsolutePath);
         addBackgroundSteps(formatter, backgroundSteps, testCaseMockOutline2);
         long step10Duration = 700;
         long step11Duration = 800;
         long step12Duration = 900;
-        String errorMsg = "This is an error";
         ArrayList<GherkinStep> scenarioOutlineSteps_2 = new ArrayList<>();
         scenarioOutlineSteps_2.add(new GherkinStep("Given","hello \"Sari\"", line++, step10Duration, passed));
         scenarioOutlineSteps_2.add(new GherkinStep("When","what \"Why\"", line++, step11Duration, passed));
-        scenarioOutlineSteps_2.add(new GherkinStep("Then","wow", line, step12Duration, failed, errorMsg));
+        scenarioOutlineSteps_2.add(new GherkinStep("Then","wow", line, step12Duration, failed, new Exception(errorMsg)));
         addAndRunSteps(formatter, scenarioOutlineSteps_2, testCaseMock);
         formatter.scenarioFinished(new TestCaseFinished(System.currentTimeMillis(), testCaseMockOutline2,
-                new Result(Result.Type.PASSED, step10Duration + step11Duration + step12Duration, null)));
+                new Result(Result.Type.FAILED, step10Duration + step11Duration + step12Duration, null)));
 
         formatter.finishTestReport();
         String actualXml = formatter.getXML();
         String xmlVersion = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n";
+        String expectedMessage = "<![CDATA[java.lang.Exception: " + errorMsg;
         String expectedXml = xmlVersion +
                 "<features version=\"" + Constants.XML_VERSION + "\">" +
-                "<feature name=\"" + featureName +"\" " +
-                "path=\""+featureAbsoultePath + "\"" +
+                "<feature name=\"" + featureName + "\" " +
+                "path=\"" + featureAbsolutePath + "\"" +
                 " started=\"\"" +
                 " tag=\"@TID2001REV0.2.0\">" +
-                "<file><![CDATA["+source+"]]></file>" +
+                "<file><![CDATA[" + source + "]]></file>" +
                 "<scenarios>" +
                 "<background>" +
                 "<steps>" +
@@ -132,29 +133,31 @@ public class OctaneGherkinFormatterTest {
                 "<steps>" +
                 "<step duration=\"" + step1Duration + "\" name=\"Given test\" status=\"passed\"/>" +
                 "<step duration=\"" + step2Duration + "\" name=\"When test\" status=\"passed\"/>" +
-                "<step duration=\"" + step3Duration + "\" name=\"Then test\" status=\"failed\"/>" +
+                "<step duration=\"" + step3Duration + "\" name=\"Then test\" status=\"passed\"/>" +
                 "</steps>" +
                 "</scenario>" +
                 "<scenario name=\"Table TTT\" outlineIndex=\"1\">" +
-                    "<steps>" +
-                        "<step duration=\"" + step7Duration + "\" name=\"Given hello &quot;Dan&quot;\" status=\"passed\"/>" +
-                        "<step duration=\"" + step8Duration + "\" name=\"When what &quot;What&quot;\" status=\"passed\"/>" +
-                        "<step duration=\"" + step9Duration + "\" name=\"Then wow\" status=\"failed\"/>" +
-                    "</steps>" +
+                "<steps>" +
+                "<step duration=\"" + step7Duration + "\" name=\"Given hello &quot;Dan&quot;\" status=\"passed\"/>" +
+                "<step duration=\"" + step8Duration + "\" name=\"When what &quot;What&quot;\" status=\"passed\"/>" +
+                "<step duration=\"" + step9Duration + "\" name=\"Then wow\" status=\"passed\"/>" +
+                "</steps>" +
                 "</scenario>" +
                 "<scenario name=\"Table TTT\" outlineIndex=\"2\">" +
-                    "<steps>" +
-                        "<step duration=\"" + step10Duration + "\" name=\"Given hello &quot;Sari&quot;\" status=\"passed\"/>" +
-                        "<step duration=\"" + step11Duration + "\" name=\"When what &quot;Why&quot;\" status=\"passed\"/>" +
-                        "<step duration=\"" + step12Duration + "\" name=\"Then wow\" status=\"failed\">" +
-                        "<error_message><![CDATA[" + errorMsg + "]]></error_message></step>" +
-                    "</steps>" +
+                "<steps>" +
+                "<step duration=\"" + step10Duration + "\" name=\"Given hello &quot;Sari&quot;\" status=\"passed\"/>" +
+                "<step duration=\"" + step11Duration + "\" name=\"When what &quot;Why&quot;\" status=\"passed\"/>" +
+                "<step duration=\"" + step12Duration + "\" name=\"Then wow\" status=\"failed\">" +
+                "<error_message>" + expectedMessage + "></error_message></step>" +
+                "</steps>" +
                 "</scenario>" +
                 "</scenarios>" +
                 "</feature>" +
                 "</features>";
 
-        Assert.assertEquals(expectedXml,removeStartedFromXml(actualXml));
+        actualXml = removeStartedFromXml(actualXml);
+        actualXml = removeStackTraceFromXML(actualXml, expectedMessage);
+        Assert.assertEquals("Differences were found between actual report xml and expected xml: ", expectedXml, actualXml);
     }
 
     private String getFeaturePath() {
@@ -204,8 +207,7 @@ public class OctaneGherkinFormatterTest {
             Result.Type status = Result.Type.fromLowerCaseName(gherkinSteps.get(gherkinStepIndex).getStatus());
             Throwable exception = null;
             if(status.equals(Result.Type.FAILED)) {
-                String error = gherkinSteps.get(gherkinStepIndex).getError();
-                exception = new Exception(error);
+                exception = gherkinSteps.get(gherkinStepIndex).getError();
             }
             Result result = new Result(status, gherkinSteps.get(gherkinStepIndex).getDuration(), exception);
             TestStepFinished testStepFinished = new TestStepFinished(System.currentTimeMillis(), testCase, pickleStepTestStepMock, result);
@@ -220,10 +222,18 @@ public class OctaneGherkinFormatterTest {
     }
 
     private String removeStartedFromXml(String xml){
-        String str = " started=\"";
-        int index1 = xml.indexOf(" started=\"");
-        int index2 = xml.indexOf("\"",index1+str.length());
-        String section1 = xml.substring(0,index1+str.length());
+        String startedString = " started=\"";
+        int index1 = xml.indexOf(startedString);
+        int index2 = xml.indexOf("\"",index1 + startedString.length());
+        String section1 = xml.substring(0, index1 + startedString.length());
+        String section2 = xml.substring(index2);
+        return section1 + section2;
+    }
+
+    private String removeStackTraceFromXML(String xml, String errorMessage){
+        int index1 = xml.indexOf(errorMessage);
+        int index2 = xml.indexOf(">",index1 + errorMessage.length());
+        String section1 = xml.substring(0, index1 + errorMessage.length());
         String section2 = xml.substring(index2);
         return section1 + section2;
     }
@@ -322,7 +332,7 @@ public class OctaneGherkinFormatterTest {
         Integer line;
         Long duration;
         String status;
-        String error;
+        Throwable error;
 
         GherkinStep(String keyword, String name, Integer line, Long duration, String status) {
             this.keyword = keyword;
@@ -332,7 +342,7 @@ public class OctaneGherkinFormatterTest {
             this.status = status;
         }
 
-        GherkinStep(String keyword, String name, Integer line, Long duration, String status, String error) {
+        GherkinStep(String keyword, String name, Integer line, Long duration, String status, Throwable error) {
             this(keyword, name, line, duration, status);
             this.error = error;
         }
@@ -357,7 +367,7 @@ public class OctaneGherkinFormatterTest {
             return status;
         }
 
-        private String getError() {
+        private Throwable getError() {
             return error;
         }
     }
