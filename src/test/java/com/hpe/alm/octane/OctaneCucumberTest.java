@@ -45,9 +45,12 @@ public class OctaneCucumberTest {
 		String resultFileName = String.format("%s_%s", classToTest.getName(), Constants.RESULTS_FILE_NAME_POSTFIX);
 
 		URL resource = getClass().getClassLoader().getResource("expectedResults/" + resultFileName);
-		FileReader fileReader = new FileReader(resource.getFile());
-		BufferedReader expectedResultFileReader = new BufferedReader(fileReader);
-		String expectedXml = expectedResultFileReader.lines().collect(Collectors.joining());
+		String expectedXml = "";
+		if(resource != null) {
+			FileReader fileReader = new FileReader(resource.getFile());
+			BufferedReader expectedResultFileReader = new BufferedReader(fileReader);
+			expectedXml = expectedResultFileReader.lines().collect(Collectors.joining());
+		}
 
 		BufferedReader actualResultFileReader = new BufferedReader(new FileReader(Constants.RESULTS_FOLDER + "/" + resultFileName));
 		String actualXml = actualResultFileReader.lines().collect(Collectors.joining());
@@ -72,7 +75,7 @@ public class OctaneCucumberTest {
 		int actualPathStart = actual.indexOf("path=");
 		int actualPathEnd = actual.indexOf("\"", actualPathStart + 7);
 		String actualPath = actual.substring(actualPathStart, actualPathEnd);
-		String actualPathSuffix = actualPath.substring(actualPath.length()-expectedPath.length(), actualPath.length());
+		String actualPathSuffix = actualPath.substring(actualPath.length() - expectedPath.length());
 
 		Assert.assertEquals("Path suffix not equal", expectedPath, actualPathSuffix);
 	}

@@ -4,9 +4,13 @@ import com.hpe.alm.octane.infra.*;
 import cucumber.api.PickleStepTestStep;
 import cucumber.api.Result;
 import cucumber.api.TestCase;
-import cucumber.api.event.*;
 import cucumber.api.event.EventListener;
+import cucumber.api.event.*;
 import cucumber.runtime.CucumberException;
+import cucumber.runtime.io.FileResource;
+import cucumber.runtime.io.MultiLoader;
+import cucumber.runtime.io.Resource;
+import cucumber.runtime.io.ResourceLoader;
 import cucumber.runtime.model.CucumberFeature;
 import gherkin.ast.*;
 import org.w3c.dom.Document;
@@ -18,9 +22,6 @@ import org.w3c.dom.ls.LSSerializer;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.util.*;
 
 //todo - need to check it with other versions
@@ -33,14 +34,16 @@ public class OctaneGherkinFormatter implements EventListener {
     private Integer scenarioIndexWrite = 0;
     private Integer stepIndex = 0;
     private Map<String, GherkinDocument> cucumberFeatures = new HashMap<>();
+    private ResourceLoader resourceLoader;
 
-    OctaneGherkinFormatter(List<CucumberFeature> cucumberFeatures, OutputFile outputFile){
+    OctaneGherkinFormatter(ResourceLoader resourceLoader, List<CucumberFeature> cucumberFeatures, OutputFile outputFile){
         initFeatures(cucumberFeatures);
+        this.resourceLoader = resourceLoader;
         this.outputFile = outputFile;
         try {
             doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             rootElement = doc.createElement(GherkinSerializer.ROOT_TAG_NAME);
-            rootElement.setAttribute("version",Constants.XML_VERSION);
+            rootElement.setAttribute("version", Constants.XML_VERSION);
             doc.appendChild(rootElement);
         } catch (ParserConfigurationException e) {
             throw new CucumberException(Constants.errorPrefix + "Failed to create xml document", e);
@@ -60,15 +63,15 @@ public class OctaneGherkinFormatter implements EventListener {
     }
 
     void readFeatureFile(TestSourceRead event) {
-        Feature feature = getCurrentFeature(event);
+        Feature feature = getCurrentFeature(event.uri);
         FeatureElement featureElement = new FeatureElement();
         setScenariosInfo(feature.getChildren(), featureElement, new ArrayList<>());
         setFeatureInfo(event, feature, featureElement);
         featuresMap.put(event.uri, featureElement);
     }
 
-    private Feature getCurrentFeature(TestSourceRead event) {
-        return cucumberFeatures.get(event.uri).getFeature();
+    private Feature getCurrentFeature(String uri) {
+        return cucumberFeatures.get(uri).getFeature();
     }
 
     private void setScenariosInfo(List<ScenarioDefinition> scenarioDefinitions, FeatureElement featureElement, List<StepElement> backgroundSteps){
@@ -139,7 +142,7 @@ public class OctaneGherkinFormatter implements EventListener {
 
     private void setFeatureInfo(TestSourceRead event, Feature feature, FeatureElement featureElement) {
         featureElement.setName(feature.getName());
-        featureElement.setPath(findAbsolutePath(event.uri));
+        featureElement.setPath(getResourcePath(event.uri, event.uri));
         featureElement.setFileContent(event.source);
         featureElement.setStarted(event.getTimeStamp());
 
@@ -151,25 +154,40 @@ public class OctaneGherkinFormatter implements EventListener {
         }
     }
 
-    //todo - try to get ResourceLoader
-    private String findAbsolutePath(String uri) {
-        URL res = getClass().getClassLoader().getResource(uri);
-        if(res != null && !res.getPath().isEmpty()) {
-            File file = null;
-            try {
-                file = Paths.get(res.toURI()).toFile();
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
+    private String getResourcePath(String originalUri, String uri) {
+        Iterable<Resource> resources = resourceLoader.resources(uri, ".feature");
+        String path = "";
+        try {
+            for (Resource resource: resources) {
+                path = ((FileResource) resource).getFile().getPath();
+                if(path.contains(originalUri.replace('/', File.separatorChar))){
+                    return path;
+                }
             }
-            String absolutePath = file != null ? file.getAbsolutePath() : "";
-            if (absolutePath.contains(uri.replace('/', File.separatorChar))) {
-                return absolutePath;
-            }
-        } else {
-            File file = new File(uri);
-            return file.getAbsolutePath();
         }
-        return null;
+        catch (IllegalArgumentException originalException) {
+            return getResourcePath(uri, MultiLoader.CLASSPATH_SCHEME + uri);
+        }
+
+        System.out.println("Resource file not found:" + originalUri);
+        return path;
+    }
+
+    private String getResourceFromClasspath(String uri, IllegalArgumentException originalException) {
+        String path;
+//        if (!uri.startsWith(MultiLoader.CLASSPATH_SCHEME) &&
+//                originalException.getMessage().contains("Not a file or directory")) {
+        try {
+            path = getResourcePath(uri, MultiLoader.CLASSPATH_SCHEME + uri);
+        } catch (IllegalArgumentException secondException) {
+            throw secondException;
+
+        }
+//        }
+//        else {
+//            throw originalException;
+//        }
+        return path;
     }
 
     /**************** Scenario Finished ******************/

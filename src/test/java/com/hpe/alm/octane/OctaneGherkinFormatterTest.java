@@ -5,6 +5,7 @@ import com.hpe.alm.octane.infra.OutputFile;
 import com.hpe.alm.octane.infra.ScenarioElement;
 import cucumber.api.Argument;
 import cucumber.api.PickleStepTestStep;
+import cucumber.api.TestCase;
 import cucumber.api.Result;
 import cucumber.api.TestStep;
 import cucumber.api.event.TestCaseFinished;
@@ -28,7 +29,6 @@ import gherkin.pickles.PickleStep;
 import gherkin.pickles.PickleTag;
 import org.junit.Assert;
 import org.junit.Test;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,18 +37,16 @@ public class OctaneGherkinFormatterTest {
 
     private final static String passed = Result.Type.PASSED.name();
     private final static String failed = Result.Type.FAILED.name();
-    private final static String featureRelativePath = "src\\test\\resources\\com\\hpe\\alm\\octane\\F1\\test1.feature";
+    private final static String featurePath = "src\\test\\resources\\com\\hpe\\alm\\octane\\F1\\test1.feature";
 
     @Test
     public void testFullFlow() throws IllegalAccessException, ClassNotFoundException, InstantiationException, IOException {
-        String featureAbsolutePath = getFeaturePath();
-        ClassLoader classLoader = this.getClass().getClassLoader();
-        ResourceLoader resourceLoader = new MultiLoader(classLoader);
-        Iterable<Resource> resources = resourceLoader.resources(featureAbsolutePath, ".feature");
+        ResourceLoader resourceLoader = new MultiLoader(this.getClass().getClassLoader());
+        Iterable<Resource> resources = resourceLoader.resources(featurePath, ".feature");
         ArrayList<CucumberFeature> features = new ArrayList<>();
-        String source = getFeatures(featureAbsolutePath, resources, features);
-        OctaneGherkinFormatter formatter = new OctaneGherkinFormatter(features, new OutputFile(this.getClass()));
-        formatter.readFeatureFile(new TestSourceRead(System.currentTimeMillis(), featureAbsolutePath, source));
+        String source = getFeatures(resources, features);
+        OctaneGherkinFormatter formatter = new OctaneGherkinFormatter(resourceLoader, features, new OutputFile(this.getClass()));
+        formatter.readFeatureFile(new TestSourceRead(System.currentTimeMillis(), featurePath, source));
 
         String featureName = "test Feature";
         String errorMsg = "This is an error";
@@ -59,7 +57,7 @@ public class OctaneGherkinFormatterTest {
         backgroundSteps.add(new GherkinStep("And","back",line++, 0L, passed));
 
         Scenario scenario = new Scenario(new ArrayList<>(), new Location(0, line++), ScenarioElement.ScenarioType.SCENARIO.getScenarioType(),"test scenario","",new ArrayList<>());
-        TestCaseMock testCaseMock = new TestCaseMock(scenario, featureAbsolutePath);
+        TestCaseMock testCaseMock = new TestCaseMock(scenario, featurePath);
         addBackgroundSteps(formatter, backgroundSteps, testCaseMock);
         long step1Duration = 100;
         long step2Duration = 200;
@@ -81,7 +79,7 @@ public class OctaneGherkinFormatterTest {
         Scenario scenarioOutline_1 = new Scenario(new ArrayList<>(), new Location(0, line++),
                 ScenarioElement.ScenarioType.OUTLINE.getScenarioType(),
                 "Table TTT","",new ArrayList<>());
-        TestCaseMock testCaseMockOutline = new TestCaseMock(scenarioOutline_1, featureAbsolutePath);
+        TestCaseMock testCaseMockOutline = new TestCaseMock(scenarioOutline_1, featurePath);
         addBackgroundSteps(formatter, backgroundSteps, testCaseMockOutline);
 
         long step7Duration = 400;
@@ -98,7 +96,7 @@ public class OctaneGherkinFormatterTest {
         Scenario scenarioOutline_2 = new Scenario(new ArrayList<>(), new Location(0, line++),
                 ScenarioElement.ScenarioType.OUTLINE.getScenarioType(),
                 "Table TTT2","",new ArrayList<>());
-        TestCaseMock testCaseMockOutline2 = new TestCaseMock(scenarioOutline_2, featureAbsolutePath);
+        TestCaseMock testCaseMockOutline2 = new TestCaseMock(scenarioOutline_2, featurePath);
         addBackgroundSteps(formatter, backgroundSteps, testCaseMockOutline2);
         long step10Duration = 700;
         long step11Duration = 800;
@@ -118,7 +116,7 @@ public class OctaneGherkinFormatterTest {
         String expectedXml = xmlVersion +
                 "<features version=\"" + Constants.XML_VERSION + "\">" +
                 "<feature name=\"" + featureName + "\" " +
-                "path=\"" + featureAbsolutePath + "\"" +
+                "path=\"" + featurePath + "\"" +
                 " started=\"\"" +
                 " tag=\"@TID2001REV0.2.0\">" +
                 "<file><![CDATA[" + source + "]]></file>" +
@@ -160,12 +158,7 @@ public class OctaneGherkinFormatterTest {
         Assert.assertEquals("Differences were found between actual report xml and expected xml: ", expectedXml, actualXml);
     }
 
-    private String getFeaturePath() {
-        File file = new File(featureRelativePath);
-        return file.getAbsolutePath();
-    }
-
-    private String getFeatures(String featureAbsoultePath, Iterable<Resource> resources, ArrayList<CucumberFeature> features) throws IOException {
+    private String getFeatures(Iterable<Resource> resources, ArrayList<CucumberFeature> features) throws IOException {
         CucumberFeature cucumberFeature;
         String source = null;
         try {
@@ -175,7 +168,7 @@ public class OctaneGherkinFormatterTest {
             for (Resource resource : resources) {
                 source = Encoding.readFile(resource);
                 GherkinDocument gherkinDocument = parser.parse(source, matcher);
-                cucumberFeature = new CucumberFeature(gherkinDocument, featureAbsoultePath, source);
+                cucumberFeature = new CucumberFeature(gherkinDocument, featurePath, source);
                 features.add(cucumberFeature);
             }
 
@@ -187,7 +180,7 @@ public class OctaneGherkinFormatterTest {
     }
 
     private void addBackgroundSteps(OctaneGherkinFormatter formatter, ArrayList<GherkinStep> gherkinSteps, TestCaseMock testCaseMock) {
-        addAndRunSteps(formatter,gherkinSteps, testCaseMock);
+        addAndRunSteps(formatter, gherkinSteps, testCaseMock);
     }
 
 
@@ -238,7 +231,7 @@ public class OctaneGherkinFormatterTest {
         return section1 + section2;
     }
 
-    private class TestCaseMock implements cucumber.api.TestCase {
+    private class TestCaseMock implements TestCase {
 
         private Scenario scenario;
         private String uri;

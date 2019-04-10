@@ -150,25 +150,25 @@ public class FeatureElementTest {
 
     @Before
     public void init() throws ParserConfigurationException {
-        formatter = new OctaneGherkinFormatter(new ArrayList<>(), new OutputFile(this.getClass()));
+        formatter = new OctaneGherkinFormatter(null, new ArrayList<>(), new OutputFile(this.getClass()));
         doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     }
 
     @Test
     public void testFeatureElementToXMLElement() {
         ScenarioElement scenarioElement1 = new ScenarioElement(1, scenarioName1);
-        scenarioElement1.getSteps().add(createStepElement("",scenario1Step1,1,passed,stepDuration+1));
-        scenarioElement1.getSteps().add(createStepElement("",scenario1Step2,2,passed,stepDuration+2));
-        scenarioElement1.getSteps().add(createStepElement("",scenario1Step3,3,passed,stepDuration+3));
-        scenarioElement1.getSteps().add(createStepElement("",scenario1Step4,4,passed,stepDuration+4));
-        scenarioElement1.getSteps().add(createStepElement("",scenario1Step5,5,passed,stepDuration+5));
-        scenarioElement1.getSteps().add(createStepElement("",scenario1Step6,6,passed,stepDuration+6));
+        scenarioElement1.getSteps().add(createStepElement("", scenario1Step1,1, passed,stepDuration+1));
+        scenarioElement1.getSteps().add(createStepElement("", scenario1Step2,2, passed,stepDuration+2));
+        scenarioElement1.getSteps().add(createStepElement("", scenario1Step3,3, passed,stepDuration+3));
+        scenarioElement1.getSteps().add(createStepElement("", scenario1Step4,4, passed,stepDuration+4));
+        scenarioElement1.getSteps().add(createStepElement("", scenario1Step5,5, passed,stepDuration+5));
+        scenarioElement1.getSteps().add(createStepElement("", scenario1Step6,6, passed,stepDuration+6));
 
         ScenarioElement scenarioElement2 =  new ScenarioElement(2, scenarioName2);
-        scenarioElement2.getSteps().add(createStepElement("",scenario2Step1,1,failed,stepDuration+7,errorMessage));
-        scenarioElement2.getSteps().add(createStepElement("",scenario2Step2,2,skipped,(long)0));
-        scenarioElement2.getSteps().add(createStepElement("",scenario2Step3,3,skipped,(long)0));
-        scenarioElement2.getSteps().add(createStepElement("",scenario2Step4,4,skipped,(long)0));
+        scenarioElement2.getSteps().add(createStepElement("", scenario2Step1,1, failed,stepDuration+7,errorMessage));
+        scenarioElement2.getSteps().add(createStepElement("", scenario2Step2,2, skipped,(long)0));
+        scenarioElement2.getSteps().add(createStepElement("", scenario2Step3,3, skipped,(long)0));
+        scenarioElement2.getSteps().add(createStepElement("", scenario2Step4,4, skipped,(long)0));
 
         ScenarioElement scenarioOutlineElement1 =  new ScenarioElement(3, scenarioOutline,"Scenario Outline", 1);
         scenarioOutlineElement1.getSteps().add(createStepElement("", String.format(scenarioOutlineStep1,scenarioOutlineWeight1),1,passed,stepDuration+11));
@@ -258,7 +258,7 @@ public class FeatureElementTest {
     }
 
     private StepElement createStepElement(String keyword, String name, Integer line, String status, Long duration, String errorMessage) {
-        StepElement stepElement = createStepElement(keyword,name,line,status,duration);
+        StepElement stepElement = createStepElement(keyword, name, line, status, duration);
         stepElement.setErrorMessage(errorMessage);
         return stepElement;
     }
