@@ -2,8 +2,8 @@
 ALM Octane cucumber-jvm formatter enable uploading cucumber-jvm tests back into ALM Octane.
 
 ## How does it work
-1. you use this plugin in your JUnit cucumber tests (See instructions below)
-2. When running the tests, the plugin outputs _OctaneGherkinResults.xml files with the results
+1. You use this plugin in your JUnit cucumber tests (See instructions below)
+2. When running the tests, the plugin outputs files with the results
 3. Octane plugin for Jenkins reads these files and upload the results back to Octane (read how to configure Octane Jenkins plugin from Octane online help)
 4. You can see the results in your Gherkin test in Octane
 
@@ -28,6 +28,35 @@ public class RunCukesTest {
 ```
 
 # How to configure octane-cucumber-jvm in your project:
+
+##For Cucumber 4.2
+1. Add a dependency in your pom file:
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.hpe.alm.octane</groupId>
+        <artifactId>octane-cucumber-jvm</artifactId>
+        <version>12.60.47</version>
+    </dependency>
+</dependencies>
+```
+
+3. Add the OctaneGherkinFormatter plugin to the CucumberOptions, and provide a result file path.
+```java
+package feature.manualRunner;
+
+import cucumber.api.CucumberOptions;
+import org.junit.runner.RunWith;
+
+@RunWith(Cucumber.class)
+@CucumberOptions(plugin="com.hpe.alm.octane.OctaneGherkinFormatter:gherkin-results\\ManualRunnerTest_OctaneGherkinResults.xml",
+    features="src/test/resources/feature/manualRunner")
+public class ManualRunnerTest{
+
+}
+```
+
+##For cucumber 2
 1. Add a dependency in your pom file:
 ```xml
 <dependencies>
@@ -59,4 +88,3 @@ public class ManualRunnerTest{
 
 }
 ```
-

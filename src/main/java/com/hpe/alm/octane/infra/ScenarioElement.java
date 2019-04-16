@@ -11,41 +11,32 @@ import java.util.List;
  */
 public class ScenarioElement implements GherkinSerializer {
     private String name;
-    private Integer index;
-    private List<StepElement> steps;
+    private List<StepElement> steps = new ArrayList<>();
     private Integer outlineIndex = 0;
-    private String type = ScenarioType.SCENARIO.getScenarioType();
 
-    public ScenarioElement(Integer index, String name, String type, int outlineIndex) {
-        this(index, name, type);
+    public ScenarioElement(String name, int outlineIndex) {
+        this.name = name;
         this.outlineIndex = outlineIndex;
     }
 
-    public ScenarioElement(Integer index, String name, String type) {
-        this(index, name);
-        this.type = type;
-    }
-
-    public ScenarioElement(Integer index, String name) {
-        this.index = index;
-        this.name = name;
-        steps = new ArrayList<>();
+    public void setOutlineIndex(int outlineIndex) {
+        this.outlineIndex = outlineIndex;
     }
 
     public List<StepElement> getSteps() {
         return steps;
     }
 
-    public Integer getIndex() {
-        return index;
+    public void addStep(StepElement step) {
+        steps.add(step);
+    }
+
+    public int getOutlineIndex() {
+        return outlineIndex;
     }
 
     public String getName() {
         return name;
-    }
-
-    public boolean isScenarioOutline(){
-        return type.equals(ScenarioType.OUTLINE.getScenarioType());
     }
 
     public Element toXMLElement(Document doc) {
@@ -65,20 +56,5 @@ public class ScenarioElement implements GherkinSerializer {
         scenario.appendChild(steps);
 
         return scenario;
-    }
-
-    public enum ScenarioType {
-        OUTLINE("Scenario Outline"),
-        BACKGROUND("Background"),
-        SCENARIO("Scenario");
-
-        private String displayType;
-        ScenarioType(String displayType) {
-            this.displayType = displayType;
-        }
-
-        public String getScenarioType(){
-            return displayType;
-        }
     }
 }

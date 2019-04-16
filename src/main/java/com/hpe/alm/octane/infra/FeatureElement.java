@@ -3,6 +3,7 @@ package com.hpe.alm.octane.infra;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,20 +17,20 @@ public class FeatureElement implements GherkinSerializer {
     private String fileContent = "";
     private Long started;
     private List<ScenarioElement> scenarios;
-    private List<StepElement> backgroundSteps;
 
     public FeatureElement() {
         scenarios = new ArrayList<>();
-        backgroundSteps = new ArrayList<>();
     }
 
     public List<ScenarioElement> getScenarios() {
         return scenarios;
     }
 
-    public List<StepElement> getBackgroundSteps() {
-        return backgroundSteps;
+    public void addScenario(ScenarioElement scenario) {
+        scenarios.add(scenario);
     }
+
+    public String getPath() { return path; }
 
     public void setName(String name) {
         this.name = name;
@@ -54,7 +55,7 @@ public class FeatureElement implements GherkinSerializer {
 
         // Adding the feature members
         feature.setAttribute("name", name);
-        feature.setAttribute("path", path);
+        feature.setAttribute("path", path.replace('/', File.separatorChar));
         feature.setAttribute("tag", tag);
         if (started != null) {
             feature.setAttribute("started", started.toString());
@@ -66,18 +67,6 @@ public class FeatureElement implements GherkinSerializer {
         feature.appendChild(fileElement);
 
         Element scenariosElement = doc.createElement(GherkinSerializer.SCENARIOS_TAG_NAME);
-
-        // Serializing the background
-        if (backgroundSteps != null && backgroundSteps.size()>0) {
-            Element backgroundStepsElement = doc.createElement(GherkinSerializer.STEPS_TAG_NAME);
-            for (StepElement step : backgroundSteps) {
-                backgroundStepsElement.appendChild(step.toXMLElement(doc));
-            }
-
-            Element backgroundElement = doc.createElement(GherkinSerializer.BACKGROUND_TAG_NAME);
-            backgroundElement.appendChild(backgroundStepsElement);
-            scenariosElement.appendChild(backgroundElement);
-        }
 
         // Serializing the scenarios
         for (ScenarioElement scenario : scenarios) {

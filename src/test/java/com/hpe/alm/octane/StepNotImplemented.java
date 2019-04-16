@@ -1,10 +1,10 @@
 package com.hpe.alm.octane;
 
-import com.hpe.alm.octane.OctaneCucumber;
 import cucumber.api.CucumberOptions;
+import cucumber.api.junit.Cucumber;
 import org.junit.runner.RunWith;
 
-@RunWith(OctaneCucumber.class)
-@CucumberOptions(features = "src\\test\\resources\\scenarios\\stepNotImplemented.feature")
+@RunWith(Cucumber.class)
+@CucumberOptions(plugin = "com.hpe.alm.octane.OctaneGherkinFormatter:gherkin-results\\StepNotImplemented.xml", features = "src\\test\\resources\\scenarios\\stepNotImplemented.feature")
 public class StepNotImplemented {
 }

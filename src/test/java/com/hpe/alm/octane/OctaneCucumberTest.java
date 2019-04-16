@@ -1,6 +1,7 @@
 package com.hpe.alm.octane;
 
 import com.hpe.alm.octane.infra.Constants;
+import cucumber.api.junit.Cucumber;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.notification.RunNotifier;
@@ -36,13 +37,13 @@ public class OctaneCucumberTest {
 	}
 
 	private void test(Class classToTest) throws IOException, InitializationError {
-		OctaneCucumber runner = new OctaneCucumber(classToTest);
+		Cucumber runner = new Cucumber(classToTest);
 		runner.run(new RunNotifier());
 		validate(classToTest);
 	}
 
 	private void validate(Class classToTest) throws FileNotFoundException {
-		String resultFileName = String.format("%s_%s", classToTest.getName(), Constants.RESULTS_FILE_NAME_POSTFIX);
+		String resultFileName = classToTest.getSimpleName() + ".xml";
 
 		URL resource = getClass().getClassLoader().getResource("expectedResults/" + resultFileName);
 		String expectedXml = "";
@@ -59,10 +60,7 @@ public class OctaneCucumberTest {
 
 		actualXml = actualXml
 			.replaceAll(" duration=\"\\d*\"", "")
-			.replaceAll(" started=\"\\d*\"", "")
-			.replaceAll(" path=\".*\"", "");
-
-		expectedXml = expectedXml.replaceAll(" path=\".*\"", "");
+			.replaceAll(" started=\"\\d*\"", "");
 
 		Assert.assertEquals(expectedXml, actualXml);
 	}
