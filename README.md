@@ -41,7 +41,7 @@ public class RunCukesTest {
 </dependencies>
 ```
 
-3. Add the OctaneGherkinFormatter plugin to the CucumberOptions, and provide a result file path.
+2. Add the OctaneGherkinFormatter plugin to the CucumberOptions, and provide a result file path.
 ```java
 package feature.manualRunner;
 
@@ -82,8 +82,7 @@ import cucumber.api.CucumberOptions;
 import org.junit.runner.RunWith;
 
 @RunWith(OctaneCucumber.class)
-@CucumberOptions(plugin={"junit:junitResult.xml"},
-    features="src/test/resources/feature/manualRunner")
+@CucumberOptions(features="src/test/resources/feature/manualRunner")
 public class ManualRunnerTest{
 
 }

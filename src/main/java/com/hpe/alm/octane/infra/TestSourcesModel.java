@@ -34,7 +34,7 @@ public class TestSourcesModel {
             GherkinDialect dialect = (new GherkinDialectProvider(feature.getLanguage())).getDefaultDialect();
             Iterator keywords = dialect.getStepKeywords().iterator();
 
-            while(keywords.hasNext()) {
+            while (keywords.hasNext()) {
                 String keyword = (String)keywords.next();
                 if (trimmedSourceLine.startsWith(keyword)) {
                     return keyword;
@@ -70,7 +70,7 @@ public class TestSourcesModel {
                 TestSourcesModel.AstNode currentParent = new TestSourcesModel.AstNode(gherkinDocument.getFeature(), null);
                 Iterator scenarioDefinitionIterator = gherkinDocument.getFeature().getChildren().iterator();
 
-                while(scenarioDefinitionIterator.hasNext()) {
+                while (scenarioDefinitionIterator.hasNext()) {
                     ScenarioDefinition child = (ScenarioDefinition)scenarioDefinitionIterator.next();
                     processScenarioDefinition(nodeMap, child, currentParent);
                 }
@@ -88,7 +88,7 @@ public class TestSourcesModel {
         nodeMap.put(child.getLocation().getLine(), childNode);
         Iterator stepIterator = child.getSteps().iterator();
 
-        while(stepIterator.hasNext()) {
+        while (stepIterator.hasNext()) {
             Step step = (Step)stepIterator.next();
             nodeMap.put(step.getLocation().getLine(), new TestSourcesModel.AstNode(step, childNode));
         }
@@ -102,7 +102,7 @@ public class TestSourcesModel {
     private void processScenarioOutlineExamples(Map<Integer, TestSourcesModel.AstNode> nodeMap, ScenarioOutline scenarioOutline, TestSourcesModel.AstNode childNode) {
         Iterator examplesIterator = scenarioOutline.getExamples().iterator();
 
-        while(examplesIterator.hasNext()) {
+        while (examplesIterator.hasNext()) {
             Examples examples = (Examples)examplesIterator.next();
             TestSourcesModel.AstNode examplesNode = new TestSourcesModel.AstNode(examples, childNode);
             TableRow headerRow = examples.getTableHeader();

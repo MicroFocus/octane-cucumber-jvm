@@ -16,8 +16,8 @@ import java.time.Instant;
 public class OctaneGherkinFormatter implements EventListener {
     private OutputFile outputFile;
 
-   private TestSourcesModel testSources = new TestSourcesModel();
-   private TestTracker testTracker = new TestTracker();
+    private TestSourcesModel testSources = new TestSourcesModel();
+    private TestTracker testTracker = new TestTracker();
 
     public OctaneGherkinFormatter(URL output) {
         outputFile = new OutputFile(output);
@@ -48,14 +48,13 @@ public class OctaneGherkinFormatter implements EventListener {
             feature.setFileContent(testSources.getFeatureFileContent(event.testCase.getUri()));
             feature.setName(testSources.getFeatureName(event.testCase.getUri()));
             for (PickleTag tag : event.testCase.getTags()) {
-                if(tag.getName().startsWith(Constants.TAG_ID)) {
+                if (tag.getName().startsWith(Constants.TAG_ID)) {
                     feature.setTag(tag.getName());
                     break;
                 }
             }
             testTracker.setCurrentFeature(feature);
         }
-
         testTracker.setCurrentScenario(event.testCase.getName());
     }
 
@@ -64,8 +63,8 @@ public class OctaneGherkinFormatter implements EventListener {
             PickleStepTestStep testStep = (PickleStepTestStep) event.testStep;
             String keyword = testSources.getKeywordFromSource(testTracker.getCurrentFeature().getPath(), testStep.getStepLine());
             String stepName = keyword + testStep.getStepText();
-            StepElement stepElement = new StepElement(stepName);
-            testTracker.setCurrentStep(stepElement);
+
+            testTracker.setCurrentStep(new StepElement(stepName));
         }
     }
 
@@ -77,11 +76,11 @@ public class OctaneGherkinFormatter implements EventListener {
         }
     }
 
-    private void handleRunFinished(TestRunFinished event){
+    private void handleRunFinished(TestRunFinished event) {
         try {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             Element rootElement = doc.createElement(GherkinSerializer.ROOT_TAG_NAME);
-            rootElement.setAttribute("version",Constants.XML_VERSION);
+            rootElement.setAttribute("version", Constants.XML_VERSION);
 
             doc.appendChild(rootElement);
             testTracker.getFeatures().forEach(featureElement -> rootElement.appendChild(featureElement.toXMLElement(doc)));
