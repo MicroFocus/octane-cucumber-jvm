@@ -27,7 +27,7 @@ public class OutputFile {
 			output.setByteStream(outputStream);
 			serializer.write(doc, output);
 		} catch (Exception e) {
-			throw new CucumberException(Constants.errorPrefix + "Failed to write document to disc", e);
+			throw new CucumberException(Constants.errorPrefix + "Failed to write the result XML to the file system.", e);
 		}
 	}
 }

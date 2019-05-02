@@ -10,6 +10,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.net.URL;
 import java.time.Instant;
 
@@ -77,17 +78,19 @@ public class OctaneGherkinFormatter implements EventListener {
     }
 
     private void handleRunFinished(TestRunFinished event) {
+        Document doc;
         try {
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-            Element rootElement = doc.createElement(GherkinSerializer.ROOT_TAG_NAME);
-            rootElement.setAttribute("version", Constants.XML_VERSION);
-
-            doc.appendChild(rootElement);
-            testTracker.getFeatures().forEach(featureElement -> rootElement.appendChild(featureElement.toXMLElement(doc)));
-
-            outputFile.write(doc);
-        } catch (Exception e) {
-            throw new CucumberException(Constants.errorPrefix + "Failed to create xml document", e);
+            doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        } catch (ParserConfigurationException e) {
+            throw new CucumberException(Constants.errorPrefix + "Failed to create result xml document.", e);
         }
+
+        Element rootElement = doc.createElement(GherkinSerializer.ROOT_TAG_NAME);
+        rootElement.setAttribute("version", Constants.XML_VERSION);
+
+        doc.appendChild(rootElement);
+        testTracker.getFeatures().forEach(featureElement -> rootElement.appendChild(featureElement.toXMLElement(doc)));
+
+        outputFile.write(doc);
     }
 }
