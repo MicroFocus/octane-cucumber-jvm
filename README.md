@@ -56,7 +56,7 @@ public class ManualRunnerTest{
 }
 ```
 
-## For cucumber 2
+## For cucumber 1.2
 1. Add a dependency in your pom file:
 ```xml
 <dependencies>
