@@ -6,7 +6,7 @@
 
     <groupId>com.hpe.alm.octane</groupId>
     <artifactId>octane-cucumber-jvm</artifactId>
-    <version>12.60.47-SNAPSHOT</version>
+    <version>12.60.47</version>
     <packaging>jar</packaging>
 
     <name>octane-cucumber-jvm</name>
