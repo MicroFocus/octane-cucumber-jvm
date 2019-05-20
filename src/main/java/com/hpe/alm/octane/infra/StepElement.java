@@ -1,27 +1,21 @@
 package com.hpe.alm.octane.infra;
 
-import gherkin.formatter.model.Result;
-import gherkin.formatter.model.Step;
+import cucumber.api.Result;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class StepElement implements GherkinSerializer {
-    private String _name = "";
-    private String _status = Result.SKIPPED.getStatus();
-    private Integer _line = 0;
-    private Long _duration = (long)0;
+    private String name;
+    private String status = Result.Type.SKIPPED.lowerCaseName();
+    private Long duration = 0L;
     private String errorMessage = "";
-    private boolean isBackgroundStep = false;
 
-    public StepElement(Step step) {
-        if(step!=null){
-            _name = step.getKeyword() + step.getName();
-            _line = step.getLine();
-        }
+    public StepElement(String name) {
+        this.name = name;
     }
 
-    public void setBackgroundStep() {
-        isBackgroundStep = true;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setErrorMessage(String errorMessage) {
@@ -29,28 +23,27 @@ public class StepElement implements GherkinSerializer {
     }
 
     public void setStatus(String status) {
-        this._status = status;
+        this.status = status.toLowerCase();
     }
 
     public void setDuration(Long duration) {
-        this._duration = duration;
+        this.duration = duration;
     }
 
-    public Integer getLine() {
-        return _line;
+    public String getName() {
+        return name;
     }
 
     public Element toXMLElement(Document doc) {
         Element step = doc.createElement(STEP_TAG_NAME);
 
-        step.setAttribute("name", _name);
-        step.setAttribute("status", _status);
+        step.setAttribute("name", name);
+        step.setAttribute("status", status);
 
-        String duration = _duration != null ? _duration.toString() : "0";
+        String duration = this.duration != null ? this.duration.toString() : "0";
         step.setAttribute("duration", duration);
 
-        //temporarily set error message only for non-background steps
-        if(errorMessage!=null && !errorMessage.isEmpty() && !isBackgroundStep){
+        if(errorMessage != null && !errorMessage.isEmpty()){
             Element errorElement = doc.createElement(GherkinSerializer.ERROR_MESSAGE_TAG_NAME);
             errorElement.appendChild(doc.createCDATASection(errorMessage));
             step.appendChild(errorElement);

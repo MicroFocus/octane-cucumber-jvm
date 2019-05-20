@@ -1,6 +1,7 @@
 package com.hpe.alm.octane;
 
 import com.hpe.alm.octane.infra.Constants;
+import cucumber.api.junit.Cucumber;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.notification.RunNotifier;
@@ -36,18 +37,21 @@ public class OctaneCucumberTest {
 	}
 
 	private void test(Class classToTest) throws IOException, InitializationError {
-		OctaneCucumber runner = new OctaneCucumber(classToTest);
+		Cucumber runner = new Cucumber(classToTest);
 		runner.run(new RunNotifier());
 		validate(classToTest);
 	}
 
 	private void validate(Class classToTest) throws FileNotFoundException {
-		String resultFileName = String.format("%s_%s", classToTest.getName(), Constants.RESULTS_FILE_NAME_POSTFIX);
+		String resultFileName = classToTest.getSimpleName() + ".xml";
 
 		URL resource = getClass().getClassLoader().getResource("expectedResults/" + resultFileName);
-		FileReader fileReader = new FileReader(resource.getFile());
-		BufferedReader expectedResultFileReader = new BufferedReader(fileReader);
-		String expectedXml = expectedResultFileReader.lines().collect(Collectors.joining());
+		String expectedXml = "";
+		if(resource != null) {
+			FileReader fileReader = new FileReader(resource.getFile());
+			BufferedReader expectedResultFileReader = new BufferedReader(fileReader);
+			expectedXml = expectedResultFileReader.lines().collect(Collectors.joining());
+		}
 
 		BufferedReader actualResultFileReader = new BufferedReader(new FileReader(Constants.RESULTS_FOLDER + "/" + resultFileName));
 		String actualXml = actualResultFileReader.lines().collect(Collectors.joining());
@@ -56,10 +60,7 @@ public class OctaneCucumberTest {
 
 		actualXml = actualXml
 			.replaceAll(" duration=\"\\d*\"", "")
-			.replaceAll(" started=\"\\d*\"", "")
-			.replaceAll(" path=\".*\"", "");
-
-		expectedXml = expectedXml.replaceAll(" path=\".*\"", "");
+			.replaceAll(" started=\"\\d*\"", "");
 
 		Assert.assertEquals(expectedXml, actualXml);
 	}
@@ -72,7 +73,7 @@ public class OctaneCucumberTest {
 		int actualPathStart = actual.indexOf("path=");
 		int actualPathEnd = actual.indexOf("\"", actualPathStart + 7);
 		String actualPath = actual.substring(actualPathStart, actualPathEnd);
-		String actualPathSuffix = actualPath.substring(actualPath.length()-expectedPath.length(), actualPath.length());
+		String actualPathSuffix = actualPath.substring(actualPath.length() - expectedPath.length());
 
 		Assert.assertEquals("Path suffix not equal", expectedPath, actualPathSuffix);
 	}

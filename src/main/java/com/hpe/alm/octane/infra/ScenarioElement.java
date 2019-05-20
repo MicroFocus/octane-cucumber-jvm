@@ -10,35 +10,46 @@ import java.util.List;
  * Created by intract on 23/06/2016.
  */
 public class ScenarioElement implements GherkinSerializer {
-    private String _name = "";
-    private List<StepElement> _steps;
-    private Integer _outlineIndex = 0;
+    private String name;
+    private List<StepElement> steps = new ArrayList<>();
+    private Integer outlineIndex = 0;
 
     public ScenarioElement(String name, int outlineIndex) {
-        this(name);
-        _outlineIndex = outlineIndex;
+        this.name = name;
+        this.outlineIndex = outlineIndex;
     }
 
-    public ScenarioElement(String name) {
-        _name = name;
-        _steps = new ArrayList<>();
+    public void setOutlineIndex(int outlineIndex) {
+        this.outlineIndex = outlineIndex;
     }
 
     public List<StepElement> getSteps() {
-        return _steps;
+        return steps;
+    }
+
+    public void addStep(StepElement step) {
+        steps.add(step);
+    }
+
+    public int getOutlineIndex() {
+        return outlineIndex;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public Element toXMLElement(Document doc) {
         // Adding the feature members
         Element scenario = doc.createElement(SCENARIO_TAG_NAME);
-        scenario.setAttribute("name", _name);
-        if(_outlineIndex>0){
-            scenario.setAttribute("outlineIndex", _outlineIndex.toString());
+        scenario.setAttribute("name", name);
+        if(outlineIndex > 0){
+            scenario.setAttribute("outlineIndex", outlineIndex.toString());
         }
 
         // Serializing the steps
         Element steps = doc.createElement(STEPS_TAG_NAME);
-        for (StepElement step : _steps) {
+        for (StepElement step : this.steps) {
             steps.appendChild(step.toXMLElement(doc));
         }
 
