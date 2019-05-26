@@ -2,6 +2,8 @@ package com.hpe.alm.octane;
 
 import cucumber.api.PendingException;
 import cucumber.api.Scenario;
+import cucumber.api.java.After;
+import cucumber.api.java.AfterStep;
 import cucumber.api.java.Before;
 import cucumber.api.java.BeforeStep;
 import cucumber.api.java.en.And;
@@ -104,5 +106,14 @@ public class MyStepdefs {
 
     @BeforeStep
     public void doSomethingBeforeStep(Scenario scenario){
+    }
+
+    @After
+    public void doSomethingAfter(Scenario scenario){
+
+    }
+
+    @AfterStep
+    public void doSomethingAfterStep(Scenario scenario){
     }
 }
