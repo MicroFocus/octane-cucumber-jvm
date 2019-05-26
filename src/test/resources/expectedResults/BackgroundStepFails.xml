@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features version="1"><feature name="asd" path="src\test\resources\scenarios\backgroundStepFails.feature" tag=""><file><![CDATA[@ATag
+Feature: asd
+
+  Background:
+    Given I am logged in
+    And I'm failed
+
+  Scenario: scenario with passed steps
+    When passed step
+    Then another passed step
+
+  Scenario: scenario with failed steps
+    When failed step
+    Then another failed step
+
+  Scenario: scenario with skipped steps
+    When pending step
+    Then another pending step]]></file><scenarios><scenario name="scenario with passed steps"><steps><step name="Given I am logged in" status="passed"/><step name="And I'm failed" status="failed"><error_message><![CDATA[java.lang.Exception: exception happened	at com.hpe.alm.octane.MyStepdefs.iMFailed(MyStepdefs.java:79)	at ✽.I'm failed(src/test/resources/scenarios/backgroundStepFails.feature:6)]]></error_message></step><step name="When passed step" status="skipped"/><step name="Then another passed step" status="skipped"/></steps></scenario><scenario name="scenario with failed steps"><steps><step name="Given I am logged in" status="passed"/><step name="And I'm failed" status="failed"><error_message><![CDATA[java.lang.Exception: exception happened	at com.hpe.alm.octane.MyStepdefs.iMFailed(MyStepdefs.java:79)	at ✽.I'm failed(src/test/resources/scenarios/backgroundStepFails.feature:6)]]></error_message></step><step name="When failed step" status="skipped"/><step name="Then another failed step" status="skipped"/></steps></scenario><scenario name="scenario with skipped steps"><steps><step name="Given I am logged in" status="passed"/><step name="And I'm failed" status="failed"><error_message><![CDATA[java.lang.Exception: exception happened	at com.hpe.alm.octane.MyStepdefs.iMFailed(MyStepdefs.java:79)	at ✽.I'm failed(src/test/resources/scenarios/backgroundStepFails.feature:6)]]></error_message></step><step name="When pending step" status="skipped"/><step name="Then another pending step" status="skipped"/></steps></scenario></scenarios></feature></features>
