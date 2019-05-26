@@ -1,7 +1,5 @@
 package com.hpe.alm.octane.infra;
 
-import cucumber.runtime.CucumberException;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,14 +42,17 @@ public class TestTracker {
 
     public void setCurrentStep(StepElement step) {
         if (currentScenario == null) {
-            throw new CucumberException("Flow error - Tried to set step when there is no current scenario");
+            ErrorHandler.error("Flow error - Tried to set step when there is no current scenario");
         }
         currentScenario.addStep(step);
     }
 
     public StepElement getCurrentStep() {
         if (currentScenario == null) {
-            return null;
+            ErrorHandler.error("Flow error - Tried to get current step when there is no current scenario");
+        }
+        if (currentScenario.getSteps().size() < 1) {
+            ErrorHandler.error("Flow error - Tried to get current step when there are no steps in the current scenario");
         }
         return currentScenario.getSteps().get(currentScenario.getSteps().size()-1);
     }

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features version="1"><feature name="test Feature" path="com\hpe\alm\octane\F1\test1.feature" tag="@TID2001REV0.2.0"><file><![CDATA[#Auto generated NGA revision tag
+@TID2001REV0.2.0
+Feature: test Feature
+	Background:
+		Given back
+		And back
+	Scenario: test scenario
+		Given test
+		When test
+		Then test
+	Scenario Outline: Table TTT
+		Given hello "<name>"
+		When what "<question>"
+		Then wow
+
+		Examples:
+			|name	|question	|
+			|dan	|what		|
+			|sari	|who		|]]></file><scenarios><scenario name="test scenario"><steps><step name="Given back" status="passed"/><step name="And back" status="passed"/><step name="Given test" status="passed"/><step name="When test" status="passed"/><step name="Then test" status="passed"/></steps></scenario><scenario name="Table TTT" outlineIndex="1"><steps><step name="Given back" status="passed"/><step name="And back" status="passed"/><step name="Given hello &quot;dan&quot;" status="passed"/><step name="When what &quot;what&quot;" status="passed"/><step name="Then wow" status="passed"/></steps></scenario><scenario name="Table TTT" outlineIndex="2"><steps><step name="Given back" status="passed"/><step name="And back" status="passed"/><step name="Given hello &quot;sari&quot;" status="passed"/><step name="When what &quot;who&quot;" status="passed"/><step name="Then wow" status="passed"/></steps></scenario></scenarios></feature><feature name="test Feature2" path="com\hpe\alm\octane\F2\test2.feature" tag="@TID2001REV0.2.0"><file><![CDATA[#Auto generated NGA revision tag
+@TID2001REV0.2.0
+Feature: test Feature2
+	Background:
+		Given back2
+		And back2
+	Scenario: test scenario2
+		Given test2
+		When test2
+		Then test2
+	Scenario Outline: Table TTT2
+		Given hello "<name>"
+		When what "<question>"
+		Then wow
+
+		Examples:
+			|name	|question	|
+			|dan	|what		|
+			|sari	|who		|
+	Scenario: test scenario3
+		Given test3
+		When test3
+		Then test3
+	Scenario Outline: Table TTT4
+		Given hello "<name>"
+		When what "<question>"
+		Then wow
+
+		Examples:
+			|name	|question	|
+			|dan	|what		|
+			|sari	|who		|]]></file><scenarios><scenario name="test scenario2"><steps><step name="Given back2" status="passed"/><step name="And back2" status="passed"/><step name="Given test2" status="passed"/><step name="When test2" status="passed"/><step name="Then test2" status="passed"/></steps></scenario><scenario name="Table TTT2" outlineIndex="1"><steps><step name="Given back2" status="passed"/><step name="And back2" status="passed"/><step name="Given hello &quot;dan&quot;" status="passed"/><step name="When what &quot;what&quot;" status="passed"/><step name="Then wow" status="passed"/></steps></scenario><scenario name="Table TTT2" outlineIndex="2"><steps><step name="Given back2" status="passed"/><step name="And back2" status="passed"/><step name="Given hello &quot;sari&quot;" status="passed"/><step name="When what &quot;who&quot;" status="passed"/><step name="Then wow" status="passed"/></steps></scenario><scenario name="test scenario3"><steps><step name="Given back2" status="passed"/><step name="And back2" status="passed"/><step name="Given test3" status="passed"/><step name="When test3" status="passed"/><step name="Then test3" status="passed"/></steps></scenario><scenario name="Table TTT4" outlineIndex="1"><steps><step name="Given back2" status="passed"/><step name="And back2" status="passed"/><step name="Given hello &quot;dan&quot;" status="passed"/><step name="When what &quot;what&quot;" status="passed"/><step name="Then wow" status="passed"/></steps></scenario><scenario name="Table TTT4" outlineIndex="2"><steps><step name="Given back2" status="passed"/><step name="And back2" status="passed"/><step name="Given hello &quot;sari&quot;" status="passed"/><step name="When what &quot;who&quot;" status="passed"/><step name="Then wow" status="passed"/></steps></scenario></scenarios></feature></features>

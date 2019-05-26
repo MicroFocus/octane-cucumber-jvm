@@ -77,7 +77,7 @@ public class TestSourcesModel {
 
                 pathToNodeMap.put(path, nodeMap);
             } catch (ParserException e) {
-                throw new CucumberException(Constants.errorPrefix + "Failed to parse gherkin source", e);
+                ErrorHandler.error("Failed to parse gherkin source", e);
             }
 
         }
