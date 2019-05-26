@@ -1,6 +1,5 @@
 package com.hpe.alm.octane.infra;
 
-import cucumber.runtime.CucumberException;
 import cucumber.runtime.io.URLOutputStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
@@ -27,7 +26,7 @@ public class OutputFile {
 			output.setByteStream(outputStream);
 			serializer.write(doc, output);
 		} catch (Exception e) {
-			throw new CucumberException(Constants.errorPrefix + "Failed to write the result XML to the file system.", e);
+			ErrorHandler.error("Failed to write the result XML to the file system.", e);
 		}
 	}
 }

@@ -4,7 +4,6 @@ import com.hpe.alm.octane.infra.*;
 import cucumber.api.PickleStepTestStep;
 import cucumber.api.event.EventListener;
 import cucumber.api.event.*;
-import cucumber.runtime.CucumberException;
 import gherkin.pickles.PickleTag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -70,21 +69,17 @@ public class OctaneGherkinFormatter implements EventListener {
     }
 
     private void handleStepFinished(TestStepFinished event) {
-        testTracker.getCurrentStep().setDuration(event.result.getDuration());
-        testTracker.getCurrentStep().setStatus(event.result.getStatus().lowerCaseName());
-        if (event.result.getErrorMessage() != null) {
-            testTracker.getCurrentStep().setErrorMessage(event.result.getErrorMessage());
+        if (event.testStep instanceof PickleStepTestStep) {
+            testTracker.getCurrentStep().setDuration(event.result.getDuration());
+            testTracker.getCurrentStep().setStatus(event.result.getStatus().lowerCaseName());
+            if (event.result.getErrorMessage() != null) {
+                testTracker.getCurrentStep().setErrorMessage(event.result.getErrorMessage());
+            }
         }
     }
 
     private void handleRunFinished(TestRunFinished event) {
-        Document doc;
-        try {
-            doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-        } catch (ParserConfigurationException e) {
-            throw new CucumberException(Constants.errorPrefix + "Failed to create result xml document.", e);
-        }
-
+        Document doc = getDocument();
         Element rootElement = doc.createElement(GherkinSerializer.ROOT_TAG_NAME);
         rootElement.setAttribute("version", Constants.XML_VERSION);
 
@@ -92,5 +87,14 @@ public class OctaneGherkinFormatter implements EventListener {
         testTracker.getFeatures().forEach(featureElement -> rootElement.appendChild(featureElement.toXMLElement(doc)));
 
         outputFile.write(doc);
+    }
+
+    private Document getDocument() {
+        try {
+            return DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+        } catch (ParserConfigurationException e) {
+            ErrorHandler.error("Failed to create result xml document.", e);
+            return null;
+        }
     }
 }

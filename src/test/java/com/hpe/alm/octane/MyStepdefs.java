@@ -1,6 +1,9 @@
 package com.hpe.alm.octane;
 
 import cucumber.api.PendingException;
+import cucumber.api.Scenario;
+import cucumber.api.java.Before;
+import cucumber.api.java.BeforeStep;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -92,5 +95,14 @@ public class MyStepdefs {
     @Then("^another failed step$")
     public void anotherFailedStep() throws Throwable {
         failedStep();
+    }
+
+
+    @Before
+    public void doSomethingBefore() {
+    }
+
+    @BeforeStep
+    public void doSomethingBeforeStep(Scenario scenario){
     }
 }
