@@ -1,18 +1,17 @@
 # octane-cucumber-jvm
-ALM Octane cucumber-jvm formatter enable uploading cucumber-jvm tests back into ALM Octane.
+ALM Octane cucumber-jvm formatter enables uploading cucumber-jvm tests back into ALM Octane.
 
 ## How does it work
-1. You use this plugin in your JUnit cucumber tests (See instructions below)
-2. When running the tests, the plugin outputs files with the results
-3. Octane plugin for Jenkins reads these files and upload the results back to Octane (read how to configure Octane Jenkins plugin from Octane online help)
-4. You can see the results in your Gherkin test in Octane
+1.	You use this plugin in your JUnit Cucumber tests (see instructions below).
+2.	When running the tests, the plugin outputs files with the results.
+3.	ALM Octane plugin for Jenkins reads these files and uploads the results back to ALM Octane (see how to configure ALM Octane Jenkins plugin in the ALM Octane online help).
+4.	You can see the results in your Gherkin test in ALM Octane.
 
 ## Prerequisites:
-* You are using Java language and the cucumber-jvm library to develop cucumber tests
-* You are using Junit Runner to run the cucumber-jvm library like explained in the [following link](https://cucumber.io/docs/reference/jvm#junit-runner)
+* You are using Java language and the cucumber-jvm library to develop Cucumber tests.
+* You are using Junit Runner to run the cucumber-jvm library as explained [here](https://cucumber.io/docs/reference/jvm#junit-runner)
 
-The JUnit runner uses the JUnit framework to run Cucumber.
-The default configuration require a single empty class with an annotation that looks like this:
+The JUnit runner uses the JUnit framework to run Cucumber. The default configuration require a single empty class with an annotation:
 ```java
 /**********************************
   before the plugin configuration
@@ -41,7 +40,7 @@ public class RunCukesTest {
 </dependencies>
 ```
 
-2. Add the OctaneGherkinFormatter plugin to the CucumberOptions, and provide a result file path.
+2. Add the OctaneGherkinFormatter plugin to the CucumberOptions of each test class, and provide a unique result file path:
 ```java
 package feature.manualRunner;
 
@@ -68,12 +67,12 @@ public class ManualRunnerTest{
 </dependencies>
 ```
 
-2. Import the formatter into the Junit Runner class (see example below)
+2. Import the formatter into the Junit Runner class:
 ```java
 import com.hpe.alm.octane.OctaneCucumber;
 ```
 
-3. Change the cucumber.class to OctaneCucumber.class. See a full example:
+3. Change the cucumber.class to OctaneCucumber.class:
 ```java
 package feature.manualRunner;
 
