@@ -17,7 +17,7 @@
     <url>https://github.com/MicroFocus/octane-cucumber-jvm</url>
 
     <properties>
-        <cucumber.version>4.2.0</cucumber.version>
+        <cucumber.version>4.3.0</cucumber.version>
     </properties>
 
     <licenses>

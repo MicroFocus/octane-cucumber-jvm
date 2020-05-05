@@ -1,6 +1,5 @@
 package com.hpe.alm.octane.infra;
 
-import cucumber.runtime.io.URLOutputStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
