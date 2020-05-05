@@ -45,7 +45,7 @@ public class StepElement implements GherkinSerializer {
 
         if(errorMessage != null && !errorMessage.isEmpty()){
             Element errorElement = doc.createElement(GherkinSerializer.ERROR_MESSAGE_TAG_NAME);
-            errorElement.appendChild(doc.createCDATASection(errorMessage));
+            errorElement.appendChild(doc.createCDATASection(sanitizePath(errorMessage)));
             step.appendChild(errorElement);
         }
 

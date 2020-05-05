@@ -14,4 +14,8 @@ public interface GherkinSerializer {
     static final String ERROR_MESSAGE_TAG_NAME = "error_message";
 
     Element toXMLElement(Document doc);
+
+    default String sanitizePath(String path) {
+        return path.replaceAll("file:","");
+    }
 }
