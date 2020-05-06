@@ -6,7 +6,7 @@ import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 
-import java.io.*;
+import java.io.OutputStream;
 import java.net.URL;
 
 public class OutputFile {
@@ -17,8 +17,7 @@ public class OutputFile {
   }
 
   public void write(Document doc) {
-    File file = new File(url.getFile());
-    try (OutputStream outputStream = new FileOutputStream(file)) {
+    try (OutputStream outputStream = FileStreamFactory.createOutputStream(url)) {
       DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
       DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
       LSSerializer serializer = impl.createLSSerializer();
@@ -29,4 +28,5 @@ public class OutputFile {
       ErrorHandler.error("Failed to write the result XML to the file system.", e);
     }
   }
+
 }
