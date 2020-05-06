@@ -21,6 +21,7 @@ public class OutputFile {
       DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
       DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
       LSSerializer serializer = impl.createLSSerializer();
+      serializer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
       LSOutput output = impl.createLSOutput();
       output.setByteStream(outputStream);
       serializer.write(doc, output);
