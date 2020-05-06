@@ -16,6 +16,6 @@ public interface GherkinSerializer {
     Element toXMLElement(Document doc);
 
     default String sanitizePath(String path) {
-        return path.replaceAll("file:","");
+        return path.replaceAll("file:|classpath:","");
     }
 }
