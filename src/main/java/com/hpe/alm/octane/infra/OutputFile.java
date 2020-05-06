@@ -10,22 +10,23 @@ import java.io.*;
 import java.net.URL;
 
 public class OutputFile {
-    URL url;
+  URL url;
 
-    public OutputFile(URL url) {
-        this.url = url;
+  public OutputFile(URL url) {
+    this.url = url;
+  }
+
+  public void write(Document doc) {
+    File file = new File(url.getFile());
+    try (OutputStream outputStream = new FileOutputStream(file)) {
+      DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
+      DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
+      LSSerializer serializer = impl.createLSSerializer();
+      LSOutput output = impl.createLSOutput();
+      output.setByteStream(outputStream);
+      serializer.write(doc, output);
+    } catch (Exception e) {
+      ErrorHandler.error("Failed to write the result XML to the file system.", e);
     }
-
-	public void write(Document doc) {
-		try (OutputStream outputStream = new URLOutputStream(url)) {
-			DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
-			DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
-			LSSerializer serializer = impl.createLSSerializer();
-			LSOutput output = impl.createLSOutput();
-			output.setByteStream(outputStream);
-			serializer.write(doc, output);
-		} catch (Exception e) {
-			ErrorHandler.error("Failed to write the result XML to the file system.", e);
-		}
-	}
+  }
 }
