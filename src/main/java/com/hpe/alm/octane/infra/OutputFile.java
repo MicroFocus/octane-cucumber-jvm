@@ -17,7 +17,7 @@ public class OutputFile {
   }
 
   public void write(Document doc) {
-    try (OutputStream outputStream = FileStreamFactory.createOutputStream(url)) {
+    try (OutputStream outputStream = new ResultFileOutputStream(url)) {
       DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
       DOMImplementationLS impl = (DOMImplementationLS) reg.getDOMImplementation("LS");
       LSSerializer serializer = impl.createLSSerializer();
