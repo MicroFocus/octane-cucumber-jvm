@@ -55,7 +55,7 @@ public class FeatureElement implements GherkinSerializer {
 
         // Adding the feature members
         feature.setAttribute("name", name);
-        feature.setAttribute("path", sanitizePath(path.replace('/', File.separatorChar)));
+        feature.setAttribute("path",sanitizePath(path));
         feature.setAttribute("tag", tag);
         if (started != null) {
             feature.setAttribute("started", started.toString());
