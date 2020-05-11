@@ -36,13 +36,23 @@ public class OctaneCucumberTest {
     test(StepNotImplemented.class);
   }
 
-  private void test(Class classToTest) throws IOException, InitializationError {
-    Cucumber runner = new Cucumber(classToTest);
-    runner.run(new RunNotifier());
-    validate(classToTest);
+  @Test
+  public void testRunCucumberCustomResultsFolder() throws IOException, InitializationError {
+    test(RunCucumberCustomResultsFolder.class, "a/b/");
   }
 
-  private void validate(Class classToTest) throws FileNotFoundException {
+  private void test(Class classToTest) throws IOException, InitializationError {
+    test(classToTest, "");
+  }
+
+  private void test(Class classToTest, String subFolder) throws IOException, InitializationError {
+    Cucumber runner = new Cucumber(classToTest);
+    runner.run(new RunNotifier());
+    validate(classToTest, subFolder);
+  }
+
+
+  private void validate(Class classToTest, String subFolder) throws FileNotFoundException {
     String resultFileName = classToTest.getSimpleName() + ".xml";
 
     URL resource = getClass().getClassLoader().getResource("expectedResults/" + resultFileName);
@@ -53,7 +63,7 @@ public class OctaneCucumberTest {
       expectedXml = expectedResultFileReader.lines().collect(Collectors.joining());
     }
 
-    BufferedReader actualResultFileReader = new BufferedReader(new FileReader(Constants.RESULTS_FOLDER + "/" + resultFileName));
+    BufferedReader actualResultFileReader = new BufferedReader(new FileReader(Constants.RESULTS_FOLDER + "/" + subFolder + resultFileName));
     String actualXml = actualResultFileReader.lines().collect(Collectors.joining());
 
     validatePath(expectedXml, actualXml);

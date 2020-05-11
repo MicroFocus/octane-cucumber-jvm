@@ -43,7 +43,7 @@ class ResultFileOutputStream extends OutputStream {
     if (file.getParentFile() != null && !file.getParentFile().isDirectory()) {
       boolean success = file.getParentFile().mkdirs() || file.getParentFile().isDirectory();
       if (!success) {
-        ErrorHandler.error("Failed to create directory " + file.getParentFile().getAbsolutePath());
+        ErrorHandler.error("Failed to create directory " + file.getParentFile().getPath());
       }
     }
   }
