@@ -28,7 +28,7 @@ public class RunCukesTest {
 
 # How to configure octane-cucumber-jvm in your project:
 
-## For Cucumber 4.3
+## For Cucumber 4.2 - 4.8.1
 1. Add a dependency in your pom file:
 ```xml
 <dependencies>
