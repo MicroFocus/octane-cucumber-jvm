@@ -6,7 +6,7 @@
 
     <groupId>com.hpe.alm.octane</groupId>
     <artifactId>octane-cucumber-jvm</artifactId>
-    <version>12.60.48</version>
+    <version>15.1.0</version>
     <packaging>jar</packaging>
 
     <name>octane-cucumber-jvm</name>
@@ -17,7 +17,7 @@
     <url>https://github.com/MicroFocus/octane-cucumber-jvm</url>
 
     <properties>
-        <cucumber.version>4.2.0</cucumber.version>
+        <cucumber.version>4.8.1</cucumber.version>
     </properties>
 
     <licenses>

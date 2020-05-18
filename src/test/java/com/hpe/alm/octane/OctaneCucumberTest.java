@@ -16,65 +16,79 @@ import java.util.stream.Collectors;
 
 public class OctaneCucumberTest {
 
-	@Test
-	public void testRunCucumberFeatureFile() throws IOException, InitializationError {
-		test(RunCucumberFeatureFile.class);
-	}
+  @Test
+  public void testRunCucumberFeatureFile() throws IOException, InitializationError {
+    test(RunCucumberFeatureFile.class);
+  }
 
-	@Test
-	public void testRunCucumberFeatureClassPath() throws IOException, InitializationError {
-		test(RunCucumberFeatureClassPath.class);
-	}
+  @Test
+  public void testRunCucumberFeatureClassPath() throws IOException, InitializationError {
+    test(RunCucumberFeatureClassPath.class);
+  }
 
-	@Test
-	public void testBackgroundStepFails() throws IOException, InitializationError {
-		test(BackgroundStepFails.class);
-	}
+  @Test
+  public void testBackgroundStepFails() throws IOException, InitializationError {
+    test(BackgroundStepFails.class);
+  }
 
-	@Test
-	public void testStepNotImplemented() throws IOException, InitializationError {
-		test(StepNotImplemented.class);
-	}
+  @Test
+  public void testStepNotImplemented() throws IOException, InitializationError {
+    test(StepNotImplemented.class);
+  }
 
-	private void test(Class classToTest) throws IOException, InitializationError {
-		Cucumber runner = new Cucumber(classToTest);
-		runner.run(new RunNotifier());
-		validate(classToTest);
-	}
+  @Test
+  public void testRunCucumberCustomResultsFolder() throws IOException, InitializationError {
+    test(RunCucumberCustomResultsFolder.class, "a/b/");
+  }
 
-	private void validate(Class classToTest) throws FileNotFoundException {
-		String resultFileName = classToTest.getSimpleName() + ".xml";
+  private void test(Class classToTest) throws IOException, InitializationError {
+    test(classToTest, "");
+  }
 
-		URL resource = getClass().getClassLoader().getResource("expectedResults/" + resultFileName);
-		String expectedXml = "";
-		if(resource != null) {
-			FileReader fileReader = new FileReader(resource.getFile());
-			BufferedReader expectedResultFileReader = new BufferedReader(fileReader);
-			expectedXml = expectedResultFileReader.lines().collect(Collectors.joining());
-		}
+  private void test(Class classToTest, String subFolder) throws IOException, InitializationError {
+    Cucumber runner = new Cucumber(classToTest);
+    runner.run(new RunNotifier());
+    validate(classToTest, subFolder);
+  }
 
-		BufferedReader actualResultFileReader = new BufferedReader(new FileReader(Constants.RESULTS_FOLDER + "/" + resultFileName));
-		String actualXml = actualResultFileReader.lines().collect(Collectors.joining());
 
-		validatePath(expectedXml, actualXml);
+  private void validate(Class classToTest, String subFolder) throws FileNotFoundException {
+    String resultFileName = classToTest.getSimpleName() + ".xml";
 
-		actualXml = actualXml
-			.replaceAll(" duration=\"\\d*\"", "")
-			.replaceAll(" started=\"\\d*\"", "");
+    URL resource = getClass().getClassLoader().getResource("expectedResults/" + resultFileName);
+    String expectedXml = "";
+    if (resource != null) {
+      FileReader fileReader = new FileReader(resource.getFile());
+      BufferedReader expectedResultFileReader = new BufferedReader(fileReader);
+      expectedXml = expectedResultFileReader.lines().collect(Collectors.joining());
+    }
 
-		Assert.assertEquals(expectedXml, actualXml);
-	}
+    BufferedReader actualResultFileReader = new BufferedReader(new FileReader(Constants.RESULTS_FOLDER + "/" + subFolder + resultFileName));
+    String actualXml = actualResultFileReader.lines().collect(Collectors.joining());
 
-	private void validatePath(String expected, String actual) {
-		int expectedPathStart = expected.indexOf("path=");
-		int expectedPathEnd = expected.indexOf("\"", expectedPathStart + 7);
-		String expectedPath = expected.substring(expectedPathStart + 6, expectedPathEnd);
+    validatePath(expectedXml, actualXml);
 
-		int actualPathStart = actual.indexOf("path=");
-		int actualPathEnd = actual.indexOf("\"", actualPathStart + 7);
-		String actualPath = actual.substring(actualPathStart, actualPathEnd);
-		String actualPathSuffix = actualPath.substring(actualPath.length() - expectedPath.length());
+    expectedXml = expectedXml
+        .replaceAll("\\s+", "");
 
-		Assert.assertEquals("Path suffix not equal", expectedPath, actualPathSuffix);
-	}
+    actualXml = actualXml
+        .replaceAll(" duration=\"\\d*\"", "")
+        .replaceAll(" started=\"\\d*\"", "")
+        .replaceAll("\\s+", "");
+
+    Assert.assertEquals(expectedXml, actualXml);
+  }
+
+  private void validatePath(String expected, String actual) {
+    int expectedPathStart = expected.indexOf("path=");
+    int expectedPathEnd = expected.indexOf("\"", expectedPathStart + 7);
+    String expectedPath = expected.substring(expectedPathStart + 6, expectedPathEnd);
+
+    int actualPathStart = actual.indexOf("path=");
+    int actualPathEnd = actual.indexOf("\"", actualPathStart + 7);
+    String actualPath = actual.substring(actualPathStart, actualPathEnd);
+    String actualPathSuffix = actualPath.substring(actualPath.length() - expectedPath.length());
+
+    Assert.assertEquals("Path suffix not equal", expectedPath, actualPathSuffix);
+  }
 }
