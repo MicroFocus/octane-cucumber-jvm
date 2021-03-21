@@ -2,6 +2,7 @@ package com.hpe.alm.octane;
 
 import com.hpe.alm.octane.infra.*;
 import cucumber.api.PickleStepTestStep;
+import cucumber.api.Result;
 import cucumber.api.event.EventListener;
 import cucumber.api.event.*;
 import gherkin.pickles.PickleTag;
@@ -71,10 +72,22 @@ public class OctaneGherkinFormatter implements EventListener {
     private void handleStepFinished(TestStepFinished event) {
         if (event.testStep instanceof PickleStepTestStep) {
             testTracker.getCurrentStep().setDuration(event.result.getDuration());
-            testTracker.getCurrentStep().setStatus(event.result.getStatus().lowerCaseName());
+            testTracker.getCurrentStep().setStatus(getOctaneStatusFromResultStatus(event.result.getStatus()));
             if (event.result.getErrorMessage() != null) {
                 testTracker.getCurrentStep().setErrorMessage(event.result.getErrorMessage());
             }
+        }
+    }
+
+    private String getOctaneStatusFromResultStatus(Result.Type resultStatus){
+        switch(resultStatus){
+            case PENDING:
+            case UNDEFINED:
+            case AMBIGUOUS:
+            case UNUSED:
+               return Result.Type.SKIPPED.lowerCaseName();
+            default:
+                return resultStatus.lowerCaseName();
         }
     }
 
