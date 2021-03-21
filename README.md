@@ -35,7 +35,7 @@ public class RunCukesTest {
     <dependency>
         <groupId>com.hpe.alm.octane</groupId>
         <artifactId>octane-cucumber-jvm</artifactId>
-        <version>15.1.0</version>
+        <version>15.1.1</version>
     </dependency>
 </dependencies>
 ```
