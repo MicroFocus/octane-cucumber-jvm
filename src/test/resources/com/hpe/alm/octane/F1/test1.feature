@@ -11,13 +11,12 @@ Feature: test Feature
             And test
             Then test
             But test
-        Scenario Outline: Table TTT
+        Scenario Outline: Table <id> test
             Given hello "<name>"
             When what "<question>"
             Then wow
 
-
             Examples:
-                | name | question |
-                | dan  | what     |
-                | sari | who      |
+                |id |name	|question	|
+                | 1	|dan	|what		|
+                | 2	|sari	|who		|

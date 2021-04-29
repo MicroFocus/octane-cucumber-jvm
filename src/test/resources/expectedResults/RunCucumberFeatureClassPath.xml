@@ -14,15 +14,15 @@ Rule: Must have a test
 		And test
 		Then test
 		But test
-	Scenario Outline: Table TTT
+	Scenario Outline: Table <id> test
 		Given hello "<name>"
 		When what "<question>"
 		Then wow
 
 		Examples:
-			|name	|question	|
-			|dan	|what		|
-			|sari	|who		|]]></file>
+    		|id |name	|question	|
+			| 1	|dan	|what		|
+			| 2	|sari	|who		|]]></file>
         <scenarios>
             <scenario name="test scenario">
                 <steps>
@@ -35,7 +35,7 @@ Rule: Must have a test
                     <step name="But test" status="passed"/>
                 </steps>
             </scenario>
-            <scenario name="Table TTT" outlineIndex="1">
+            <scenario name="Table &lt;id> test" outlineIndex="1">
                 <steps>
                     <step name="Given back" status="passed"/>
                     <step name="And back" status="passed"/>
@@ -44,7 +44,7 @@ Rule: Must have a test
                     <step name="Then wow" status="passed"/>
                 </steps>
             </scenario>
-            <scenario name="Table TTT" outlineIndex="2">
+            <scenario name="Table &lt;id> test" outlineIndex="2">
                 <steps>
                     <step name="Given back" status="passed"/>
                     <step name="And back" status="passed"/>
@@ -66,15 +66,15 @@ Feature: test Feature2
 		Given test2
 		When test2
 		Then test2
-	Scenario Outline: Table TTT2
+	Scenario Outline: Table <id2>
 		Given hello "<name>"
 		When what "<question>"
 		Then wow
 
 		Examples:
-			|name	|question	|
-			|dan	|what		|
-			|sari	|who		|
+			|id2|name	|question	|
+			| 1	|dan	|what		|
+			| 2	|sari	|who		|
 	Scenario: test scenario3
 		Given test3
 		When test3
@@ -98,7 +98,7 @@ Feature: test Feature2
                     <step name="Then test2" status="passed"/>
                 </steps>
             </scenario>
-            <scenario name="Table TTT2" outlineIndex="1">
+            <scenario name="Table &lt;id2>" outlineIndex="1">
                 <steps>
                     <step name="Given back2" status="passed"/>
                     <step name="And back2" status="passed"/>
@@ -107,7 +107,7 @@ Feature: test Feature2
                     <step name="Then wow" status="passed"/>
                 </steps>
             </scenario>
-            <scenario name="Table TTT2" outlineIndex="2">
+            <scenario name="Table &lt;id2>" outlineIndex="2">
                 <steps>
                     <step name="Given back2" status="passed"/>
                     <step name="And back2" status="passed"/>

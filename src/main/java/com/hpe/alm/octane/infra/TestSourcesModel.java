@@ -5,9 +5,7 @@ import cucumber.runtime.CucumberException;
 import gherkin.*;
 import gherkin.ast.*;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class TestSourcesModel {
     private final Map<String, TestSourceRead> pathToReadEventMap = new HashMap();
@@ -56,6 +54,22 @@ public class TestSourcesModel {
     public String getFeatureName(String uri) {
         Feature feature = getFeature(uri);
         return feature != null ? feature.getName() : "";
+    }
+
+    public Optional<ScenarioDefinition> getScenario(String path, int line){
+        return getScenarioNode(pathToNodeMap.get(path).get(line));
+    }
+
+    private Optional<ScenarioDefinition> getScenarioNode(TestSourcesModel.AstNode astNode){
+        if(astNode == null){
+            return Optional.empty();
+        }
+
+        if(astNode.node instanceof  ScenarioDefinition){
+            return Optional.of((ScenarioDefinition)astNode.node);
+        }
+
+        return getScenarioNode(astNode.parent);
     }
 
     private void parseGherkinSource(String path) {

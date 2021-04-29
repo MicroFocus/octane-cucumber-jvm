@@ -3,8 +3,10 @@ package com.hpe.alm.octane;
 import com.hpe.alm.octane.infra.*;
 import cucumber.api.PickleStepTestStep;
 import cucumber.api.Result;
+import cucumber.api.TestCase;
 import cucumber.api.event.EventListener;
 import cucumber.api.event.*;
+import gherkin.ast.ScenarioDefinition;
 import gherkin.pickles.PickleTag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -13,6 +15,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.net.URL;
 import java.time.Instant;
+import java.util.Optional;
 
 public class OctaneGherkinFormatter implements EventListener {
     private OutputFile outputFile;
@@ -56,7 +59,16 @@ public class OctaneGherkinFormatter implements EventListener {
             }
             testTracker.setCurrentFeature(feature);
         }
-        testTracker.setCurrentScenario(event.testCase.getName());
+
+        testTracker.setCurrentScenario(getScenarioName(event.testCase));
+    }
+
+    private String getScenarioName(TestCase testCase){
+        Optional<ScenarioDefinition> scn = testSources.getScenario(testCase.getUri(),testCase.getLine());
+        if(scn.isPresent()){
+            return scn.get().getName();
+        }
+        return testCase.getName();
     }
 
     private void handleStepStarted(TestStepStarted event) {

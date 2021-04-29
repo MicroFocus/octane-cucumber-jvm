@@ -8,15 +8,15 @@ Feature: test Feature2
 		Given test2
 		When test2
 		Then test2
-	Scenario Outline: Table TTT2
+	Scenario Outline: Table <id2>
 		Given hello "<name>"
 		When what "<question>"
 		Then wow
 
 		Examples:
-			|name	|question	|
-			|dan	|what		|
-			|sari	|who		|
+			|id2|name	|question	|
+			| 1	|dan	|what		|
+			| 2	|sari	|who		|
 	Scenario: test scenario3
 		Given test3
 		When test3
