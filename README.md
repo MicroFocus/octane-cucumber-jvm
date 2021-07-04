@@ -33,9 +33,9 @@ public class RunCukesTest {
 ```xml
 <dependencies>
     <dependency>
-        <groupId>com.hpe.alm.octane</groupId>
+        <groupId>com.microfocus.adm.almoctane.bdd</groupId>
         <artifactId>octane-cucumber-jvm</artifactId>
-        <version>15.1.1</version>
+        <version>1.0.0</version>
     </dependency>
 </dependencies>
 ```
