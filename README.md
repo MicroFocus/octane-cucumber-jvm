@@ -1,3 +1,7 @@
+> **_NOTE:_** octane-cucumber-jvm supports injecting BDD test results into ALM Octane for Cucumber JVM versions up to 4.8.1.
+> A newer tool is available for injecting BDD test results into ALM Octane. That tool supports multiple BDD frameworks including Cucumber 5.x and later.
+> See [bdd2octane](https://github.com/MicroFocus/bdd2octane)
+
 # octane-cucumber-jvm
 ALM Octane cucumber-jvm formatter enables uploading cucumber-jvm tests back into ALM Octane.
 
