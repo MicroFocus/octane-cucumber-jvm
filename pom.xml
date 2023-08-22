@@ -6,7 +6,7 @@
 
     <groupId>com.microfocus.adm.almoctane.bdd</groupId>
     <artifactId>octane-cucumber-jvm</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
 
     <name>octane-cucumber-jvm</name>
