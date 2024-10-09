@@ -35,7 +35,7 @@ Rule: Must have a test
                     <step name ="But test" status="passed"/>
                 </steps>
             </scenario>
-            <scenario name="Table &lt;id> test" outlineIndex="1">
+            <scenario name="Table &lt;id&gt; test" outlineIndex="1">
                 <steps>
                     <step name="Given back" status="passed"/>
                     <step name="And back" status="passed"/>
@@ -44,7 +44,7 @@ Rule: Must have a test
                     <step name="Then wow" status="passed"/>
                 </steps>
             </scenario>
-            <scenario name="Table &lt;id> test" outlineIndex="2">
+            <scenario name="Table &lt;id&gt; test" outlineIndex="2">
                 <steps>
                     <step name="Given back" status="passed"/>
                     <step name="And back" status="passed"/>
