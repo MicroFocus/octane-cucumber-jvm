@@ -59,7 +59,7 @@ public class OctaneGherkinFormatter implements EventListener {
             testTracker.setCurrentFeature(feature);
         }
 
-        testTracker.setCurrentScenario(event.getTestCase().getName());
+        testTracker.setCurrentScenario(testSources.getScenarioName(event.getTestCase()));
     }
 
     private void handleStepStarted(TestStepStarted event) {
