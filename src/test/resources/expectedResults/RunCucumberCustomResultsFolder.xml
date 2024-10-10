@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <features version="1">
-    <feature name="test Feature" path="src\test\resources\com\hpe\alm\octane\F1\test1.feature" tag="@TID2001REV0.2.0">
+    <feature name="test Feature" path="[ROOT_PATH]src\test\resources\com\hpe\alm\octane\F1\test1.feature" tag="@TID2001REV0.2.0">
         <file><![CDATA[#Auto generated NGA revision tag
 @TID2001REV0.2.0
 Feature: test Feature

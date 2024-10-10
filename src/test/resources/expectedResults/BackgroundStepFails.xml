@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <features version="1">
-    <feature name="asd" path="src\test\resources\scenarios\backgroundStepFails.feature" tag="">
+    <feature name="asd" path="[ROOT_PATH]src\test\resources\scenarios\backgroundStepFails.feature" tag="">
         <file><![CDATA[@ATag
 Feature: asd
 

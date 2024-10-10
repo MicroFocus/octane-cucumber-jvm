@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><features version="1">
+    <feature name="test Feature" path="[ROOT_PATH]src\test\resources\com\hpe\alm\octane\F1\rule.feature" tag="">
+        <file><![CDATA[Feature: test Feature
+  Rule: Must have a test
+    Background:
+      Given back
+      And back
+    Scenario: test scenario
+      Given test
+      When test
+      And test
+      Then test
+      But test
+
+    Scenario: test scenario2
+      Given test
+      When test
+      And test
+      Then test
+      But test
+
+  Rule: Must not have a test
+    Background:
+      Given back1
+      And back1
+    Scenario Outline: Table <id> test
+      Given hello "<name>"
+      When what "<question>"
+      Then wow
+
+      Examples:
+        |id |name	|question	|
+        | 1	|dan	|what		|
+        | 2	|sari	|who		|]]></file>
+        <scenarios>
+            <scenario name="test scenario">
+                <steps>
+                    <step duration="1" name="Given back" status="passed"/>
+                    <step duration="0" name="And back" status="passed"/>
+                    <step duration="0" name="Given test" status="passed"/>
+                    <step duration="0" name="When test" status="passed"/>
+                    <step duration="0" name="And test" status="passed"/>
+                    <step duration="0" name="Then test" status="passed"/>
+                    <step duration="0" name="But test" status="passed"/>
+                </steps>
+            </scenario>
+            <scenario name="test scenario2">
+                <steps>
+                    <step duration="0" name="Given back" status="passed"/>
+                    <step duration="0" name="And back" status="passed"/>
+                    <step duration="0" name="Given test" status="passed"/>
+                    <step duration="0" name="When test" status="passed"/>
+                    <step duration="0" name="And test" status="passed"/>
+                    <step duration="0" name="Then test" status="passed"/>
+                    <step duration="0" name="But test" status="passed"/>
+                </steps>
+            </scenario>
+            <scenario name="Table 1 test">
+                <steps>
+                    <step duration="2" name="Given back1" status="passed"/>
+                    <step duration="0" name="And back1" status="passed"/>
+                    <step duration="0" name="Given hello &quot;dan&quot;" status="passed"/>
+                    <step duration="0" name="When what &quot;what&quot;" status="passed"/>
+                    <step duration="0" name="Then wow" status="passed"/>
+                </steps>
+            </scenario>
+            <scenario name="Table 2 test">
+                <steps>
+                    <step duration="0" name="Given back1" status="passed"/>
+                    <step duration="0" name="And back1" status="passed"/>
+                    <step duration="0" name="Given hello &quot;sari&quot;" status="passed"/>
+                    <step duration="0" name="When what &quot;who&quot;" status="passed"/>
+                    <step duration="0" name="Then wow" status="passed"/>
+                </steps>
+            </scenario>
+        </scenarios>
+    </feature>
+</features>

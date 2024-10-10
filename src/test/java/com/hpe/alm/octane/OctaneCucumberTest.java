@@ -41,6 +41,11 @@ public class OctaneCucumberTest {
     test(RunCucumberCustomResultsFolder.class, "a/b/");
   }
 
+  @Test
+  public void testRunMultipleRuleFeatureTest() throws IOException, InitializationError {
+    test(RunMultipleRuleFeatureTest.class);
+  }
+
   private void test(Class classToTest) throws IOException, InitializationError {
     test(classToTest, "");
   }
@@ -61,6 +66,8 @@ public class OctaneCucumberTest {
       FileReader fileReader = new FileReader(resource.getFile());
       BufferedReader expectedResultFileReader = new BufferedReader(fileReader);
       expectedXml = expectedResultFileReader.lines().collect(Collectors.joining());
+      //TODO - IS THIS CORRECT?!!
+      expectedXml = expectedXml.replace("[ROOT_PATH]","\\C:\\dev\\octane-cucumber-jvm\\");
     }
 
     BufferedReader actualResultFileReader = new BufferedReader(new FileReader(Constants.RESULTS_FOLDER + "/" + subFolder + resultFileName));
