@@ -1,7 +1,7 @@
 package com.hpe.alm.octane;
 
 import com.hpe.alm.octane.infra.Constants;
-import cucumber.api.junit.Cucumber;
+import io.cucumber.junit.Cucumber;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.notification.RunNotifier;

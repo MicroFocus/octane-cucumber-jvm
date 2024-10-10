@@ -1,13 +1,10 @@
 package com.hpe.alm.octane;
 
 import com.hpe.alm.octane.infra.*;
-import cucumber.api.PickleStepTestStep;
-import cucumber.api.Result;
-import cucumber.api.TestCase;
-import cucumber.api.event.EventListener;
-import cucumber.api.event.*;
-import gherkin.ast.ScenarioDefinition;
-import gherkin.pickles.PickleTag;
+import com.hpe.alm.octane.infra.ErrorHandler;
+import com.hpe.alm.octane.infra.GherkinSerializer;
+import io.cucumber.plugin.EventListener;
+import io.cucumber.plugin.event.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -15,9 +12,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.net.URL;
 import java.time.Instant;
-import java.util.Optional;
+
+import static io.cucumber.plugin.event.Status.*;
 
 public class OctaneGherkinFormatter implements EventListener {
+
     private OutputFile outputFile;
 
     private TestSourcesModel testSources = new TestSourcesModel();
@@ -28,90 +27,81 @@ public class OctaneGherkinFormatter implements EventListener {
     }
 
     @Override
-    public void setEventPublisher(EventPublisher publisher) {
-        publisher.registerHandlerFor(TestSourceRead.class, this::handleSourceRead);
+    public void setEventPublisher(EventPublisher eventPublisher) {
+        eventPublisher.registerHandlerFor(TestSourceRead.class, this::handleSourceRead);
 
-        publisher.registerHandlerFor(TestCaseStarted.class, this::handleCaseStarted);
+        eventPublisher.registerHandlerFor(TestCaseStarted.class, this::handleCaseStarted);
 
-        publisher.registerHandlerFor(TestStepStarted.class, this::handleStepStarted);
+        eventPublisher.registerHandlerFor(TestStepStarted.class, this::handleStepStarted);
 
-        publisher.registerHandlerFor(TestStepFinished.class, this::handleStepFinished);
+        eventPublisher.registerHandlerFor(TestStepFinished.class, this::handleStepFinished);
 
-        publisher.registerHandlerFor(TestRunFinished.class, this::handleRunFinished);
+        eventPublisher.registerHandlerFor(TestRunFinished.class, this::handleRunFinished);
     }
 
     private void handleSourceRead(TestSourceRead event) {
-        testSources.addTestSourceReadEvent(event.uri, event);
+        testSources.addTestSourceReadEvent(event.getUri().getPath(), event);
     }
 
     private void handleCaseStarted(TestCaseStarted event) {
-        if (testTracker.getCurrentFeature() == null || !testTracker.getCurrentFeature().getPath().equals(event.testCase.getUri())) {
+        if (testTracker.getCurrentFeature() == null || !testTracker.getCurrentFeature().getPath().equals(event.getTestCase().getUri().getPath())) {
             FeatureElement feature = new FeatureElement();
-            feature.setPath(event.testCase.getUri());
+            feature.setPath(event.getTestCase().getUri().getPath());
             feature.setStarted(Instant.now().toEpochMilli());
-            feature.setFileContent(testSources.getFeatureFileContent(event.testCase.getUri()));
-            feature.setName(testSources.getFeatureName(event.testCase.getUri()));
-            for (PickleTag tag : event.testCase.getTags()) {
-                if (tag.getName().startsWith(Constants.TAG_ID)) {
-                    feature.setTag(tag.getName());
+            feature.setFileContent(testSources.getFeatureFileContent(event.getTestCase().getUri().getPath()));
+            feature.setName(testSources.getFeatureName(event.getTestCase().getUri().getPath()));
+            for (String tag : event.getTestCase().getTags()) {
+                if (tag.startsWith(Constants.TAG_ID)) {
+                    feature.setTag(tag);
                     break;
                 }
             }
             testTracker.setCurrentFeature(feature);
         }
 
-        testTracker.setCurrentScenario(getScenarioName(event.testCase));
-    }
-
-    private String getScenarioName(TestCase testCase){
-        Optional<ScenarioDefinition> scn = testSources.getScenario(testCase.getUri(),testCase.getLine());
-        if(scn.isPresent()){
-            return scn.get().getName();
-        }
-        return testCase.getName();
+        testTracker.setCurrentScenario(event.getTestCase().getName());
     }
 
     private void handleStepStarted(TestStepStarted event) {
-        if (event.testStep instanceof PickleStepTestStep) {
-            PickleStepTestStep testStep = (PickleStepTestStep) event.testStep;
+        if (event.getTestStep() instanceof PickleStepTestStep) {
+            PickleStepTestStep testStep = (PickleStepTestStep) event.getTestStep();
             String keyword = testSources.getKeywordFromSource(testTracker.getCurrentFeature().getPath(), testStep.getStepLine());
             String stepName = keyword + testStep.getStepText();
-
             testTracker.setCurrentStep(new StepElement(stepName));
         }
     }
 
     private void handleStepFinished(TestStepFinished event) {
-        if (event.testStep instanceof PickleStepTestStep) {
-            testTracker.getCurrentStep().setDuration(event.result.getDuration());
-            testTracker.getCurrentStep().setStatus(getOctaneStatusFromResultStatus(event.result.getStatus()));
-            if (event.result.getErrorMessage() != null) {
-                testTracker.getCurrentStep().setErrorMessage(event.result.getErrorMessage());
+        if (event.getTestStep() instanceof PickleStepTestStep) {
+            testTracker.getCurrentStep().setDuration(event.getResult().getDuration().toMillis());
+            testTracker.getCurrentStep().setStatus(getOctaneStatusFromResultStatus(event.getResult().getStatus()));
+            if (event.getResult().getError() != null) {
+                testTracker.getCurrentStep().setErrorMessage(event.getResult().getError().getMessage());
             }
         }
     }
 
-    private String getOctaneStatusFromResultStatus(Result.Type resultStatus){
+    private String getOctaneStatusFromResultStatus(Status resultStatus){
         switch(resultStatus){
             case PENDING:
             case UNDEFINED:
             case AMBIGUOUS:
             case UNUSED:
-               return Result.Type.SKIPPED.lowerCaseName();
+                return SKIPPED.name().toLowerCase();
             default:
-                return resultStatus.lowerCaseName();
+                return resultStatus.name().toLowerCase();
         }
     }
 
     private void handleRunFinished(TestRunFinished event) {
-        Document doc = getDocument();
-        Element rootElement = doc.createElement(GherkinSerializer.ROOT_TAG_NAME);
+        Document resultXmlDoc = getDocument();
+        Element rootElement = resultXmlDoc.createElement(GherkinSerializer.ROOT_TAG_NAME);
         rootElement.setAttribute("version", Constants.XML_VERSION);
 
-        doc.appendChild(rootElement);
-        testTracker.getFeatures().forEach(featureElement -> rootElement.appendChild(featureElement.toXMLElement(doc)));
+        resultXmlDoc.appendChild(rootElement);
+        testTracker.getFeatures().forEach(featureElement -> rootElement.appendChild(featureElement.toXMLElement(resultXmlDoc)));
 
-        outputFile.write(doc);
+        outputFile.write(resultXmlDoc);
     }
 
     private Document getDocument() {

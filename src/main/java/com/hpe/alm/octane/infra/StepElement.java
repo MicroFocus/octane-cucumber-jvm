@@ -1,12 +1,13 @@
 package com.hpe.alm.octane.infra;
 
-import cucumber.api.Result;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import static io.cucumber.plugin.event.Status.SKIPPED;
+
 public class StepElement implements GherkinSerializer {
     private String name;
-    private String status = Result.Type.SKIPPED.lowerCaseName();
+    private String status = SKIPPED.toString().toLowerCase();
     private Long duration = 0L;
     private String errorMessage = "";
 
