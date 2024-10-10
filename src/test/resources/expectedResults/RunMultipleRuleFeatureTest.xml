@@ -35,42 +35,42 @@
         <scenarios>
             <scenario name="test scenario">
                 <steps>
-                    <step duration="1" name="Given back" status="passed"/>
-                    <step duration="0" name="And back" status="passed"/>
-                    <step duration="0" name="Given test" status="passed"/>
-                    <step duration="0" name="When test" status="passed"/>
-                    <step duration="0" name="And test" status="passed"/>
-                    <step duration="0" name="Then test" status="passed"/>
-                    <step duration="0" name="But test" status="passed"/>
+                    <step name="Given back" status="passed"/>
+                    <step name="And back" status="passed"/>
+                    <step name="Given test" status="passed"/>
+                    <step name="When test" status="passed"/>
+                    <step name="And test" status="passed"/>
+                    <step name="Then test" status="passed"/>
+                    <step name="But test" status="passed"/>
                 </steps>
             </scenario>
             <scenario name="test scenario2">
                 <steps>
-                    <step duration="0" name="Given back" status="passed"/>
-                    <step duration="0" name="And back" status="passed"/>
-                    <step duration="0" name="Given test" status="passed"/>
-                    <step duration="0" name="When test" status="passed"/>
-                    <step duration="0" name="And test" status="passed"/>
-                    <step duration="0" name="Then test" status="passed"/>
-                    <step duration="0" name="But test" status="passed"/>
+                    <step name="Given back" status="passed"/>
+                    <step name="And back" status="passed"/>
+                    <step name="Given test" status="passed"/>
+                    <step name="When test" status="passed"/>
+                    <step name="And test" status="passed"/>
+                    <step name="Then test" status="passed"/>
+                    <step name="But test" status="passed"/>
                 </steps>
             </scenario>
             <scenario name="Table 1 test">
                 <steps>
-                    <step duration="2" name="Given back1" status="passed"/>
-                    <step duration="0" name="And back1" status="passed"/>
-                    <step duration="0" name="Given hello &quot;dan&quot;" status="passed"/>
-                    <step duration="0" name="When what &quot;what&quot;" status="passed"/>
-                    <step duration="0" name="Then wow" status="passed"/>
+                    <step name="Given back1" status="passed"/>
+                    <step name="And back1" status="passed"/>
+                    <step name="Given hello &quot;dan&quot;" status="passed"/>
+                    <step name="When what &quot;what&quot;" status="passed"/>
+                    <step name="Then wow" status="passed"/>
                 </steps>
             </scenario>
             <scenario name="Table 2 test">
                 <steps>
-                    <step duration="0" name="Given back1" status="passed"/>
-                    <step duration="0" name="And back1" status="passed"/>
-                    <step duration="0" name="Given hello &quot;sari&quot;" status="passed"/>
-                    <step duration="0" name="When what &quot;who&quot;" status="passed"/>
-                    <step duration="0" name="Then wow" status="passed"/>
+                    <step name="Given back1" status="passed"/>
+                    <step name="And back1" status="passed"/>
+                    <step name="Given hello &quot;sari&quot;" status="passed"/>
+                    <step name="When what &quot;who&quot;" status="passed"/>
+                    <step name="Then wow" status="passed"/>
                 </steps>
             </scenario>
         </scenarios>
