@@ -68,6 +68,7 @@ public class OctaneCucumberTest {
       expectedXml = expectedResultFileReader.lines().collect(Collectors.joining());
       //TODO - IS THIS CORRECT?!!
       expectedXml = expectedXml.replace("[ROOT_PATH]","\\C:\\dev\\octane-cucumber-jvm\\");
+      expectedXml = expectedXml.replace("[FILE_ROOT_PATH]","///C:/dev/octane-cucumber-jvm/");
     }
 
     BufferedReader actualResultFileReader = new BufferedReader(new FileReader(Constants.RESULTS_FOLDER + "/" + subFolder + resultFileName));

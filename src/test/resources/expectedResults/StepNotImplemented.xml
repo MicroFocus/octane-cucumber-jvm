@@ -12,9 +12,9 @@
                 <steps>
                     <step name="Given I am logged in" status="passed"/>
                     <step name="When pending step" status="skipped">
-                        <error_message><![CDATA[cucumber.api.PendingException: TODO: implement me
-	at com.hpe.alm.octane.MyStepdefs.pending_step(MyStepdefs.java:68)
-	at ✽.pending step(file:src/test/resources/scenarios/stepNotImplemented.feature:5)
+                        <error_message><![CDATA[TODO: implement me
+	com.hpe.alm.octane.MyStepdefs.pending_step(MyStepdefs.java:61)
+	✽.pending step(file:[FILE_ROOT_PATH]src/test/resources/scenarios/stepNotImplemented.feature:5)
 ]]></error_message>
                     </step>
                     <step name="Then another pending step" status="skipped"/>

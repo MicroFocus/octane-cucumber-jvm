@@ -76,7 +76,7 @@ public class OctaneGherkinFormatter implements EventListener {
             testTracker.getCurrentStep().setDuration(event.getResult().getDuration().toMillis());
             testTracker.getCurrentStep().setStatus(getOctaneStatusFromResultStatus(event.getResult().getStatus()));
             if (event.getResult().getError() != null) {
-                testTracker.getCurrentStep().setErrorMessage(event.getResult().getError().getMessage());
+                testTracker.getCurrentStep().setErrorMessage(event.getResult().getError());
             }
         }
     }
