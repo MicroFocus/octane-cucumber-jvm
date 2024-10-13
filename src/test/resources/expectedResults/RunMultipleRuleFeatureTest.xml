@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><features version="1">
-    <feature name="test Feature" path="[ROOT_PATH]src\test\resources\com\hpe\alm\octane\F1\rule.feature" tag="">
+    <feature name="test Feature" path="\\\C:\dev\octane-cucumber-jvm\src\test\resources\com\hpe\alm\octane\F1\rule.feature" tag="">
         <file><![CDATA[Feature: test Feature
   Rule: Must have a test
     Background:
@@ -55,7 +55,7 @@
                     <step name="But test" status="passed"/>
                 </steps>
             </scenario>
-            <scenario name="Table 1 test">
+            <scenario name="Table &lt;id&gt; test" outlineIndex="1">
                 <steps>
                     <step name="Given back1" status="passed"/>
                     <step name="And back1" status="passed"/>
@@ -64,7 +64,7 @@
                     <step name="Then wow" status="passed"/>
                 </steps>
             </scenario>
-            <scenario name="Table 2 test">
+            <scenario name="Table &lt;id&gt; test" outlineIndex="2">
                 <steps>
                     <step name="Given back1" status="passed"/>
                     <step name="And back1" status="passed"/>
