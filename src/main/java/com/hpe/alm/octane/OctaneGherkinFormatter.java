@@ -40,16 +40,16 @@ public class OctaneGherkinFormatter implements EventListener {
     }
 
     private void handleSourceRead(TestSourceRead event) {
-        testSources.addTestSourceReadEvent(event.getUri().getPath(), event);
+        testSources.addTestSourceReadEvent(event.getUri().toString(), event);
     }
 
     private void handleCaseStarted(TestCaseStarted event) {
-        if (testTracker.getCurrentFeature() == null || !testTracker.getCurrentFeature().getPath().equals(event.getTestCase().getUri().getPath())) {
+        if (testTracker.getCurrentFeature() == null || !testTracker.getCurrentFeature().getPath().equals(event.getTestCase().getUri().toString())) {
             FeatureElement feature = new FeatureElement();
-            feature.setPath(event.getTestCase().getUri().getPath());
+            feature.setPath(event.getTestCase().getUri().toString());
             feature.setStarted(Instant.now().toEpochMilli());
-            feature.setFileContent(testSources.getFeatureFileContent(event.getTestCase().getUri().getPath()));
-            feature.setName(testSources.getFeatureName(event.getTestCase().getUri().getPath()));
+            feature.setFileContent(testSources.getFeatureFileContent(event.getTestCase().getUri().toString()));
+            feature.setName(testSources.getFeatureName(event.getTestCase().getUri().toString()));
             for (String tag : event.getTestCase().getTags()) {
                 if (tag.startsWith(Constants.TAG_ID)) {
                     feature.setTag(tag);
