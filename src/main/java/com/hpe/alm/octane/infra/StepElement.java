@@ -1,12 +1,13 @@
 package com.hpe.alm.octane.infra;
 
-import cucumber.api.Result;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import static io.cucumber.plugin.event.Status.SKIPPED;
+
 public class StepElement implements GherkinSerializer {
     private String name;
-    private String status = Result.Type.SKIPPED.lowerCaseName();
+    private String status = SKIPPED.toString().toLowerCase();
     private Long duration = 0L;
     private String errorMessage = "";
 
@@ -18,7 +19,11 @@ public class StepElement implements GherkinSerializer {
         this.name = name;
     }
 
-    public void setErrorMessage(String errorMessage) {
+    public void setErrorMessage(Throwable error) {
+        String errorMessage = error.getMessage();
+        for (StackTraceElement stackTraceElement : error.getStackTrace()) {
+            errorMessage += stackTraceElement.toString();
+        }
         this.errorMessage = errorMessage;
     }
 
@@ -43,7 +48,7 @@ public class StepElement implements GherkinSerializer {
         String duration = this.duration != null ? this.duration.toString() : "0";
         step.setAttribute("duration", duration);
 
-        if(errorMessage != null && !errorMessage.isEmpty()){
+        if (errorMessage != null && !errorMessage.isEmpty()) {
             Element errorElement = doc.createElement(GherkinSerializer.ERROR_MESSAGE_TAG_NAME);
             errorElement.appendChild(doc.createCDATASection(errorMessage));
             step.appendChild(errorElement);

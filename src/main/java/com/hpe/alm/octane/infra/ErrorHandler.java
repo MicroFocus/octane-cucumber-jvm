@@ -1,6 +1,6 @@
 package com.hpe.alm.octane.infra;
 
-import cucumber.runtime.CucumberException;
+import io.cucumber.core.exception.CucumberException;
 
 public class ErrorHandler {
 

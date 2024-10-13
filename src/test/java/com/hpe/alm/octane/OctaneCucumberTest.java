@@ -1,7 +1,7 @@
 package com.hpe.alm.octane;
 
 import com.hpe.alm.octane.infra.Constants;
-import cucumber.api.junit.Cucumber;
+import io.cucumber.junit.Cucumber;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.notification.RunNotifier;
@@ -41,6 +41,11 @@ public class OctaneCucumberTest {
     test(RunCucumberCustomResultsFolder.class, "a/b/");
   }
 
+  @Test
+  public void testRunMultipleRuleFeatureTest() throws IOException, InitializationError {
+    test(RunMultipleRuleFeatureTest.class);
+  }
+
   private void test(Class classToTest) throws IOException, InitializationError {
     test(classToTest, "");
   }
@@ -61,6 +66,9 @@ public class OctaneCucumberTest {
       FileReader fileReader = new FileReader(resource.getFile());
       BufferedReader expectedResultFileReader = new BufferedReader(fileReader);
       expectedXml = expectedResultFileReader.lines().collect(Collectors.joining());
+      //TODO - IS THIS CORRECT?!!
+      expectedXml = expectedXml.replace("[ROOT_PATH]","\\\\\\C:\\dev\\octane-cucumber-jvm\\");
+      expectedXml = expectedXml.replace("[FILE_ROOT_PATH]","///C:/dev/octane-cucumber-jvm/");
     }
 
     BufferedReader actualResultFileReader = new BufferedReader(new FileReader(Constants.RESULTS_FOLDER + "/" + subFolder + resultFileName));
